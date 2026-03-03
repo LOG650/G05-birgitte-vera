@@ -102,7 +102,7 @@ Den kvantitative analysen gjennomføres ved hjelp av Claude Code CLI, med gruppe
 ### 3.4 Arbeidsnedbrytningsstruktur (WBS)
 
 **Fase 1 – Initiering:**
-Definisjon av problemstilling knyttet til sirkulærøkonomi og recommerce hos Modino. Presentasjon av målfunksjon for netto dekningsbidrag og identifisering av enhets- og kostnadsvariabler modellen trenger.
+Definisjon av problemstilling knyttet til sirkulærøkonomi og recommerce hos Modino, og identifisering av enhets- og kostnadsvariabler som grunnlag for klassifiseringsmodellen.
 *Leveranse: Godkjent problemstilling*
 
 **Fase 2 – Planlegging:**
@@ -123,7 +123,7 @@ Kvalitetssikring og ferdigstillelse av forskningsrapporten, samt forberedelse og
 
 ### 4.1 Gantt-plan
 
-Gantt-diagrammet er under utarbeidelse av Birgitte og Vera og vil visualisere prosjektets oppgaver over tid, vise hvordan aktivitetene henger sammen, og gjøre det enklere å planlegge arbeidsflyten og følge fremdriften. Diagrammet utarbeides i MS Project.
+Gantt-diagrammet er utarbeidet i MS Project og dokumenterer prosjektets oppgaver, tidsplan og avhengigheter. Se egen MS Project-fil for detaljer.
 
 ### 4.2 Kritisk sti
 

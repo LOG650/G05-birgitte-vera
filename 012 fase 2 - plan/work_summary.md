@@ -40,11 +40,17 @@ Valg av algoritme (f.eks. logistisk regresjon, decision tree eller random forest
 | **3.1 – Mål** | Målet er endret fra "optimalisere livssyklusen" til å utvikle og evaluere en klassifiseringsmodell. Begrensning lagt til: ikke en full optimaliseringsmodell. |
 | **3.2 – Krav** | Krav til modellen er endret til 3-klasse klassifisering (A/B/C) basert på enhetsattributter og reparasjonskostnader. Variabellisten er kortet ned. |
 | **3.3 – Løsning** | Løsningen er omskrevet til supervised learning klassifisering. "Beslutningsrammeverk" erstattet med "Prioriteringslogikk". Evalueringsrammeverk justert til klassifiseringsmetrikker (accuracy, precision, recall). |
+| **3.4 – WBS** | "Målfunksjon"-terminologi fjernet fra Fase 1-beskrivelsen. |
+| **4.1 – Gantt** | Forkortet til én setning med referanse til MS Project-fil. Unngår duplisering av innhold. |
 
 ---
 
-## Gjenstående arbeid i V2
+## Status
 
-- [ ] Seksjon 3.4 – WBS: Fjerne "målfunksjon"-terminologi fra Fase 1
-- [ ] Seksjon 4.1 – Gantt: Forkorte til referanse til MS Project-fil
+- [x] Seksjon 1 – Sammendrag
+- [x] Seksjon 3.1 – Mål
+- [x] Seksjon 3.2 – Krav
+- [x] Seksjon 3.3 – Løsning
+- [x] Seksjon 3.4 – WBS
+- [x] Seksjon 4.1 – Gantt
 - [ ] Partnergodkjenning av V2 før den eventuelt erstatter originalfilen
