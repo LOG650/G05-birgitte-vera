@@ -53,4 +53,25 @@ Valg av algoritme (f.eks. logistisk regresjon, decision tree eller random forest
 - [x] Seksjon 3.3 – Løsning
 - [x] Seksjon 3.4 – WBS
 - [x] Seksjon 4.1 – Gantt
-- [ ] Partnergodkjenning av V2 før den eventuelt erstatter originalfilen
+- [x] Partnergodkjenning av V2 – filen er nå gjeldende versjon (omdøpt til Prosjektstyringsplan_G05.md)
+
+---
+
+## Oppdatering – 2026-03-05
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Endringer i Prosjektstyringsplan_G05.md
+
+| Seksjon | Endring |
+|---------|---------|
+| **1 – Sammendrag** | Lagt til setning om at konkret definisjon av økt lønnsomhet fastsettes etter mottak av Modinos data. |
+| **3.2 – Krav** | Lagt til kvantitativt ytelseskrav: modellen skal oppnå minimum 80 % nøyaktighet. Øvrige ytelseskrav fastsettes i fase 3. |
+
+### Filstruktur og versjonskontroll
+
+- Prosjektstyringsplan_G05_V2.md omdøpt til Prosjektstyringsplan_G05.md (gjeldende versjon)
+- Prosjektstyringsplan_G05.md (tidligere V1) flyttet til 000 templates/Obsolete/ og omdøpt til Prosjektstyringsplan_G05_v1.md
+- Mappe Obsolete opprettet under 000 templates for arkiverte filer
+- Litteraturkilder (11 PDF-er og 1 Word-dokument) lastet opp til 003 references/Litteratur/
+- Gantt-fil (Prosjekt_GANTT_G05.mpp) lastet opp til 012 fase 2 - plan/
