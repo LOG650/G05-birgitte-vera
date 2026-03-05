@@ -47,6 +47,8 @@ Modellen klassifiserer innkommende enheter i én av tre lønnsomhetsklasser:
 
 Klassifiseringen kobler prediksjon direkte til kanalvalg og lønnsomhet, og gir et konkret grunnlag for prioritering av tekniker- og testressurser.
 
+Den konkrete definisjonen av *økt lønnsomhet* fastsettes etter mottak av Modinos data, slik at målsettingen forankres direkte i bedriftens egne tall og forutsetninger.
+
 ---
 
 ## 2. Behov
