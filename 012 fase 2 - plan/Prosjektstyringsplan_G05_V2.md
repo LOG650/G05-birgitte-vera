@@ -84,6 +84,7 @@ Krav for at prosjektet skal anses som vellykket:
 - Verktøyene Claude Code CLI, Python og Excel benyttes strukturert og konsistent.
 - Resultater dokumenteres transparent med tydelige forutsetninger og avgrensninger.
 - Problemstillingen er operasjonaliserbar, og det er klar sammenheng mellom resultater og konklusjoner.
+- Modellen skal oppnå en nøyaktighet på minimum 80 %. Øvrige ytelseskrav fastsettes etter gjennomgang av datagrunnlaget i fase 3.
 
 ### 3.3 Løsning
 
