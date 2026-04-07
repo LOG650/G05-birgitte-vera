@@ -57,6 +57,72 @@ Valg av algoritme (f.eks. logistisk regresjon, decision tree eller random forest
 
 ---
 
+## Oppdatering – 2026-04-07
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Gjennomgang av prosjektmappen
+
+Claude Code CLI leste igjennom hele G05-birgitte-vera-mappen (unntatt Thesis Birgitte) for å få full oversikt over prosjektstatus ved oppstart av fase 3.
+
+### 20-dagers fremdriftsplan
+
+Det ble utarbeidet en detaljert plan frem mot innlevering av utkast til rapport **27. april 2026**. Planen dekker:
+
+- Uke 1 (7.–13. april): Datarensing og teoriskriving parallelt
+- Uke 2 (14.–20. april): Modelltrening, evaluering og rapportskriving
+- Uke 3 (21.–27. april): Ferdigstilling av rapportutkast og innlevering
+
+Foreslått oppgavefordeling: Birgitte tar datarensing, datagrunnlag og innledning/diskusjon. Vera tar metode, modellering og resultater.
+
+### Datarensing og sammenslåing (Steg 1–3)
+
+Data mottatt fra Modino AS ble utforsket og renset ved hjelp av Python-skriptet `clean_data.py` (lagret i 004 data/).
+
+**Datagrunnlag:**
+
+| Fil | Innhold |
+|-----|---------|
+| InspectedDeviceREport.xlsx | Inspeksjonsdata, 2 ark: 2024 (45 720 rader) og 2025 (58 318 rader) |
+| Z_BBTI_IMEI_TRACK_2024_01/02.txt | SAP-salgsdata 2024 (41 808 rader totalt) |
+| Z_BBTI_IMEI_TRACK_2025_01/02/03.txt | SAP-salgsdata 2025 (52 773 rader totalt) |
+
+**Steg 1 – IMEI-validering (fjernet dummies):**
+
+| Årsak til fjerning | 2024 | 2025 |
+|--------------------|------|------|
+| Null IMEI | 3 | 0 |
+| Feil lengde (ikke 15 sifre) | 7 | 7 |
+| Dummy-mønster (alle like sifre e.l.) | 0 | 0 |
+| Luhn-algoritme-feil | 34 | 444 |
+| **Gjenstår** | **45 676** | **57 867** |
+
+Valideringsmetode: 15-sifret lengdesjekk + Luhn-algoritmen (bransjestandardvalidering av IMEI).
+
+**Steg 2 – Gradering 2024:**
+
+- Grade-verdiene A–F er konsistente i begge år og ble beholdt uendret.
+- Transaction Type standardisert til lowercase for 2024 (inkonsistent stor/liten bokstav i kildedata, f.eks. `"Swap-in"` → `"swap-in"`).
+
+**Steg 3 – Matching og basisfil:**
+
+- Excel-data (begge år) matchet mot alle SAP-filer på IMEI-nummer.
+- 35 053 rader fikk SAP-match; 69 455 rader hadde ingen SAP-match (forventet – ikke alle innleverte enheter selges gjennom nettbutikk).
+- 7 863 rader har avvikende grade mellom Excel (inspeksjonsgrad) og SAP (salgsgrad) – flagget i kolonnen `grade_mismatch_flag`.
+
+**Output:**
+
+Renset basisfil lagret som `cleansed_baseline.xlsx` i 004 data/ med tre faner:
+- `cleansed_baseline` – 104 508 rader med Excel + SAP-data kombinert
+- `rensing_statistikk` – oversikt over hva som ble fjernet
+- `grade_oversikt` – gradefordeling per år
+
+### Åpent spørsmål
+
+Hvilken grade skal brukes som målvariabel i modellen – inspeksjonsgraden (Excel, ved mottak) eller salgsgraden (SAP, etter reparasjon)? Dette må avklares med Vera og eventuelt faglærer før modellering starter.
+
+---
+
 ## Oppdatering – 2026-03-05
 
 **Utarbeidet av:** Birgitte (med Claude Code CLI)
