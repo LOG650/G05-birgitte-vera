@@ -141,3 +141,61 @@ Renset basisfil lagret som `cleansed_baseline.xlsx` i 004 data/ med tre faner:
 ### Åpent spørsmål
 
 Hvilken grade skal brukes som målvariabel i modellen – inspeksjonsgraden (Excel, ved mottak) eller salgsgraden (SAP, etter reparasjon)? Dette må avklares med Vera og eventuelt faglærer før modellering starter.
+
+---
+
+## Oppdatering – 2026-04-17
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Dataeksplorasjon og profilering
+
+Gjennomførte en fullstendig dataprofilering av `InspectedDeviceREport.xlsx` (begge ark) og de 5 SAP-filene:
+
+- Kartlagt alle kolonner, datatyper, antall rader, andel manglende verdier per kolonne, fordeling av kategoriske variabler og statistisk oppsummering av numeriske variabler.
+- Identifiserte at 6 kolonner er 100 % tomme i begge ark (SerialNumber, Asset ID, IncidentDate, DamageReason, DamageReasonList, Deductible).
+- `Inspected Device Value`, `RepairValue` og datofelt er lagret som streng (norsk kommaformat) og må konverteres ved modellering.
+
+### Sammenslåing av Excel og SAP-data
+
+Mergede `InspectedDeviceREport.xlsx` med de 5 SAP-filene på IMEI-nøkkel (left join). 2024 og 2025 holdt adskilt.
+
+| Ark | Excel-rader | SAP-rader (input) | Rader etter merge | SAP-match |
+|-----|-------------|-------------------|-------------------|-----------|
+| 2024 | 45 720 | 41 808 | 46 100 | 41 881 (90.8%) |
+| 2025 | 58 318 | 52 773 | 58 766 | 52 793 (89.8%) |
+
+Økning i radantall skyldes at noen IMEI-er matcher flere SAP-rader (én enhet fakturert flere ganger). Alle SAP-kolonner fikk prefiks `sap_` for å skille fra Excel-kolonner. Rådata er ikke endret.
+
+**Output:** `merged_data_modino.xlsx` (lagret i 004 data/, to ark: 2024 og 2025, 69 kolonner per ark)
+
+### Mappestruktur – 004 data
+
+- Råfiler (InspectedDeviceREport.xlsx og alle .txt-filer) flyttet til `004 data/obsolete data/`
+- `merged_data_modino.xlsx` er nå eneste arbeidsfil i `004 data/`
+
+### Duplikatanalyse
+
+Kartla omfang og type duplikater i `merged_data_modino.xlsx`. Ingen data er slettet – avventer avklaring med datakilde.
+
+| Type duplikat | 2024 | 2025 |
+|---|---|---|
+| Helt identiske rader | 0 | 4 |
+| Duplikate Transaction ID | 598 rader / 218 ID-er | 770 rader / 318 ID-er |
+| Duplikate IMEI | 703 rader / 232 IMEI-er | 1 228 rader / 319 IMEI-er |
+| Duplikate IMEI + Transaction Type | 655 rader | 1 215 rader |
+| Duplikate IMEI + SAP-fakturanr | 146 rader / 52 kombi. | 40 rader / 13 kombi. |
+| IMEI-dup kun fra SAP-siden | 105 rader | 458 rader |
+
+Tre typer identifisert:
+- **Type A** – Én IMEI → flere SAP-rader (konsekvens av left join, avklares med kilde)
+- **Type B** – Duplikate Transaction ID-er (mulig retur/re-inspeksjon eller feilregistrering)
+- **Type C** – Helt identiske rader (4 rader i 2025, trygge å slette)
+
+Funn dokumentert i `004 data/duplikat_analyse.md`.
+
+### Åpne spørsmål
+
+- Avklar med datakilde: kan én IMEI ha flere SAP-transaksjoner legitimt, og hvilken skal beholdes?
+- Avklar med datakilde: kan Transaction ID forekomme flere ganger legitimt (retur/re-inspeksjon)?
+- Godkjenn sletting av 4 helt identiske rader i 2025-arket.
