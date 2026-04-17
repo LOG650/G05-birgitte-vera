@@ -199,3 +199,12 @@ Funn dokumentert i `004 data/duplikat_analyse.md`.
 - Avklar med datakilde: kan én IMEI ha flere SAP-transaksjoner legitimt, og hvilken skal beholdes?
 - Avklar med datakilde: kan Transaction ID forekomme flere ganger legitimt (retur/re-inspeksjon)?
 - Godkjenn sletting av 4 helt identiske rader i 2025-arket.
+
+### Rapportmal konvertert til Markdown
+
+Konverterte `000 templates/Mal prosjekt LOG650 v2.docx` til Markdown ved hjelp av python-docx. Originalfilen er uendret. Markdown-versjonen er lagret som `005 report/Mal prosjekt LOG650 v2.md` med bevarte overskrifter (Heading 1 → #, Heading 2 → ##), tabeller og lister.
+
+### Git
+
+- `.gitignore` opprettet: `004 data/` er ekskludert fra versjonskontroll (sensitiv informasjon).
+- Pushet til main: `work_summary.md`, `.gitignore` og `005 report/Mal prosjekt LOG650 v2.md`.
