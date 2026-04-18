@@ -241,3 +241,91 @@ Innholdet fra `005 report/metodeseksjon_G05_v2-2.md` ble satt inn og erstatter m
 ### Git
 
 - Committet og pushet til main: `005 report/Mal prosjekt LOG650 v2.md` (552 innsettinger, 95 slettinger).
+
+---
+
+## Oppdatering – 2026-04-18 (session 2)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Dataeksplorasjon – Modino data
+
+Leste og analyserte alle 6 filer i `004 data/Modino data/`:
+
+| Fil | Innhold | Rader |
+|-----|---------|-------|
+| `InspectedDeviceREport.xlsx` | Inspeksjonsdata (ark: 2024, 2025) | 104 038 |
+| `Z_BBTI_IMEI_TRACK_2024_01.txt` | SAP-salgsdata | 18 500 |
+| `Z_BBTI_IMEI_TRACK_2024_02.txt` | SAP-salgsdata | 23 308 |
+| `Z_BBTI_IMEI_TRACK_2025_01.txt` | SAP-salgsdata | 23 139 |
+| `Z_BBTI_IMEI_TRACK_2025_02.txt` | SAP-salgsdata | 22 544 |
+| `Z_BBTI_IMEI_TRACK_2025_03.txt` | SAP-salgsdata | 7 090 |
+
+**Korrelasjonsanalyse:** IMEI er join-nøkkelen mellom de to datasettene. ~100 % av SAP-IMEI-ene finnes i xlsx. xlsx = enheter inn (inspeksjon ved innbytte), SAP = enheter ut (salg). Datasettet representerer hele livssyklusen til én enhet.
+
+### TeleOutlet-graderingssystem
+
+Kartlagt graderingssystemet på teleoutlet.no:
+
+| Grad | Batteri | Tilstand |
+|------|---------|----------|
+| Premium | 100 % | Ny i original emballasje |
+| A | >90 % | Ser ut som ny, ingen synlige riper |
+| B | >85 % | Minimal slitasje på skjerm/bakdeksel |
+| C | >80 % | Kosmetisk slitasje, påvirker ikke bruk |
+| D | >80 % | Synlige riper og bulker, kun utseende |
+
+Mapping til prosjektets datalag: inspeksjonsgrad A–F (xlsx) → SAP-produktkode 2nd-A/B/C → TeleOutlet-salgsgrad Premium/A/B/C/D. Inspeksjonsgrad E og F har ingen tilsvarende TeleOutlet-grad og representerer BER/reservedeler.
+
+**BER-funn:** Modino mottar enheter som er BER. Grade E og F utgjør ~10 % av innkommende enheter. Disse selges til reservedelskjøpere (bl.a. Foxway OÜ i Estland og Concord Service Center i Romania) til delpriser (€10–30), ikke til TeleOutlet-nettbutikken.
+
+### Personopplysninger og anonymisering
+
+Kartlagt hvilke kolonner som inneholder personopplysninger:
+
+- **Slettet fra xlsx:** `EmailID`, `SerialNumber`, `Asset ID`, `Box ID`, `Transaction ID`, `Evidence`, alle `Repaired/Replaced*`-kolonner, `IncidentDate`, `Deductible`, `DamageReasonList`, `DamageReason`
+- **Slettet fra SAP:** `ship_name`, `ship_street`, `ship_post`, `bill_name`, `bill_street`, `bill_city`, `bill_post`, `bill_country`
+- **IMEI:** Erstattet med anonymt løpende `device_id` etter join
+- **Butikknavn:** Beholdes foreløpig i klartekst – avklares med Modino om de skal anonymiseres
+
+### Sammenslåing til én CSV-fil
+
+Alle 6 kildefiler merget til `004 data/modino_merged.csv` via følgende steg:
+
+1. Lastet xlsx (begge ark) og stablet vertikalt
+2. Lastet og stablet alle 5 SAP txt-filer
+3. Renset SAP: fjernet nettbrett (iPad/Tab), beholdt kun vbtyp 5 og M, fjernet personopplysninger
+4. Slått sammen `turn` (B2B) og `turn_iv01` (retail) til én `revenue`-kolonne
+5. Left join fra SAP til xlsx på IMEI → 100 % match
+6. Erstattet IMEI med `device_id`
+7. Fylt `InspectedFaults`-null med `"Ingen feil"` og `QuotedFaults`-null med `"Ingen"`
+8. Fjernet 15 rader med logisk inkonsistente datoer (inspeksjonsdato > salgsdato + 1 år)
+
+**Resultat:** `modino_merged.csv` – 94 098 rader, 29 kolonner, 33,6 MB
+
+| Kolonne | Kilde | Beskrivelse |
+|---------|-------|-------------|
+| `device_id` | Generert | Anonym enhets-ID |
+| `matnr` / `maktx` | SAP | Produktkode og -beskrivelse (inneholder salgskategori 2nd-A/B/C) |
+| `erdat` / `fkdat` | SAP | Opprettelses- og faktureringsdato |
+| `prctr` | SAP | Profit center (60121=Norge) |
+| `revenue` / `revenue_waers` | SAP | Omsetning (kombinert turn + turn_iv01) |
+| `vat` / `cost` | SAP | MVA og kostpris |
+| `vbtyp` | SAP | Transaksjonstype: 5=retail, M=B2B |
+| `kunnr` / `name1` | SAP | Kundebedrift |
+| `ship_city` / `ship_country` | SAP | Leveringsby og -land |
+| `Transaction Type` / `Channel` | xlsx | Innbyttetype og -kanal |
+| `Device Model` | xlsx | Modellnavn fra inspeksjon |
+| `Grade` | xlsx | **Inspeksjonsgrad A–F** (nøkkelvariabel/feature) |
+| `Inspected Device Value` | xlsx | Estimert verdi ved innbytte |
+| `Inspected Date` | xlsx | Inspeksjonsdato |
+| `StoreName` / `DealerId` | xlsx | Butikknavn og forhandler-ID |
+| `InspectedFaults` / `QuotedFaults` | xlsx | Feil funnet / oppgitt av kunde |
+
+### Viktige observasjoner for fase 3
+
+- **Datoperiode:** Filen inneholder data fra 2022–2026. Prosjektscopet er 2024–2025 – filtrer på `erdat` ved ML-trening.
+- **Estland (EE):** 38 845 enheter sendt til Foxway OÜ (stor europeisk recommerce-aktør) – alle B2B. Disse representerer trolig Klasse B i modellen.
+- **602 duplikate enheter:** Samme IMEI registrert fra to ulike kanaler i xlsx (832 ekstra rader). Avklar hvilken inspeksjonsrad som skal beholdes før modelltrening.
+- **Nullverdier som gjenstår:** `Inspection Color` (2 569), `DealerId` (2 571), `Transaction Type` (1 194), `Device Category` (976) – alle under 3 %, håndteres i fase 3.
+- **`Inspected Device Value = 0`:** 931 rader, hvorav 915 er Grade F. Korrekt – BER-enheter har ingen innbytteverdi.
