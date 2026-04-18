@@ -208,3 +208,36 @@ Konverterte `000 templates/Mal prosjekt LOG650 v2.docx` til Markdown ved hjelp a
 
 - `.gitignore` opprettet: `004 data/` er ekskludert fra versjonskontroll (sensitiv informasjon).
 - Pushet til main: `work_summary.md`, `.gitignore` og `005 report/Mal prosjekt LOG650 v2.md`.
+
+---
+
+## Oppdatering – 2026-04-18
+
+**Utarbeidet av:** Vera (med Claude Code CLI)
+
+### Rapportmal fylt ut med innledning, teori og metode
+
+Tre hoveddeler ble skrevet inn i `005 report/Mal prosjekt LOG650 v2.md`, som erstatter malens veiledningstekster med faktisk rapportinnhold:
+
+**Kapittel 1 – Innledning (nyskrevet)**
+
+Innledningen ble skrevet basert på prosjektets proposal (`011 fase 1 - proposal/Proposal.md`) og teorien som allerede var utarbeidet. Inkluderer:
+
+- Introduksjon fra generelt tema (sirkulærøkonomi, recommerce) til spesifikt problem (Modinos klassifiseringsutfordring)
+- Referanser til nøkkellitteratur (Ferguson et al., Guide & Van Wassenhove, Ibrahim & Abdul-Kader, Govindan et al.)
+- Rapportens struktur (kapitteloversikt)
+- **1.1 Problemstilling:** «Hvordan kan en AI-basert klassifiseringsmodell forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS?» med to operasjonaliserte delproblemer (klassifiseringsnøyaktighet og lønnsomhetseffekt)
+- **1.2 Avgrensninger:** Geografisk (Norge), tidsperiode (2024–2025), produktkategori (mobilenheter) og beslutningsomfang
+- **1.3 Antagelser:** Historiske utfall reflekterer lønnsomhet; stabile markedsforhold
+
+**Kapittel 2 – Teori og litteratur (satt inn fra ferdig utkast)**
+
+Innholdet fra `005 report/teoridel_G05_v3-2.md` ble satt inn og erstatter malens Litteratur- og Teori-plassholdere. Dekker tre pilarer: sirkulærøkonomi og recommerce (2.1), beslutningsstøtte og verdifall (2.2), og maskinlæring og klassifisering (2.3), med oppsummering og kobling til problemstilling (2.4).
+
+**Kapittel 3 – Data og metode (satt inn fra ferdig utkast)**
+
+Innholdet fra `005 report/metodeseksjon_G05_v2-2.md` ble satt inn og erstatter malens Metode og data-plassholder. Dekker forskningsdesign (3.1), datagrunnlag (3.2), datarensing og feature engineering (3.3), analysemetode og modellvalg (3.4) og evalueringsrammeverk (3.5).
+
+### Git
+
+- Committet og pushet til main: `005 report/Mal prosjekt LOG650 v2.md` (552 innsettinger, 95 slettinger).
