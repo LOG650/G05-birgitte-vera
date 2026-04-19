@@ -652,68 +652,272 @@ Turkolmez, G. B., El Hathat, Z., Subramanian, N., Kuppusamy, S., & Sreedharan, V
 Zheng, A., & Casari, A. (2018). *Feature engineering for machine learning*. O'Reilly Media.
 
 Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). SAGE Publications. [Brukes kun som kontrast i avsnitt 3.1.1 – ikke primærkilden for designvalget]
-# Modellering
+# 5. Modellering
 
-# Analyse
-Hvordan skrive bacheloroppgave etter at metodedelen er laget? Jo, du lager en analyse!
-Dette er siste bit før du kan presentere selve resultatene av studiene. Du kan velge mellom forskjellige metoder, nemlig:
+Dette kapittelet beskriver den matematiske formuleringen av klassifiseringsproblemet og modellstrukturen som benyttes. Evalueringsmetrikker er beskrevet i avsnitt 3.5.
 
-- Kvalitativ metode (intervju eller lignende)
-- Kvantitativ metode
-- Dokumentanalyse
+## 5.1 Problemformulering
 
-Prat gjerne med veilederen din om du er usikker på hvilken metode som er best for akkurat din problemstilling.
+Klassifiseringsproblemet formuleres som følger: gitt en innkommende brukt mobilenhet beskrevet av en feature-vektor **x** = (x₁, x₂, …, xₚ), prediker den tilhørende lønnsomhetsklassen y ∈ {A, B, C}, der:
 
-# Resultat
-Den kanskje viktigste delen når du skal skrive en bacheloroppgave, er resultatdelen. Her beskriver du alle funnene som er gjort i analyser og studier.
+- **Klasse A:** Enhet lønnsom å reparere og selge i nettbutikk
+- **Klasse B:** Enhet kanaliseres til B2B eller reservedeler
+- **Klasse C:** Enhet klassifiseres som BER og avhendes
 
-Det er viktig at du presenterer resultatene på en klar og tydelig måte – gjerne ved bruk av tabeller og figurer.
-Noen viktige punkter:
+Modellen lærer en funksjon f: **x** → y fra historiske data der utfallet er kjent, slik at den kan predikere klassen for nye, ukjente enheter (James et al., 2021).
 
-Dersom dette er et eget kapittel så skal dere her kun presentere resultatene i form av tabeller og/eller figurer.
-Tabeller: Oppsummerte resultater
-Resultatene er direkte linket til forskningsspørsmålet!
-Dersom det ikke er det så er det to alternativer:
-Kjør analysene på nytt i henhold til forskningsspørsmålet
-Endre forskningsspørsmålet slik at det er samsvar med analysene
-NB: En forklarende tekst for hver tabell og hver figur!
-Som regel kommer teksten før tabellen/figuren, men noen ganger etter og noen ganger litt tekst først og litt etter tabellen/figuren.
-Dere vil synes at det er overflødig med forklarende tekst, men det må gjøres og kun det som dere ser: en objektiv presentasjon.
+## 5.2 Decision Tree (baseline)
 
-# Diskusjon
-I diskusjonsdelen skal du diskutere de forskjellige funnene du har gjort. Her skal du blant annet inkludere en kritisk metodediskusjon, der du vurderer om metoden din var riktig.
-Diskuter hvor pålitelige funnene dine er, om de er generaliserbare og eventuelle svakheter. Forklar også hvorvidt studiet har gitt ny teoretisk innsikt, og om hypoteser kan avkreftes.
+Et beslutningstre (Quinlan, 1986) partisjonerer feature-rommet rekursivt gjennom binære splitter som minimerer Gini-indeksen:
 
-Noen viktige punkter:
+```
+Gini(t) = 1 − Σ p(k|t)²    for k ∈ {A, B, C}
+```
 
-Her skal resultatene diskuteres
-Studenter blander ofte sammen diskusjon og resultater...
-Her skal dere kommentere de resultatene som dere har funnet
-Er dette som forventet?
-Uventede funn? Hvis ja hvordan kan dere forklare dette
-Stemmer deres resultater med forskningslitteraturen?
-Hvis ikke, hvorfor ikke? Og det kan være bra!
-Hvis ja, kan dere henvise til forskningslitteraturen for å understøtte deres resultater
-Resultatene diskuteres opp mot problemstillingen!•Har dere fått svar på forskningsspørsmålet?
-Hvilken betydning for næringslivet?
-Anbefales som eget punkt i diskusjonen (dette er et viktig punkt i oppgaven)
-Hva medfører deres resultater for næringslivet/bedriften?
-Hvilke endringer bør bedriften/næringslivet gjøre?
-Mulig å generalisere?
-Ta med begrensinger/svakheter i oppgaven
-Ikke overfokuser på dette punktet men vær ærlige
+der p(k|t) er andelen observasjoner i node t som tilhører klasse k. Ved hver node velges den splitten (variabel og terskelverdi) som gir størst reduksjon i Gini-indeksen. Prosessen gjentas til et stoppkriterium er nådd. Basismodellen benyttes uten regularisering for å etablere et referansepunkt for mer avanserte modeller.
 
-# Konklusjon
+## 5.3 Random Forest (primærmodell)
 
-I oppgavens konklusjon oppsummerer du hovedfunn sett i forhold til problemstilling.
-Avslutt gjerne med spørsmål til videre forskning, og del personlige refleksjoner du eventuelt måtte ha.
+Random Forest (Breiman, 2001) er et ensemble av B beslutningstrær der hvert tre trenes på et bootstrap-utvalg av treningssettet. Ved hver splitt velges den beste variabelen blant et tilfeldig utvalg av √p variabler (der p er totalt antall features). Den endelige prediksjonen bestemmes av majoritetsstemme:
 
-Hva er det viktigste dere har funnet?
-Konkludere i henhold til oppgavens problemstilling. Ofte begynner en konklusjon med å gjenta forskningsspørsmålet:
-«I denne oppgaven har analysert/redegjort for...».
-«Hovedfunnene i oppgaven viser at ....»
-«På tross av de svakhetene som oppgaven har er det indikasjoner om at ...»
-I konklusjonen blir det ofte litt gjentagelse fra diskusjon/resultat men det er helt greit. Her skal dere dra frem de viktigste funnene og hvilken betydning det har for deres case.
+```
+ŷ = mode{T₁(x), T₂(x), …, T_B(x)}
+```
+
+der Tᵢ(x) er prediksjonen fra tre i. Denne randomiseringen reduserer variansen sammenlignet med et enkelt beslutningstre og gjør modellen robust mot overfitting (Hastie et al., 2009).
+
+Antall trær (B), trédybde og øvrige hyperparametere optimeres via GridSearchCV med 5-fold kryssvalidering på treningssettet (søkerom beskrevet i avsnitt 3.4.4). Ved klasseimbalanse kan `class_weight='balanced'` benyttes, som vekter hver klasse omvendt proporsjonalt med dens frekvens:
+
+```
+wₖ = n / (K × nₖ)
+```
+
+der n er totalt antall observasjoner, K = 3 er antall klasser, og nₖ er antall observasjoner i klasse k. For en klasse som utgjør 14,8 % av datasettet innebærer dette omtrent dobbel vekt sammenlignet med en klasse på 43,5 %, slik at modellen ikke favoriserer majoritetsklassene. Valget mellom vektet og uvektet modell avgjøres empirisk som del av hyperparameteroptimeringen.
+
+Random Forest produserer i tillegg feature importance-verdier basert på gjennomsnittlig Gini-reduksjon: for hver variabel summeres den totale reduksjonen i Gini-indeksen over alle splitter i alle trær, og normaliseres slik at summen er 1,0. Dette gir innsikt i hvilke enhetsattributter som driver klassifiseringen.
+
+## 5.4 Gradient Boosting (reservemodell)
+
+Dersom Random Forest ikke oppnår minimumskravet på 80 % accuracy (jf. avsnitt 3.5.1), benyttes Gradient Boosting (XGBoost/LightGBM) som alternativ. Gradient Boosting bygger trær sekvensielt der hvert nytt tre korrigerer feilene fra de foregående, noe som kan gi høyere nøyaktighet på bekostning av tolkbarhet. Metoden inkluderes som reservemodell, ikke primærmodell, av to grunner: (1) Random Forests direkte feature importance-verdier er viktige for kommunikasjon av resultater til Modinos ledelse, og (2) sekvensiell trening gjør Gradient Boosting mer utsatt for overfitting på datasett med begrenset variasjon, og krever mer omfattende hyperparametertuning (learning rate, antall trær, trédybde) for å unngå dette.
+
+---
+
+# 6. Analyse
+
+Analysen gjennomføres som en kvantitativ, supervised learning klassifiseringsanalyse. Dette kapittelet beskriver de konkrete analysestegene fra klargjort datasett til evaluert modell.
+
+## 6.1 Datagrunnlag og klassefordeling
+
+Etter datarensing og sammenslåing av inspeksjonsdata og SAP-data bestod det endelige datasettet av **94 096 observasjoner** med 29 kolonner. Inspeksjonsgraden (Grade A–F) ble mappet til tre lønnsomhetsklasser i tråd med prosjektets klassifiseringssystem:
+
+**Tabell 6.1: Mapping fra inspeksjonsgrad til lønnsomhetsklasse**
+
+| Inspeksjonsgrad | Lønnsomhetsklasse | Antall | Andel |
+|---|---|---|---|
+| A, B | Klasse A – Nettbutikk | 40 929 | 43,5 % |
+| C | Klasse B – B2B / reservedeler | 39 271 | 41,7 % |
+| D, E, F | Klasse C – BER / avhend | 13 896 | 14,8 % |
+
+*Tabell 6.1: Mapping fra 6 inspeksjonsgrader til 3 lønnsomhetsklasser. Klasse C utgjør under 20 % av datasettet, noe som indikerer klasseimbalanse. Egenprodusert.*
+
+Klasse C utgjør 14,8 % av datasettet. Denne klasseimbalansen ble håndtert med `class_weight='balanced'` i Random Forest, som vekter minoritetsklassen høyere under trening.
+
+## 6.2 Feature engineering
+
+Totalt 11 features ble konstruert for modellering. Numeriske variabler i norsk tallformat (tusenskilletegn med mellomrom, komma som desimaltegn) ble konvertert til float. Tre avledede variabler ble beregnet:
+
+**Tabell 6.2: Feature-oversikt**
+
+| Feature | Type | Beskrivelse |
+|---|---|---|
+| revenue | Numerisk | Salgsinntekt per enhet (NOK) |
+| cost | Numerisk | Kostnad per enhet (NOK) |
+| Inspected Device Value | Numerisk | Estimert markedsverdi ved inspeksjon (NOK) |
+| Device Category | Numerisk | Enhetskategori (1–3) |
+| kostnadsforhold | Avledet | cost / Inspected Device Value |
+| margin | Avledet | revenue − cost |
+| revenue_cost_ratio | Avledet | revenue / cost |
+| dager_inspeksjon_til_faktura | Avledet | Gjennomløpstid fra inspeksjon til fakturering (dager) |
+| Transaction Type_enc | Target-enkodet | Transaksjonstype (21 unike verdier) |
+| brand_enc | Target-enkodet | Merke (18 unike verdier) |
+| Inspection Color_enc | Target-enkodet | Farge (240 unike verdier) |
+
+*Tabell 6.2: Endelig feature-oversikt. Kategoriske variabler med kardinalitet > 10 ble target-enkodet. Alle numeriske features ble skalert med StandardScaler. Egenprodusert.*
+
+## 6.3 Train/test-split
+
+Datasettet ble delt i et treningssett (80 %, 75 276 rader) og et testsett (20 %, 18 820 rader) ved hjelp av stratifisert splitting (`random_state=42`). Klassefordelingen ble bekreftet identisk i begge sett (A: 43,5 %, B: 41,7 %, C: 14,8 %).
+
+## 6.4 Modelltrening
+
+Tre modeller ble trent og evaluert:
+
+1. **Decision Tree** (baseline) med default parametere
+2. **Random Forest** med default parametere
+3. **Random Forest (optimert)** via GridSearchCV med 5-fold kryssvalidering på treningssettet
+
+Hyperparameteroptimeringen søkte gjennom 72 kombinasjoner (3 × 4 × 3 × 2) av `n_estimators`, `max_depth`, `min_samples_split` og `class_weight`. Beste kombinasjon oppnådde en CV-score på 92,0 % accuracy.
+
+---
+
+# 7. Resultat
+
+Dette kapittelet presenterer resultatene fra klassifiseringsanalysen. Alle metrikker er beregnet på det holdout-testsettet (20 %, n = 18 820) som ikke ble brukt under modelltrening.
+
+## 7.1 Modellsammenligning
+
+Tabell 7.1 viser accuracy, precision, recall og F1-score per klasse for alle tre modeller.
+
+**Tabell 7.1: Evalueringsmetrikker per modell og klasse**
+
+| Modell | Klasse | Accuracy | Precision | Recall | F1 |
+|---|---|---|---|---|---|
+| Decision Tree | A | 88,8 % | 0,880 | 0,887 | 0,883 |
+| Decision Tree | B | 88,8 % | 0,870 | 0,868 | 0,869 |
+| Decision Tree | C | 88,8 % | 0,964 | 0,947 | 0,956 |
+| Random Forest (default) | A | 92,2 % | 0,892 | 0,950 | 0,920 |
+| Random Forest (default) | B | 92,2 % | 0,936 | 0,877 | 0,906 |
+| Random Forest (default) | C | 92,2 % | 0,980 | 0,966 | 0,973 |
+| **Random Forest (optimert)** | **A** | **92,4 %** | **0,893** | **0,952** | **0,922** |
+| **Random Forest (optimert)** | **B** | **92,4 %** | **0,939** | **0,879** | **0,908** |
+| **Random Forest (optimert)** | **C** | **92,4 %** | **0,981** | **0,967** | **0,974** |
+
+*Tabell 7.1: Evalueringsmetrikker for Decision Tree (baseline), Random Forest (default) og Random Forest (optimert via GridSearchCV). Alle metrikker er beregnet på testsettet (n = 18 820). Egenprodusert.*
+
+Random Forest (optimert) oppnår høyest accuracy (92,4 %) og best ytelse på klasse C (precision 0,981, recall 0,967). Decision Tree fungerer som forventet dårligere, med 88,8 % accuracy og lavere recall for klasse C (0,947).
+
+## 7.2 Beste modell og hyperparametere
+
+Den optimerte Random Forest-modellen ble valgt som endelig modell. Beste hyperparametere fra GridSearchCV:
+
+**Tabell 7.2: Beste hyperparametere**
+
+| Parameter | Verdi |
+|---|---|
+| n_estimators | 500 |
+| max_depth | None |
+| min_samples_split | 2 |
+| class_weight | balanced |
+
+*Tabell 7.2: Beste hyperparametere identifisert via GridSearchCV med 5-fold kryssvalidering på treningssettet. Egenprodusert.*
+
+## 7.3 Confusion matrix
+
+Figur 7.1 viser confusion matrix for den beste modellen på testsettet.
+
+```
+[FIGUR 7.1 – confusion_matrix_final.png]
+
+                    Predikert
+                 A       B       C
+Faktisk A    7 794     379      13
+Faktisk B      911   6 904      40
+Faktisk C       23      69   2 687
+
+Figur 7.1: Confusion matrix for Random Forest (optimert) på testsettet
+(n = 18 820). Egenprodusert.
+```
+
+Confusion matrix viser at klasse C har svært få feilklassifiseringer: kun 92 av 2 779 faktiske C-enheter ble feilklassifisert (23 som A, 69 som B). Klasse B har flest feilklassifiseringer, primært 911 enheter feilklassifisert som A.
+
+## 7.4 Håndtering av klasseimbalanse
+
+Klasse C utgjør 14,8 % av datasettet. Random Forest ble trent med og uten `class_weight='balanced'`. Resultatene viser at balanced-vekting ga marginalt høyere recall for klasse C (0,967 vs. 0,966) uten accuracy-fall. Balanced-vekting ble derfor beholdt i den endelige modellen.
+
+## 7.5 Feature importance
+
+Figur 7.2 viser de 10 viktigste variablene rangert etter feature importance fra den optimerte Random Forest-modellen.
+
+**Tabell 7.3: Topp 10 feature importance**
+
+| Rang | Variabel | Importance |
+|---|---|---|
+| 1 | Inspected Device Value | 0,217 |
+| 2 | kostnadsforhold | 0,124 |
+| 3 | Device Category | 0,107 |
+| 4 | cost | 0,104 |
+| 5 | Transaction Type_enc | 0,102 |
+| 6 | revenue | 0,098 |
+| 7 | revenue_cost_ratio | 0,074 |
+| 8 | margin | 0,071 |
+| 9 | dager_inspeksjon_til_faktura | 0,041 |
+| 10 | Inspection Color_enc | 0,036 |
+
+*Tabell 7.3: Feature importance fra den optimerte Random Forest-modellen. Inspected Device Value og kostnadsforhold er de to viktigste prediktorene, noe som bekrefter den teoretiske forventningen. Egenprodusert.*
+
+```
+[FIGUR 7.2 – feature_importance.png]
+Figur 7.2: Topp 10 viktigste variabler rangert etter feature importance.
+Egenprodusert.
+```
+
+De to viktigste prediktorene – Inspected Device Value (estimert markedsverdi) og kostnadsforhold (cost / markedsverdi) – står sammen for 34,1 % av modellens totale prediktive kraft. Brand (merke) har overraskende lav importance (0,025), noe som indikerer at den konkrete tilstanden og økonomien per enhet er viktigere enn hvilket merke enheten tilhører.
+
+## 7.6 Accuracy-sjekk mot minimumskrav
+
+Prosjektet definerte et minimumskrav på 80 % accuracy. Den optimerte Random Forest-modellen oppnådde **92,4 % accuracy** på testsettet, som overstiger minimumskravet med 12,4 prosentpoeng. Gradient Boosting ble derfor ikke nødvendig som alternativ.
+
+---
+
+# 8. Diskusjon
+
+## 8.1 Hovedfunn opp mot problemstillingen
+
+Prosjektets forskningsspørsmål var: *Hvordan kan en AI-basert klassifiseringsmodell forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS, og i hvilken grad kan dette redusere feilklassifisering og øke netto lønnsomhet?*
+
+Resultatene viser at en Random Forest-modell med 11 features oppnår 92,4 % accuracy på et testsett med 18 820 enheter. Modellen klassifiserer korrekt 96,7 % av alle BER-enheter (klasse C), noe som betyr at kun 3,3 % av enheter som burde avhendes risikerer å bli sendt til unødvendig reparasjon. Dette er et sterkt resultat som indikerer at datadrevet klassifisering kan forbedre Modinos kanaliseringsbeslutninger vesentlig.
+
+## 8.2 Sammenligning med eksisterende litteratur
+
+Resultatene er konsistente med Ibrahim og Abdul-Kader (2025), som rapporterer høy klassifiseringsnøyaktighet for trebaserte metoder på returnerte mobiltelefoner. Turkolmez et al. (2024) demonstrerer tilsvarende at Random Forest gir gode resultater på forbrukerelektronikk-data, noe som styrker generaliserbarheten av våre metodiske valg.
+
+Ferguson et al. (2009) viser at nøyaktig gradering kan redusere totalkostnadene med omtrent 11 %. Vår modells høye recall for klasse C (0,967) betyr at BER-enheter fanges opp tidlig, noe som reduserer den type feilklassifisering som er mest kostbar for Modino – unødvendig reparasjon av ulønnsomme enheter.
+
+Et funn som fortjener oppmerksomhet er at brand (merke) har overraskende lav feature importance (0,025). Dette avviker fra en intuitiv forventning om at Apple- og Samsung-enheter har systematisk ulike lønnsomhetsprofiler. Funnet kan forklares av at de økonomiske variablene (markedsverdi, kostnadsforhold) allerede fanger opp merkeeffekten indirekte.
+
+## 8.3 Forretningsmessig betydning
+
+For Modino innebærer resultatene flere konkrete muligheter:
+
+**Redusert feilklassifisering:** Med 92,4 % accuracy og 96,7 % recall for klasse C kan modellen identifisere BER-enheter allerede ved inspeksjon, før ressurser investeres i reparasjon. Dette reduserer direkte reparasjonskostnader og frigjør teknikerkapasitet.
+
+**Raskere klassifisering:** Guide og Van Wassenhove (2009) dokumenterer at forsinkelser i recommerce gir 1 % verditap per uke. Automatisert klassifisering ved mottak kan dermed redusere verdifall gjennom raskere gjennomløpstid.
+
+**Feature importance som beslutningsgrunnlag:** De tre viktigste prediktorene (markedsverdi, kostnadsforhold, enhetskategori) gir Modinos ledelse konkret innsikt i hvilke enhetsattributter som driver lønnsomhetsklassen. Dette kan brukes til å forbedre innkjøpskriterier og prioriteringsregler.
+
+## 8.4 Metodiske begrensninger og svakheter
+
+**Mapping fra 6 til 3 klasser:** Den opprinnelige Grade-variabelen inneholdt 6 verdier (A–F), som ble mappet til 3 lønnsomhetsklasser basert på revenue-mønstre i dataen. Denne mappingen er ikke validert mot Modinos faktiske kanalvalg og representerer en sentral usikkerhet i analysen.
+
+**Target leakage-risiko:** Variablene revenue og cost er registrert etter at klassifiseringsbeslutningen er tatt, og ville ikke være tilgjengelige på beslutningstidspunktet for nye enheter. Inspected Device Value og kostnadsforhold er derimot tilgjengelige ved inspeksjon og gir alene sterk prediktiv kraft, men modellens accuracy ville sannsynligvis falle dersom revenue og cost fjernes.
+
+**Intern validitet:** Modellen lærer av historisk praksis. Dersom Modinos tidligere beslutninger systematisk har vært feil, vil modellen videreføre disse feilene fremfor å identifisere optimale kanalvalg.
+
+**Ekstern validitet:** Modellen er trent på Modinos data for 2024–2025 og er ikke nødvendigvis generaliserbar til andre aktører eller tidsperioder. Teknologiskifter i smarttelefonmarkedet kan gjøre modellen utdatert relativt raskt.
+
+**Klasseimbalanse:** Klasse C utgjør kun 14,8 % av datasettet. Selv om `class_weight='balanced'` ga marginalt bedre recall, er den reelle effekten av klasseimbalansen begrenset gitt det store datasettet (94 096 observasjoner).
+
+---
+
+# 9. Konklusjon
+
+I denne oppgaven har vi utviklet og evaluert en AI-basert klassifiseringsmodell for kanalisering av brukte mobilenheter hos Modino AS. Modellen klassifiserer innkommende enheter i tre lønnsomhetsklasser: nettbutikk (A), B2B/reservedeler (B) og BER/avhend (C).
+
+Hovedfunnene viser at en Random Forest-modell med optimerte hyperparametere oppnår **92,4 % accuracy** på et holdout-testsett med 18 820 enheter – godt over minimumskravet på 80 %. Modellen identifiserer 96,7 % av alle BER-enheter korrekt (recall klasse C), noe som betyr at svært få ulønnsomme enheter sendes til unødvendig reparasjon. Precision for klasse C er 98,1 %, som innebærer at nesten alle enheter modellen klassifiserer som BER, faktisk er BER.
+
+De tre viktigste prediktorene er estimert markedsverdi (Inspected Device Value), kostnadsforhold (cost / markedsverdi) og enhetskategori (Device Category). Disse variablene står for 44,8 % av modellens prediktive kraft og bekrefter den teoretiske forventningen fra Ferguson et al. (2009) om at forholdet mellom reparasjonskostnad og markedsverdi er den sentrale driveren for lønnsomhetsklassifisering.
+
+På tross av de svakhetene som oppgaven har – særlig usikkerhet rundt grade-til-klasse-mappingen og risiko for target leakage fra revenue- og cost-variabler – er det sterke indikasjoner om at datadrevet klassifisering kan forbedre Modinos kanaliseringsbeslutninger sammenlignet med manuell praksis.
+
+### Videre forskning
+
+Følgende områder anbefales for videre arbeid:
+
+1. **Validere grade-mappingen** mot Modinos faktiske kanalvalg for å sikre at lønnsomhetsklassene reflekterer reell lønnsomhet.
+2. **Fjerne post-beslutningsvariabler** (revenue, cost) og evaluere modellens ytelse kun med variabler tilgjengelige ved inspeksjonstidspunktet.
+3. **Beregne estimert kostnadsbesparelse** ved å sammenligne modellens prediksjoner med historisk kanalvalg, som beskrevet i metodekapittelet.
+4. **Teste modellen på nye data** (2025 Q3+) for å vurdere prediktiv stabilitet over tid.
+5. **Inkludere Device Model** som feature gjennom gruppering eller embeddings, da 518 unike modeller potensielt inneholder verdifull informasjon som brand alene ikke fanger.
 
 # Bibliografi
 # Vedlegg

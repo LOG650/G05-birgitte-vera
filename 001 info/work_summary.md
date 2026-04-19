@@ -309,3 +309,39 @@ Overraskende lavt: brand (0.025) – merke har liten påvirkning sammenlignet me
 - Validering av grade-til-klasse-mapping (A+B→A, C→B, D+E+F→C) med Modino
 - Estimert kostnadsbesparelse (steg fra metodekapitlet) er ennå ikke beregnet
 - Device Model (518 unike) ble ikke brukt direkte – vurder embeddings/gruppering
+- Target leakage: revenue, cost, margin og revenue_cost_ratio er post-beslutningsvariabler – bør kjøres uten disse for å vurdere realistisk accuracy
+
+---
+
+## Oppdatering – 2026-04-19 (del 2)
+
+**Utarbeidet av:** Vera (med Claude Code CLI)
+
+### Rapportmal fylt ut med analyse, resultat, diskusjon og konklusjon
+
+Følgende kapitler ble skrevet inn i `005 report/Mal prosjekt LOG650 v2.md` basert på `004 data/resultater.csv`:
+
+**Kapittel 5 – Modellering (nyskrevet)**
+
+Matematisk formulering av klassifiseringsproblemet: problemformulering (feature-vektor → klasse), Decision Tree med Gini-indeks (baseline), Random Forest med majoritetsstemme og class_weight-vekting (primærmodell), feature importance via Gini-reduksjon, og Gradient Boosting som reservemodell. Refererer til kap. 3.5 for evalueringsmetrikker for å unngå overlapp.
+
+**Kapittel 6 – Analyse**
+
+Datagrunnlag og klassefordeling (94 096 obs., 6→3 mapping), feature engineering (11 features med target encoding), train/test-split (80/20) og modelltrening (Decision Tree, Random Forest default, Random Forest optimert).
+
+**Kapittel 7 – Resultat**
+
+Modellsammenligning (tabell med accuracy/precision/recall/F1 per klasse for alle tre modeller), beste hyperparametere, confusion matrix, klasseimbalanse-håndtering, feature importance (topp 10) og accuracy-sjekk (92,4 % > 80 %).
+
+**Kapittel 8 – Diskusjon**
+
+Funn opp mot problemstilling, sammenligning med litteraturen (Ibrahim & Abdul-Kader, Ferguson et al., Turkolmez et al.), forretningsmessig betydning for Modino, og metodiske begrensninger: target leakage-risiko, grade-mapping-usikkerhet, intern/ekstern validitet.
+
+**Kapittel 9 – Konklusjon**
+
+Oppsummering av hovedfunn og 5 anbefalinger til videre forskning.
+
+### Kvalitetssikring
+
+- Confusion matrix-verdier korrigert (off-diagonal-verdier var fra feil modellkjøring)
+- Modelleringskapittelet revidert: fjernet overlapp med kap. 3, generalisert parameterverdier, lagt til Gradient Boosting som reservemodell, gitt intuitiv forklaring av class_weight-vekting
