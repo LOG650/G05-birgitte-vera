@@ -345,3 +345,108 @@ Oppsummering av hovedfunn og 5 anbefalinger til videre forskning.
 
 - Confusion matrix-verdier korrigert (off-diagonal-verdier var fra feil modellkjøring)
 - Modelleringskapittelet revidert: fjernet overlapp med kap. 3, generalisert parameterverdier, lagt til Gradient Boosting som reservemodell, gitt intuitiv forklaring av class_weight-vekting
+
+---
+
+## Oppdatering – 2026-04-19 (del 3)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Planstatus per 19. april – sammenligning med Prosjektplan G05
+
+Gjennomgang av `Prosjektplan g05.pdf` mot faktisk fremdrift. I dag er **dag 13** av 20 i planen (innlevering 27. april).
+
+#### Ferdig – noen deler foran planen
+
+| Kapittel / oppgave | Planlagt frist | Status |
+|---|---|---|
+| Teori (kap. 2) | Dag 1–4 | ✅ Ferdig |
+| Metode (kap. 3) | Dag 5–6 | ✅ Ferdig |
+| Innledning (kap. 1) | Dag 8–9 | ✅ Ferdig |
+| Modelltrening + evaluering | Dag 8–9 | ✅ Ferdig |
+| Confusion matrix + feature importance | Dag 10–11 | ✅ (ASCII-format i rapport) |
+| Resultater (kap. 7) | Dag 12–13 | ✅ Ferdig |
+| Diskusjon (kap. 8) | Dag 12–13 | ✅ Ferdig |
+| Konklusjon (kap. 9) | Dag 15–16 | ✅ Ferdig – 2 dager tidlig |
+
+#### Gjenstår for Birgitte
+
+Prioritert rekkefølge mot innlevering 27. april:
+
+**1. Kostnadsbesparelse / lønnsomhetseffekt** ← høyest prioritet
+- Planlagt: Dag 10–11 (16.–17. april) – ikke gjort
+- Avklar med Vera hvilke gjennomsnittsmarginer per kanal (A, B, C) som skal brukes
+- Beregn estimert besparelse ved å sammenligne modellens prediksjoner mot historisk kanalvalg på testsettet
+- Resultatet hører hjemme i kap. 7 (Resultat) og er delproblem 2 i forskningsspørsmålet – kan ikke utelates
+
+**2. Casebeskrivelse (kap. 4)**
+- Ikke nevnt eksplisitt i planen, men er obligatorisk kapittel i rapportmalen
+- Birgitte er eneste som kjenner Modino godt nok til å skrive dette
+- Innhold: hva Modino gjør, hvordan recommerce-prosessen fungerer i dag, hvilke data som finnes, hva som er problemet – koblet direkte til problemstillingen
+
+**3. Sammendrag og abstract**
+- Ikke nevnt i planen – skrives naturlig etter at alle kapitler er ferdig
+- Kort (ca. 150–250 ord hver)
+
+**4. Forside og formaliteter**
+- Tittel, forfatternavn, dato, sideantall, veileder, studiepoeng, personvern/NSD-avkryssing
+
+**5. Referanseliste (APA 7)**
+- Planlagt: Dag 15–16 (21.–22. april) – Birgitte sitt ansvar per planen
+- Referansene ligger allerede spredt i kapitlene – samle og formatere i APA 7
+
+#### Gjenstår felles (Birgitte + Vera)
+
+| Oppgave | Frist i plan |
+|---|---|
+| Peer-to-peer review | Dag 17–18 (23.–24. april) |
+| Konvertere ASCII-figurer til ekte figurer | Dag 17–18 |
+| Oppdatere innholdsfortegnelse til faktisk struktur | Dag 19 (25. april) |
+| Finpuss språk og struktur | Dag 19 (25. april) |
+| Siste gjennomlesning og innlevering | Dag 20 (26.–27. april) |
+
+#### Vurdering
+
+Med bufferdagen 20. april og uke 3 intakt er innlevering 27. april realistisk, forutsatt at:
+- Kostnadsbesparelsen prioriteres mandag 20. april (krever avklaring med Vera om marginer)
+- Casebeskrivelsen skrives senest tirsdag 21. april
+
+---
+
+## Oppdatering – 2026-04-19 (del 4)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Datasett-gjennomgang og geografisk utvidelse
+
+Gjennomgikk kolonnestruktur i `004 data/modino_merged.csv` (28 kolonner). Kartla at datasettet inneholder transaksjoner fra 10 land, ikke kun Norge som opprinnelig antatt.
+
+**Landfordeling:**
+
+| Land | Antall rader |
+|---|---|
+| EE – Estland | 38 839 |
+| NO – Norge | 34 780 |
+| FI – Finland | 8 626 |
+| SE – Sverige | 7 299 |
+| RO – Romania | 2 575 |
+| Øvrige (GB, SI, DK, ZA, RS) | 2 979 |
+
+Beslutning: inkluder land med ≥ 1 000 transaksjoner (EE, NO, FI, SE, RO). Filtrert datasett lagret som `004 data/modino_filtered.csv` (92 119 rader). Dataperiode: 01.02.2024 – 31.12.2025.
+
+### Rapportoppdateringer
+
+- **Rapport omdøpt** fra `Mal prosjekt LOG650 v2.md` til `Prosjektoppgave_LOG650_G05.md`
+- **Kapittel 4 – Casebeskrivelse** skrevet inn med innhold om Modino AS (erstatter plassholdertekst): type bedrift og recommerce-marked (4.1), produktbeskrivelse med komponenter og gradering (4.2), dagens 4-stegs klassifiseringsprosess (4.3), faktorer som påvirker klassifisering (4.4), tilgjengelige data (4.5), antatt årsak til feilklassifisering (4.6)
+- **Avsnitt 1.2 – Avgrensninger** oppdatert: geografisk omfang utvidet fra kun Norge til EE, NO, FI, SE, RO med begrunnelse; implikasjoner av å inkludere markeder utenfor Norden utsatt til diskusjonskapittelet
+
+### Statusoppdatering
+
+- ✅ Casebeskrivelse (kap. 4) – ferdig (var planlagt til senest 21. april)
+- ⬜ Kostnadsbesparelse / lønnsomhetseffekt – gjenstår (høyest prioritet)
+- ⬜ Diskusjon av geografisk utvidelse (kap. 9) – skrives etter gjennomlesning
+
+### Git
+
+- Committet og pushet til main: rapport omdøpt + kap. 4 + oppdatert avsnitt 1.2
+- `004 data/` er i .gitignore – `modino_filtered.csv` er ikke versjonskontrollert
