@@ -99,7 +99,7 @@ Modino AS er en nordisk distributør av mobilenheter og forbrukerelektronikk som
 
 Denne rapporten utvikler en AI-basert klassifiseringsmodell som predikerer hvilken lønnsomhetsklasse en innkommende brukt mobilenhet tilhører – reparasjon og nettbutikksalg (klasse A), B2B eller reservedeler (klasse B), eller avhending (klasse C). Modellen bygges på historiske transaksjonsdata fra Modinos SAP-system og evalueres både på teknisk klassifiseringsnøyaktighet og estimert lønnsomhetseffekt sammenlignet med dagens manuelle praksis.
 
-Rapporten er strukturert som følger: Kapittel 2 presenterer det teoretiske rammeverket innen sirkulærøkonomi, reverse logistics og maskinlæring. Kapittel 3 beskriver forskningsdesign, datagrunnlag og analysemetoder. Kapittel 4 gir en casebeskrivelse av Modino. Kapittel 5 presenterer modelleringen, og kapittel 6–8 dekker analyse, resultater og diskusjon. Kapittel 9 oppsummerer hovedfunn og konklusjoner.
+Rapporten er strukturert som følger: Kapittel 2 presenterer det teoretiske rammeverket innen sirkulærøkonomi, reverse logistics og maskinlæring. Kapittel 3 gir en casebeskrivelse av Modino. Kapittel 4 beskriver forskningsdesign, datagrunnlag og analysemetoder. Kapittel 5 presenterer modelleringen, og kapittel 6–8 dekker analyse, resultater og diskusjon. Kapittel 9 oppsummerer hovedfunn og konklusjoner.
 
 ## 1.1 Problemstilling
 
@@ -200,7 +200,7 @@ Fleischmann et al. (1997) skiller mellom tre hovedaktiviteter i reverse logistic
 
 Det bør bemerkes at Fleischmann et al. (1997) primært reflekterer industrikontekster fra tidlig 1990-tall. Den konseptuelle taksonomien er fortsatt gyldig, men konkrete parameterverdier kan ikke overføres direkte til Modinos recommerce-prosess for mobilenheter i 2024–2025.
 
-*Merk: En prosessmodell som viser Modinos konkrete reverse logistics-flyt og klassifiseringsintegrering presenteres i casebeskrivelsen (kapittel 4).*
+*Merk: En prosessmodell som viser Modinos konkrete reverse logistics-flyt og klassifiseringsintegrering presenteres i casebeskrivelsen (kapittel 3).*
 
 **Verifiserte kilder:**
 Fleischmann, M., Bloemhof-Ruwaard, J. M., Dekker, R., van der Laan, E., van Nunen, J. A. E. E., & Van Wassenhove, L. N. (1997). Quantitative models for reverse logistics: A review. *European Journal of Operational Research*, *103*(1), 1–17. https://doi.org/10.1016/S0377-2217(97)00230-0
@@ -366,15 +366,15 @@ Egenprodusert.
 
 Sirkulærøkonomi-litteraturen (Stahel, 2016; Potting et al., 2017; Geissdoerfer et al., 2017) gir den strategiske begrunnelsen for Modinos virksomhet og forankrer klassifiseringssystemet A/B/C i 9R-rammeverket. Reverse logistics-teorien (Galbreth & Blackburn, 2006; Ferguson et al., 2009; Hübner et al., 2020) definerer det operasjonelle beslutningsproblemet og dokumenterer at nøyaktig gradering har direkte, målbar lønnsomhetseffekt – noe Ferguson et al. (2009) beviser empirisk med ~11 % kostnadsreduksjon. Maskinlæringslitteraturen (Breiman, 2001; James et al., 2021; Ibrahim & Abdul-Kader, 2025) gir det metodiske verktøyet og den empiriske begrunnelsen for at trebaserte klassifiseringsmodeller er egnet for nettopp denne typen problem.
 
-# 4. Casebeskrivelse
+# 3. Casebeskrivelse
 
-## 4.1 Modino AS og recommerce-markedet
+## 3.1 Modino AS og recommerce-markedet
 
 Modino AS er en nordisk distributør av mobilenheter og forbrukerelektronikk som opererer i et raskt voksende recommerce-marked. Kjernevirksomheten er kjøp av brukte mobilenheter fra forhandlere – primært gjennom Telenors butikkjede via swap-in- og trade-in-avtaler – samt renovering og videresalg gjennom egen nettbutikk og B2B-kanaler. Selskapet er dermed en sentral aktør i overgangen fra lineær til sirkulær økonomi for forbrukerelektronikk i Norden.
 
 Det forretningsmessige kjerneproblemet er at lønnsomheten i recommerce er sterkt avhengig av at hver innkommende enhet kanaliseres riktig: enheter som kan repareres og selges med god margin i nettbutikken, skiller seg grunnleggende fra enheter der reparasjonskostnadene overstiger forventet salgspris (Beyond Economical Repair, BER). En feilklassifisering i én retning betyr at ressurser bindes opp i reparasjon av ulønnsomme enheter; en feilklassifisering i den andre retningen betyr at lønnsomme enheter avhendes for tidlig. I tillegg akselererer verdifallet for brukte mobilenheter ved lansering av nye modeller, slik at tid i feil kø har direkte kostnadskonsekvenser (Guide & Van Wassenhove, 2009).
 
-## 4.2 Produktet: brukt mobilenhet
+## 3.2 Produktet: brukt mobilenhet
 
 Den innkommende varen er en brukt smarttelefon i varierende tilstand. For klassifiseringsformål er enheten relevant å forstå gjennom to dimensjoner:
 
@@ -382,7 +382,7 @@ Den innkommende varen er en brukt smarttelefon i varierende tilstand. For klassi
 
 **Tilstandsgradering:** Modino bruker en gradering fra A til C ved mottak, der A er beste tilstand og C innebærer synlige kosmetiske feil eller funksjonsfeil. Graden settes av Modinos inspeksjonssystem og påvirker direkte hvilken salgspris enheten kan oppnå etter renovering.
 
-## 4.3 Dagens klassifiseringsprosess
+## 3.3 Dagens klassifiseringsprosess
 
 Når en brukt enhet ankommer Modino fra en forhandler, gjennomgår den følgende prosess:
 
@@ -393,7 +393,7 @@ Når en brukt enhet ankommer Modino fra en forhandler, gjennomgår den følgende
 
 Beslutningen i steg 2 er i dag basert på teknikerens erfaring og skjønn. Det finnes ingen formalisert modell eller beslutningsstøtte som sikrer at klassifiseringen gjøres konsistent på tvers av teknikere, butikker eller tidsperioder.
 
-## 4.4 Faktorer som påvirker klassifiseringsbeslutningen
+## 3.4 Faktorer som påvirker klassifiseringsbeslutningen
 
 Klassifiseringen påvirkes av et samspill mellom enhetsspesifikke og markedsmessige faktorer:
 
@@ -404,7 +404,7 @@ Klassifiseringen påvirkes av et samspill mellom enhetsspesifikke og markedsmess
 - **Markedsverdi:** Forventet salgspris etter renovering bestemmes av modell, alder og grad, og varierer med markedsforhold.
 - **Tid i kø:** Verdifall underveis i behandlingsprosessen gjør at enheter som venter lenge kan endre lønnsomhetsklasse etter at beslutningen er tatt.
 
-## 4.5 Tilgjengelige data
+## 3.5 Tilgjengelige data
 
 Modino har to komplementære datakilder som til sammen dekker klassifiseringsproblemet:
 
@@ -414,17 +414,17 @@ Modino har to komplementære datakilder som til sammen dekker klassifiseringspro
 
 De to datasettene er koblet på enhetsnivå og danner til sammen et historisk datasett for perioden 2024–2025 med om lag 10 000–15 000 transaksjoner.
 
-## 4.6 Problemets antatte årsak
+## 3.6 Problemets antatte årsak
 
 Modino opplever at feilklassifisering skjer av to hovedgrunner. For det første er vurderingen subjektiv: ulike teknikere vekter de samme feilene ulikt, og det finnes ingen standardisert regel for når en enhet er BER. For det andre mangler teknikerne systematisk informasjon om forventet markedsverdi og reparasjonskostnad på beslutningstidspunktet – de vet hva enheten kostet å kjøpe inn, men har ikke et pålitelig estimat for hva den vil selges for etter renovering. Resultatet er at en betydelig andel enheter havner i feil kanal, med påfølgende kostnader i form av bortkastet reparasjonsarbeid, unødvendig verdifall eller for tidlig avhending av lønnsomme enheter.
 
-# 3. Data og metode
+# 4. Data og metode
 
-Dette kapittelet dokumenterer hvordan prosjektet er gjennomført, og gir tilstrekkelig informasjon til at en fagperson i prinsippet skal kunne gjenta studien. Kapittelet er strukturert rundt fire hoveddeler: forskningsdesign, datagrunnlag, datarensing og feature engineering, og analysemetoder og evalueringsrammeverk. Den matematiske modellformuleringen presenteres i kapittel 4 (Modellering).
+Dette kapittelet dokumenterer hvordan prosjektet er gjennomført, og gir tilstrekkelig informasjon til at en fagperson i prinsippet skal kunne gjenta studien. Kapittelet er strukturert rundt fire hoveddeler: forskningsdesign, datagrunnlag, datarensing og feature engineering, og analysemetoder og evalueringsrammeverk. Den matematiske modellformuleringen presenteres i kapittel 5 (Modellering).
 
 ---
 
-## 3.1 Forskningsdesign
+## 4.1 Forskningsdesign
 
 ### 3.1.1 Overordnet design
 
@@ -461,7 +461,7 @@ Prosjektet analyserer historiske transaksjonsdata fra Modinos interne SAP-system
 
 ---
 
-## 3.2 Datagrunnlag
+## 4.2 Datagrunnlag
 
 ### 3.2.1 Datakilde og uttrekksmetode
 
@@ -498,7 +498,7 @@ Prosjektet er avhengig av at historiske utfall i SAP reflekterer faktisk lønnso
 
 ---
 
-## 3.3 Datarensing og feature engineering
+## 4.3 Datarensing og feature engineering
 
 ### 3.3.1 Datarensing
 
@@ -533,7 +533,7 @@ Valget avgjøres etter analyse av klassefordelingen i det rensede datasettet.
 
 ---
 
-## 3.4 Analysemetode og modellvalg
+## 4.4 Analysemetode og modellvalg
 
 ### 3.4.1 Overordnet analyseopplegg
 
@@ -617,7 +617,7 @@ All kode lagres i prosjektets GitHub-repositorium med tydelig mappestruktur og k
 
 ---
 
-## 3.5 Evalueringsrammeverk
+## 4.5 Evalueringsrammeverk
 
 ### 3.5.1 Tekniske evalueringsmetrikker
 
