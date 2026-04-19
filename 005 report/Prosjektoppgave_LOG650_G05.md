@@ -366,17 +366,57 @@ Egenprodusert.
 
 Sirkulærøkonomi-litteraturen (Stahel, 2016; Potting et al., 2017; Geissdoerfer et al., 2017) gir den strategiske begrunnelsen for Modinos virksomhet og forankrer klassifiseringssystemet A/B/C i 9R-rammeverket. Reverse logistics-teorien (Galbreth & Blackburn, 2006; Ferguson et al., 2009; Hübner et al., 2020) definerer det operasjonelle beslutningsproblemet og dokumenterer at nøyaktig gradering har direkte, målbar lønnsomhetseffekt – noe Ferguson et al. (2009) beviser empirisk med ~11 % kostnadsreduksjon. Maskinlæringslitteraturen (Breiman, 2001; James et al., 2021; Ibrahim & Abdul-Kader, 2025) gir det metodiske verktøyet og den empiriske begrunnelsen for at trebaserte klassifiseringsmodeller er egnet for nettopp denne typen problem.
 
-# Casebeskrivelse
-Har skal problemstillingen utbroderes for den bedriften du samarbeidet med eller det . Ta med all relevant informasjon som er nødvendig for å få en full forståelse av problemet, men ikke mer.  Husk å holde den røde tråden til problemstillingen, unødvendig informasjon trekker ned. Man kan gjerne beskrive om en bransje eller en teori hvis problemstillingen ikke omhandler en spesifikk bedrift.
+# 4. Casebeskrivelse
 
-Anta vi f.eks. har som problemstilling og forbedre gjennomløpstiden for en vare i en produksjonsbedrift:
+## 4.1 Modino AS og recommerce-markedet
 
-- Type bedrift og hvorfor produktet har lav gjennomløpstid.
-- Beskrivelse av produktets oppbygning i komponenter.
-- Hvordan bedriften gjennomfører produksjonen av produktet i dag?
-- Hvilke faktorer som påvirker gjennomløpstiden.
-- Hvilke data som bedriften har for prosessen.
-- Hva bedriften tror som forårsaker lav gjennomløpstid.
+Modino AS er en nordisk distributør av mobilenheter og forbrukerelektronikk som opererer i et raskt voksende recommerce-marked. Kjernevirksomheten er kjøp av brukte mobilenheter fra forhandlere – primært gjennom Telenors butikkjede via swap-in- og trade-in-avtaler – samt renovering og videresalg gjennom egen nettbutikk og B2B-kanaler. Selskapet er dermed en sentral aktør i overgangen fra lineær til sirkulær økonomi for forbrukerelektronikk i Norden.
+
+Det forretningsmessige kjerneproblemet er at lønnsomheten i recommerce er sterkt avhengig av at hver innkommende enhet kanaliseres riktig: enheter som kan repareres og selges med god margin i nettbutikken, skiller seg grunnleggende fra enheter der reparasjonskostnadene overstiger forventet salgspris (Beyond Economical Repair, BER). En feilklassifisering i én retning betyr at ressurser bindes opp i reparasjon av ulønnsomme enheter; en feilklassifisering i den andre retningen betyr at lønnsomme enheter avhendes for tidlig. I tillegg akselererer verdifallet for brukte mobilenheter ved lansering av nye modeller, slik at tid i feil kø har direkte kostnadskonsekvenser (Guide & Van Wassenhove, 2009).
+
+## 4.2 Produktet: brukt mobilenhet
+
+Den innkommende varen er en brukt smarttelefon i varierende tilstand. For klassifiseringsformål er enheten relevant å forstå gjennom to dimensjoner:
+
+**Fysisk oppbygning:** En smarttelefon består av komponenter med ulik reparerbarhet og kostnad – skjerm og glass (høy erstatningskostnad, synlig skade), batteri (gradvis kapasitetsfall, ikke synlig), kamera og sensorer (funksjonsfeil, diagnostisert ved test), chassis og ramme (kosmetiske skader), samt hovedkort og programvare (kritiske feil som gjør enheten ikke-reparerbar). Hvilke komponenter som er skadet, og i hvilken grad, bestemmer i stor grad reparasjonskostnaden og dermed lønnsomhetsklassen.
+
+**Tilstandsgradering:** Modino bruker en gradering fra A til C ved mottak, der A er beste tilstand og C innebærer synlige kosmetiske feil eller funksjonsfeil. Graden settes av Modinos inspeksjonssystem og påvirker direkte hvilken salgspris enheten kan oppnå etter renovering.
+
+## 4.3 Dagens klassifiseringsprosess
+
+Når en brukt enhet ankommer Modino fra en forhandler, gjennomgår den følgende prosess:
+
+1. **Mottak og registrering:** Enheten registreres i SAP med identifikatorer som modell, leverandør og fakturadato. Parallelt registreres inspeksjonsdata i Modinos eget inspeksjonssystem (Modino-systemet), inkludert tilstandsgrad, farge, feil rapportert av innleverende kunde og feil avdekket ved inspeksjon.
+2. **Manuell klassifisering:** En tekniker vurderer enheten og beslutter hvilken kanal den skal til: fullstendig reparasjon og salg via nettbutikken (klasse A), salg til B2B-aktør eller som reservedeler (klasse B), eller avhending som skrap (klasse C, BER).
+3. **Behandling:** Klasse A-enheter går inn i reparasjonskøen, klasse B håndteres separat, og klasse C avhendes.
+4. **Salg og fakturering:** Ferdigrenoverte enheter selges og faktureres via SAP, der inntekt og kostpris registreres.
+
+Beslutningen i steg 2 er i dag basert på teknikerens erfaring og skjønn. Det finnes ingen formalisert modell eller beslutningsstøtte som sikrer at klassifiseringen gjøres konsistent på tvers av teknikere, butikker eller tidsperioder.
+
+## 4.4 Faktorer som påvirker klassifiseringsbeslutningen
+
+Klassifiseringen påvirkes av et samspill mellom enhetsspesifikke og markedsmessige faktorer:
+
+- **Modell og merke:** Eldre modeller og billigsegmentet har lavere markedsverdi etter renovering, noe som gjør terskelen for BER-klassifisering lavere.
+- **Tilstandsgrad (A–C):** Grad C-enheter har lavere salgspotensial og høyere sannsynlighet for å klassifiseres som klasse B eller C.
+- **Registrerte feil:** Antall og type feil avdekket ved inspeksjon øker estimert reparasjonskostnad og reduserer sannsynligheten for klasse A.
+- **Innkjøpspris (kostpris):** Høy kostpris innsnevrer marginen og gjør at enheten raskere når BER-terskel.
+- **Markedsverdi:** Forventet salgspris etter renovering bestemmes av modell, alder og grad, og varierer med markedsforhold.
+- **Tid i kø:** Verdifall underveis i behandlingsprosessen gjør at enheter som venter lenge kan endre lønnsomhetsklasse etter at beslutningen er tatt.
+
+## 4.5 Tilgjengelige data
+
+Modino har to komplementære datakilder som til sammen dekker klassifiseringsproblemet:
+
+**SAP-transaksjonsdata** inneholder alle fakturerte transaksjoner med enhetens materialenummer, modellbeskrivelse (inkludert grad), leveringsdato, fakturadato, kostpris og salgsinntekt per enhet. Dataene gir grunnlaget for å beregne realisert dekningsbidrag per enhet og dermed etikettere historiske utfall som klasse A, B eller C.
+
+**Modino-inspeksjonsdata** inneholder enhetsspesifikke inspeksjonsresultater: tilstandsgrad, registrerte feil (QuotedFaults og InspectedFaults), inspeksjonsdato, forhandler og butikk, samt inspeksjonsverdi satt av systemet. Disse dataene representerer informasjonen som er tilgjengelig på beslutningstidspunktet – det vil si inputvariablene modellen skal bruke for å predikere klasse.
+
+De to datasettene er koblet på enhetsnivå og danner til sammen et historisk datasett for perioden 2024–2025 med om lag 10 000–15 000 transaksjoner.
+
+## 4.6 Problemets antatte årsak
+
+Modino opplever at feilklassifisering skjer av to hovedgrunner. For det første er vurderingen subjektiv: ulike teknikere vekter de samme feilene ulikt, og det finnes ingen standardisert regel for når en enhet er BER. For det andre mangler teknikerne systematisk informasjon om forventet markedsverdi og reparasjonskostnad på beslutningstidspunktet – de vet hva enheten kostet å kjøpe inn, men har ikke et pålitelig estimat for hva den vil selges for etter renovering. Resultatet er at en betydelig andel enheter havner i feil kanal, med påfølgende kostnader i form av bortkastet reparasjonsarbeid, unødvendig verdifall eller for tidlig avhending av lønnsomme enheter.
 
 # 3. Data og metode
 
