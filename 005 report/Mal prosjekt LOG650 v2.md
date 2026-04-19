@@ -708,7 +708,7 @@ Analysen gjennomføres som en kvantitativ, supervised learning klassifiseringsan
 
 ## 6.1 Datagrunnlag og klassefordeling
 
-Etter datarensing og sammenslåing av inspeksjonsdata og SAP-data bestod det endelige datasettet av **94 096 observasjoner** med 29 kolonner. Inspeksjonsgraden (Grade A–F) ble mappet til tre lønnsomhetsklasser i tråd med prosjektets klassifiseringssystem:
+Etter datarensing og sammenslåing av inspeksjonsdata og SAP-data bestod det endelige datasettet av **94 096 observasjoner** med 28 kolonner. Inspeksjonsgraden (Grade A–F) ble mappet til tre lønnsomhetsklasser i tråd med prosjektets klassifiseringssystem:
 
 **Tabell 6.1: Mapping fra inspeksjonsgrad til lønnsomhetsklasse**
 
