@@ -1,0 +1,10 @@
+modell,klasse,accuracy,precision,recall,F1,beste_hyperparametere
+Decision Tree,A,0.8879,0.8796,0.8865,0.8831,default
+Decision Tree,B,0.8879,0.87,0.8684,0.8692,default
+Decision Tree,C,0.8879,0.9641,0.9471,0.9555,default
+Random Forest (default),A,0.9219,0.8919,0.9497,0.9199,default
+Random Forest (default),B,0.9219,0.9358,0.8774,0.9057,default
+Random Forest (default),C,0.9219,0.9799,0.9658,0.9728,default
+Random Forest (optimert),A,0.9238,0.893,0.9521,0.9216,"{'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 2, 'n_estimators': 500}"
+Random Forest (optimert),B,0.9238,0.9391,0.8789,0.908,"{'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 2, 'n_estimators': 500}"
+Random Forest (optimert),C,0.9238,0.9807,0.9669,0.9737,"{'class_weight': 'balanced', 'max_depth': None, 'min_samples_split': 2, 'n_estimators': 500}"
