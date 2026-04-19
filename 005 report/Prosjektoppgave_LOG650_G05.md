@@ -119,7 +119,7 @@ Forskningsspørsmålet operasjonaliseres gjennom to delproblemer:
 
 Prosjektet avgrenses langs følgende dimensjoner:
 
-**Geografisk:** Analysen omfatter kun Modinos norske virksomhet, da datagrunnlaget fra SAP-systemet er avgrenset til Norge. Nordiske markeder utenfor Norge har andre kostnadsstrukturer og markedspriser som ville kreve separate datasett og modelltilpasninger.
+**Geografisk:** Prosjektbeskrivelsen avgrenset analysen til Modinos norske virksomhet. Gjennomgang av det faktiske datagrunnlaget fra SAP-systemet viste imidlertid at Norge alene (34 780 transaksjoner) utgjør en relativt liten andel av totaldatasettet, og at Estland, Finland, Sverige og Romania også har tilstrekkelig datavolum til å gi pålitelige prediksjoner. Analysen er derfor utvidet til å inkludere de fem landene med 1 000 eller flere transaksjoner: Estland (EE), Norge (NO), Finland (FI), Sverige (SE) og Romania (RO), til sammen 92 119 transaksjoner. Øvrige markeder (Storbritannia, Slovenia, Danmark, Sør-Afrika, Serbia) ekskluderes grunnet for lavt volum. Implikasjonene av å inkludere markeder utenfor Norden diskuteres i kapittel 9.
 
 **Tidsperiode:** Datagrunnlaget dekker perioden 2024–2025. Eldre data ekskluderes fordi teknologiskifter i smarttelefonmarkedet gjør at eldre mønstre i tilstand og verdifall har begrenset relevans for dagens beslutninger.
 
