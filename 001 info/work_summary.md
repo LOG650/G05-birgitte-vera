@@ -468,3 +468,7 @@ Alle figurer og resultater lå i `004 data/` som er i `.gitignore`. Kopiert til 
 - `resultater.csv` – alle evalueringsmetrikker
 
 Alle confusion matrix-verdier verifisert mot modellkjøring – stemmer.
+
+### ML-prompt lagret
+
+Prompten brukt til ML-analysen (`claude_code_prompt_modino.md`) kopiert fra Downloads til `005 report/` og endret "jeg/meg" til "vi/oss" (3 forekomster).
