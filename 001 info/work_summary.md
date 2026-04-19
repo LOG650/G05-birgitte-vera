@@ -450,3 +450,21 @@ Beslutning: inkluder land med ≥ 1 000 transaksjoner (EE, NO, FI, SE, RO). Filt
 
 - Committet og pushet til main: rapport omdøpt + kap. 4 + oppdatert avsnitt 1.2
 - `004 data/` er i .gitignore – `modino_filtered.csv` er ikke versjonskontrollert
+
+---
+
+## Oppdatering – 2026-04-19 (del 5)
+
+**Utarbeidet av:** Vera (med Claude Code CLI)
+
+### Figurer og resultater flyttet til 005 report
+
+Alle figurer og resultater lå i `004 data/` som er i `.gitignore`. Kopiert til `005 report/` og pushet:
+
+- `confusion_matrix_baseline.png` – Decision Tree
+- `confusion_matrix_rf.png` – Random Forest (default)
+- `confusion_matrix_final.png` – Random Forest (optimert)
+- `feature_importance.png` – Topp 10 feature importance
+- `resultater.csv` – alle evalueringsmetrikker
+
+Alle confusion matrix-verdier verifisert mot modellkjøring – stemmer.
