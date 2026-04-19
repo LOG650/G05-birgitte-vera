@@ -241,3 +241,71 @@ Innholdet fra `005 report/metodeseksjon_G05_v2-2.md` ble satt inn og erstatter m
 ### Git
 
 - Committet og pushet til main: `005 report/Mal prosjekt LOG650 v2.md` (552 innsettinger, 95 slettinger).
+
+---
+
+## Oppdatering – 2026-04-19
+
+**Utarbeidet av:** Vera (med Claude Code CLI)
+
+### Maskinlæringsanalyse – fullstendig pipeline (12 steg)
+
+Gjennomførte komplett ML-pipeline på `004 data/modino_merged.csv` (94 096 rader × 29 kolonner).
+
+**Datafunn og mapping:**
+
+Grade-kolonnen inneholdt 6 inspeksjonsgrader (A–F), ikke 3 klasser som forventet. Mappet til 3 lønnsomhetsklasser basert på revenue-mønstre og maktx-prefiks:
+
+| Inspeksjonsgrad | → Lønnsomhetsklasse | Antall | Andel |
+|---|---|---|---|
+| A, B | Klasse A (nettbutikk) | 40 929 | 43.5 % |
+| C | Klasse B (B2B/reservedeler) | 39 271 | 41.7 % |
+| D, E, F | Klasse C (BER/avhend) | 13 896 | 14.8 % |
+
+⚠️ Mappingen bør valideres med Modino mot faktisk kanalvalg.
+
+**Feature engineering:**
+
+- 11 features: 8 numeriske + 3 target-enkodede kategoriske
+- Konverterte norsk tallformat (cost, vat, Inspected Device Value) til float
+- Avledede variabler: kostnadsforhold (cost/markedsverdi), margin, revenue_cost_ratio, gjennomløpstid
+- Target encoding for Transaction Type (21 verdier), brand (18), Inspection Color (240)
+- StandardScaler på alle features
+
+**Modellresultater (testsett, 18 820 rader):**
+
+| Modell | Accuracy | Precision C | Recall C | F1 C |
+|---|---|---|---|---|
+| Decision Tree (baseline) | 88.8 % | 0.964 | 0.947 | 0.956 |
+| Random Forest (default) | 92.2 % | 0.980 | 0.966 | 0.973 |
+| **Random Forest (optimert)** | **92.4 %** | **0.981** | **0.967** | **0.974** |
+
+- ✅ 80 %-kravet oppfylt (92.4 %)
+- ✅ Recall klasse C (0.97) >> 0.75-terskelen
+- Gradient Boosting var ikke nødvendig
+
+**Beste hyperparametere (GridSearchCV, 5-fold CV):**
+
+- n_estimators: 500, max_depth: None, min_samples_split: 2, class_weight: balanced
+
+**Topp 3 prediktorer (feature importance):**
+
+1. Inspected Device Value (0.217) – estimert markedsverdi
+2. Kostnadsforhold (0.124) – cost/markedsverdi, definerer BER-terskel
+3. Device Category (0.107) – enhetskategori
+
+Overraskende lavt: brand (0.025) – merke har liten påvirkning sammenlignet med økonomiske variabler.
+
+**Lagrede filer i 004 data/:**
+
+- `modino_rf_model.pkl` – trent Random Forest-modell
+- `label_encoder.pkl` – LabelEncoder (A→0, B→1, C→2)
+- `resultater.csv` – alle evalueringsmetrikker
+- `confusion_matrix_baseline.png`, `confusion_matrix_rf.png`, `confusion_matrix_final.png`
+- `feature_importance.png`
+
+### Åpne spørsmål
+
+- Validering av grade-til-klasse-mapping (A+B→A, C→B, D+E+F→C) med Modino
+- Estimert kostnadsbesparelse (steg fra metodekapitlet) er ennå ikke beregnet
+- Device Model (518 unike) ble ikke brukt direkte – vurder embeddings/gruppering
