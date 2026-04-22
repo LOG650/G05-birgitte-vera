@@ -426,7 +426,7 @@ Dette kapittelet dokumenterer hvordan prosjektet er gjennomført, og gir tilstre
 
 ## 4.1 Forskningsdesign
 
-### 3.1.1 Overordnet design
+### 4.1.1 Overordnet design
 
 Prosjektet følger et **kvantitativt, anvendt forskningsdesign** der Modino AS fungerer som case-kontekst for utvikling og evaluering av en prediktiv klassifiseringsmodell. Modino AS er ikke et case i Yins (2018) fortolkende forstand, men snarere en empirisk kontekst som gir det historiske datagrunnlaget modellen trenes og evalueres på. Dette er konsistent med det kompendiet kaller en *analytisk oppgave med case-kontekst* (Rekdal & Pettersen, 2025), der problemet er kvantitativt og løsningen er en datadrevet modell.
 
@@ -449,13 +449,13 @@ Figur 3.1: Prosjektets fire designsteg fra datauttrekk til lønnsomhetsevaluerin
 Egenprodusert.
 ```
 
-### 3.1.2 Bruk av KI som analytisk verktøy
+### 4.1.2 Bruk av KI som analytisk verktøy
 
 Claude Code CLI benyttes som analytisk støtteverktøy i prosjektet, primært for datarensing, koding av transformasjoner og modelltrening i Python. Bruken følger retningslinjene i LOG650-kompendiet (Rekdal & Pettersen, 2025, kap. 8): gruppen formulerer alle instruksjoner, vurderer og kvalitetssikrer all output, og er faglig ansvarlig for samtlige metodiske valg og konklusjoner. KI-verktøyet erstatter ikke faglig skjønn, men øker effektiviteten i den tekniske gjennomføringen. All kode gjennomgås, forstås og godkjennes av gruppen før den inngår i analysen.
 
 I tråd med kompendiet (Rekdal & Pettersen, 2025, kap. 7.8) refereres Claude Code CLI i teksten der det er brukt som faglig sparringspartner for metodiske valg, og beskrives i referanselisten som et KI-verktøy med dato og versjon.
 
-### 3.1.3 Tidshorisont og avgrensning
+### 4.1.3 Tidshorisont og avgrensning
 
 Prosjektet analyserer historiske transaksjonsdata fra Modinos interne SAP-system for perioden **2024–2025**, geografisk avgrenset til **Norge**. Prosjektet bygger en klassifiseringsmodell for beslutningsstøtte – ressursallokering, kapasitetsplanlegging og optimering av reparasjonskø ligger utenfor omfanget.
 
@@ -463,11 +463,11 @@ Prosjektet analyserer historiske transaksjonsdata fra Modinos interne SAP-system
 
 ## 4.2 Datagrunnlag
 
-### 3.2.1 Datakilde og uttrekksmetode
+### 4.2.1 Datakilde og uttrekksmetode
 
 Datagrunnlaget er historiske transaksjonsdata fra Modino AS sitt interne **SAP-system**, uttrekket for perioden 2024–2025. SAP inneholder strukturert informasjon om alle enheter som er mottatt, behandlet og videresolgt eller avhendet. Datauttrekket gjennomføres av Birgitte i samarbeid med Modino og eksporteres som strukturerte datafiler (CSV/Excel) for videre analyse i Python. Uttrekkets omfang og kolonnespesifikasjoner avklares med Modino i forkant.
 
-### 3.2.2 Variabler og datastruktur
+### 4.2.2 Variabler og datastruktur
 
 Basert på prosjektets klassifiseringsproblem forventes følgende variabelkategorier å inngå i datasettet. Tabellen er foreløpig og oppdateres i sin helhet etter gjennomgang av Modinos SAP-uttrekk i fase 3 – metodekapittelet ferdigstilles da:
 
@@ -492,7 +492,7 @@ gjennomgang av Modinos SAP-uttrekk. Egenprodusert.*
 
 Den konkrete terskelen for positivt dekningsbidrag i klasse A fastsettes i samarbeid med Modino basert på deres faktiske kostnadsstruktur og marginkrav.
 
-### 3.2.3 Datakvalitet og begrensninger
+### 4.2.3 Datakvalitet og begrensninger
 
 Prosjektet er avhengig av at historiske utfall i SAP reflekterer faktisk lønnsomhet, ikke bare historisk praksis. Dersom Modino tidligere har brukt inkonsistente beslutningskriterier for kanalvalg, kan dette introdusere støy i målvariabelen. For å avdekke slike svakheter gjennomføres en systematisk gjennomgang av datastrukturen tidlig i fase 3, og eventuelle funn dokumenteres som begrensninger i diskusjonskapittelet.
 
@@ -500,7 +500,7 @@ Prosjektet er avhengig av at historiske utfall i SAP reflekterer faktisk lønnso
 
 ## 4.3 Datarensing og feature engineering
 
-### 3.3.1 Datarensing
+### 4.3.1 Datarensing
 
 Datarensingen gjennomføres i Python (pandas) og dokumenteres i GitHub-repositoriet slik at prosessen er fullt etterprøvbar. Følgende steg inngår:
 
@@ -512,7 +512,7 @@ Datarensingen gjennomføres i Python (pandas) og dokumenteres i GitHub-repositor
 
 **Uteliggere:** Numeriske variabler analyseres for ekstremverdier gjennom IQR-metoden. Uteliggere beholdes med mindre de med faglig begrunnelse klassifiseres som registreringsfeil.
 
-### 3.3.2 Feature engineering
+### 4.3.2 Feature engineering
 
 Feature engineering er prosessen med å transformere og konstruere input-variabler slik at modellen får best mulig prediktivt grunnlag (Zheng & Casari, 2018). Følgende transformasjoner planlegges:
 
@@ -522,7 +522,7 @@ Feature engineering er prosessen med å transformere og konstruere input-variabl
 
 **Koding av kategoriske variabler:** Merke og modell kodes med one-hot encoding eller target encoding avhengig av kardinalitet.
 
-### 3.3.3 Håndtering av klasseimbalanse
+### 4.3.3 Håndtering av klasseimbalanse
 
 Dersom én klasse er sterkt underrepresentert, vurderes følgende tiltak:
 
@@ -535,7 +535,7 @@ Valget avgjøres etter analyse av klassefordelingen i det rensede datasettet.
 
 ## 4.4 Analysemetode og modellvalg
 
-### 3.4.1 Overordnet analyseopplegg
+### 4.4.1 Overordnet analyseopplegg
 
 Analysen gjennomføres som en **supervised learning klassifiseringsanalyse** i Python med scikit-learn som primært bibliotek (Géron, 2022).
 
@@ -567,13 +567,13 @@ Analyseopplegg – fra data til evaluert modell
 Figur 3.2: Analyseopplegg fra renset datasett til endelig evaluert modell. Egenprodusert.
 ```
 
-### 3.4.2 Train/test-split og håndtering av lite datasett
+### 4.4.2 Train/test-split og håndtering av lite datasett
 
 Datasettet deles i et **treningssett (80 %)** og et **testsett (20 %)** ved hjelp av stratifisert splitting, slik at klassefordelingen bevares i begge deler (`train_test_split` med `stratify=y`). Testsettet holdes adskilt gjennom hele modellutviklingsprosessen og brukes kun til endelig evaluering (James et al., 2021).
 
 Det bemerkes at 80/20-splitt forutsetter et datasett av tilstrekkelig størrelse. Dersom Modinos datasett viser seg å inneholde færre enn 500–1 000 observasjoner – noe som er realistisk for et norsk recommerce-selskap – vil testsettet bli for lite til å gi stabile estimater. I så fall erstattes 80/20-splitt med **k-fold kryssvalidering (k = 10) på hele datasettet**, noe som er standardpraksis ved begrensede datamengder (Hastie et al., 2009). Valget mellom de to tilnærmingene dokumenteres etter gjennomgang av datasettet.
 
-### 3.4.3 Kandidatmodeller
+### 4.4.3 Kandidatmodeller
 
 Tre klassifiseringsalgoritmer vurderes:
 
@@ -583,7 +583,7 @@ Tre klassifiseringsalgoritmer vurderes:
 
 **Gradient Boosting (XGBoost/LightGBM)** er vurdert som kandidat, men prioriteres ned i første omgang av to grunner: (1) Random Forest gir bedre tolkbarhet gjennom direkte feature importance-verdier, noe som er viktig for kommunikasjon av resultater til Modinos ledelse, og (2) prosjektets tidsramme begrenser antall modeller som kan gjennomgås grundig. Dersom Random Forest ikke oppnår 80 % accuracy på testsettet, inkluderes Gradient Boosting som alternativ.
 
-### 3.4.4 Hyperparameteroptimering
+### 4.4.4 Hyperparameteroptimering
 
 For Random Forest gjennomføres hyperparameteroptimering ved hjelp av **5-fold kryssvalidering** på treningssettet (`GridSearchCV` i scikit-learn):
 
@@ -598,7 +598,7 @@ For Random Forest gjennomføres hyperparameteroptimering ved hjelp av **5-fold k
 
 *Tabell 3.2: Søkerom for hyperparameteroptimering via GridSearchCV. Egenprodusert.*
 
-### 3.4.5 Verktøy og reproduserbarhet
+### 4.4.5 Verktøy og reproduserbarhet
 
 **Tabell 3.3: Verktøy benyttet i analysen**
 
@@ -619,7 +619,7 @@ All kode lagres i prosjektets GitHub-repositorium med tydelig mappestruktur og k
 
 ## 4.5 Evalueringsrammeverk
 
-### 3.5.1 Tekniske evalueringsmetrikker
+### 4.5.1 Tekniske evalueringsmetrikker
 
 Modellens ytelse evalueres med følgende metrikker på testsettet (Sokolova & Lapalme, 2009):
 
@@ -636,7 +636,7 @@ Modellens ytelse evalueres med følgende metrikker på testsettet (Sokolova & La
 
 Feilkostnadene er asymmetriske: en A→C-feil (enhet som burde vært solgt, avhendes) gir tapt salgsinntekt, mens en C→A-feil (BER-enhet repareres unødvendig) gir direkte reparasjonskostnad uten inntekt. De konkrete ytelseskravene for precision og recall per klasse fastsettes i samarbeid med Modino etter gjennomgang av kostnadsstrukturen, slik at kravene reflekterer den faktiske kostnaden per feiltype.
 
-### 3.5.2 Forretningsmessig evaluering
+### 4.5.2 Forretningsmessig evaluering
 
 I tillegg til de tekniske metrikkene gjennomføres en **estimert kostnadsbesparelse** sammenlignet med dagens manuelle praksis. Dette gjøres ved å anvende modellens prediksjoner på det historiske testsettet og sammenligne predikert kanalvalg med faktisk historisk kanalvalg. Differansen i estimerte kanalspesifikke marginer brukes som proxy for økt netto dekningsbidrag:
 
@@ -647,7 +647,7 @@ Estimert besparelse = Σ (Modellens kanalmargin_i − Historisk kanalmargin_i)
 
 Det presiseres at denne beregningen er en **estimert netto lønnsomhetseffekt** basert på Modinos gjennomsnittsmarginer per kanal, ikke en eksakt besparelse på enhetsnivå. Variasjon i marginer per enhet er ikke modellert, og beregningen forutsetter at historisk kanalvalg representerer faktisk realisert lønnsomhet. Disse forutsetningene diskuteres kritisk i diskusjonskapittelet.
 
-### 3.5.3 Metodiske begrensninger
+### 4.5.3 Metodiske begrensninger
 
 Tre sentrale begrensninger erkjennes eksplisitt:
 
