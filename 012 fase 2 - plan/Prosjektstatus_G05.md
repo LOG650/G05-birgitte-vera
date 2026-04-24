@@ -1,15 +1,17 @@
 # Status for G05 – Modino-prosjektet
-**Statusdato:** 2026-04-22
+**Statusdato:** 2026-04-24
 **Gruppe:** G05 – Birgitte & Vera
 **Fag:** LOG650
 
-Denne statusen gjenspeiler faktisk fremdrift per 2026-04-22, med planbaselinen i `Prosjektstyringsplan_G05.md` og `Prosjekt_GANTT_G05.mpp` som referanse for avvik.
+Denne statusen gjenspeiler faktisk fremdrift per 2026-04-24, med planbaselinen i `Prosjektstyringsplan_G05.md` og `Prosjekt_GANTT_G05.mpp` som referanse for avvik.
 
 ---
 
 ## Kort status
 
-Prosjektet er i sluttfasen av fase 3. Alle analyseaktiviteter og rapportkapitler (1–9) er fullført. Det som gjenstår frem mot innlevering av utkast 27. april er lønnsomhetsberegningen (delproblem 2), tekniske rettinger i rapporten og sammenstilling av bibliografi, sammendrag og forside.
+Prosjektet er i sluttfasen av fase 3 (9. mar – 27. apr). Alle analyseaktiviteter og rapportkapitler (1–9) er fullført. Det som gjenstår i fase 3 er lønnsomhetsberegningen (delproblem 2), tekniske rettinger i rapporten og sammenstilling av bibliografi, sammendrag og forside – med frist 27. april for godkjent hovedutkast og peer review.
+
+Fase 4 (27. apr – 31. mai) starter umiddelbart etter og dekker ferdigstilling av konklusjon og innledning, kvalitetssikring, korrektur, referanseliste, muntlig presentasjon og endelig innlevering. Det er én måneds buffer til fase 4-fristen.
 
 - ACT-3.1 Hente og rense data fra Modino er fullført per 2026-04-17.
 - ACT-3.2 Feature engineering og klassemapping er fullført per 2026-04-19. Inspeksjonsgradene A–F er mappet til tre lønnsomhetsklasser (A/B/C).
@@ -52,7 +54,7 @@ Prosjektet er i sluttfasen av fase 3. Alle analyseaktiviteter og rapportkapitler
 | ACT-3.14 Beregne kostnadsbesparelse | 2026-04-19 til 2026-04-21 | Ikke startet | Høyest prioritet – krever avklaring av marginer per kanal |
 | ACT-3.15 Sammenstille rapportutkast | 2026-04-21 til 2026-04-27 | Pågår | Tekniske rettinger gjenstår. Knyttet til MS-006 |
 | ACT-4.1 Gjennomføre peer review og revisjon | 2026-04-27 til 2026-04-29 | Ikke startet | Avhenger av ACT-3.15 |
-| ACT-4.2 Ferdigstille rapport og presentasjon | 2026-04-29 til 2026-05-15 | Ikke startet | Sluttfasen |
+| ACT-4.2 Ferdigstille rapport og presentasjon | 2026-04-29 til 2026-05-31 | Ikke startet | Sluttfasen |
 
 ---
 
@@ -227,10 +229,11 @@ Prosjektet er i sluttfasen av fase 3. Alle analyseaktiviteter og rapportkapitler
 - [ ] Gjennomføre review og lukke aktiviteten
 
 **ACT-4.2 Ferdigstille rapport og presentasjon**
-- [ ] Ferdigstille endelig rapport
-- [ ] Kvalitetssikre språk, sporbarhet og konsistens
+- [ ] Ferdigstille konklusjon – besvar problemstillingen eksplisitt
+- [ ] Ferdigstille innledning (skrives til slutt etter alle kapitler er låst)
+- [ ] Kvalitetssikring, korrektur og ferdigstilling av referanseliste
 - [ ] Ferdigstille presentasjonsmateriell
-- [ ] Klargjøre endelig innlevering og presentasjon (frist 2026-05-15)
+- [ ] Klargjøre endelig innlevering og muntlig presentasjon (frist 2026-05-31)
 - [ ] Gjennomføre review og lukke aktiviteten
 
 ---
@@ -278,7 +281,7 @@ Prosjektet er i sluttfasen av fase 3. Alle analyseaktiviteter og rapportkapitler
 | MS-005 Prediktiv modell trent og evaluert | 2026-04-17 | Oppnådd 2026-04-19 | 92,4 % accuracy – 80 %-kravet oppfylt |
 | MS-006 Godkjent rapportutkast klart for review | 2026-04-27 | Planlagt | Avhenger av ACT-3.14 og ACT-3.15 |
 | MS-007 Peer review gjennomført | 2026-04-29 | Planlagt | Ingen endring |
-| MS-008 Endelig innlevering og presentasjon | 2026-05-15 | Planlagt | Ingen endring |
+| MS-008 Endelig innlevering og presentasjon | 2026-05-31 | Planlagt | Fase 4-frist |
 
 ---
 
@@ -301,4 +304,4 @@ Prosjektet er i sluttfasen av fase 3. Alle analyseaktiviteter og rapportkapitler
 
 ## Vurdering
 
-Prosjektet er operativt på plan per 2026-04-22. Alle analyseaktiviteter og rapportkapitler (1–9) er fullført. Det som gjenstår til innlevering av utkast 27. april er lønnsomhetsberegningen (ACT-3.14) og sammenstillingen av rapportutkastet (ACT-3.15). Bufferen på 4–5 dager mot innleveringsfristen vurderes som tilstrekkelig forutsatt at kostnadsbesparelsen prioriteres umiddelbart.
+Prosjektet er operativt på plan per 2026-04-24. Fase 3 avsluttes 27. april med godkjent utkast og peer review. Det som gjenstår i fase 3 er lønnsomhetsberegningen (ACT-3.14) og sammenstillingen av rapportutkastet (ACT-3.15) – kostnadsbesparelsen prioriteres umiddelbart. Fase 4 (27. apr – 31. mai) gir én hel måned til ferdigstilling av konklusjon og innledning, kvalitetssikring, korrektur, referanseliste og muntlig presentasjon. Tidsrammen vurderes som god forutsatt at ACT-3.14 fullføres i løpet av de neste dagene.
