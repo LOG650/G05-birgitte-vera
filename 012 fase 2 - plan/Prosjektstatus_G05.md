@@ -200,10 +200,10 @@ Fase 4 (27. apr – 31. mai) starter umiddelbart etter og dekker ferdigstilling 
 ### Neste aktiviteter
 
 **ACT-3.14 Beregne kostnadsbesparelse / lønnsomhetseffekt**
-- [ ] Avklare gjennomsnittsmarginer per kanal (A, B, C) med Vera og eventuelt Modino
-- [ ] Beregne estimert lønnsomhetseffekt ved å sammenligne modellprediksjoner mot historisk kanalvalg på testsettet
-- [ ] Integrere beregningen i kap. 7 Resultat (delproblem 2)
-- [ ] Oppdatere kap. 9 Konklusjon med endelig lønnsomhetskonklusjon
+- [x] Avklare gjennomsnittsmarginer per kanal (A, B, C) – beregnet fra SAP-data (A: 484 NOK, B: 197 NOK, C: 195 NOK)
+- [x] Beregne estimert lønnsomhetseffekt ved å sammenligne modellprediksjoner mot historisk kanalvalg på testsettet (+156 072 NOK / ~390 000 NOK per år)
+- [x] Integrere beregningen i kap. 7 Resultat (ny seksjon 7.7, fire underavsnitt)
+- [x] Oppdatere kap. 9 Konklusjon med endelig lønnsomhetskonklusjon (delproblem 2 besvart)
 - [ ] Gjennomføre review og lukke aktiviteten
 
 **ACT-3.15 Sammenstille rapportutkast**
