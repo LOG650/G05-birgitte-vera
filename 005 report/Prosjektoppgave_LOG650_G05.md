@@ -917,7 +917,7 @@ Tabell 7.4 viser gjennomsnittlig revenue, cost og margin per lønnsomhetsklasse 
 
 Et viktig funn er at klasse B og klasse C har nær identiske gjennomsnittsmarginer (197 vs. 195 NOK per enhet). Dette reflekterer at BER-enheter (klasse C) i praksis selges som reservedeler eller til B2B-kjøpere og dermed oppnår lignende realisert verdi som klasse B-enheter. Den primære lønnsomhetsforskjellen i datasettet er mellom klasse A og klassene B/C: klasse A genererer 2,5 ganger høyere margin enn de øvrige kanalene.
 
-### 7.7.2 Estimeringmetodikk
+### 7.7.2 Estimeringsmetodikk
 
 For å estimere lønnsomhetseffekten sammenlignes modellens prediksjoner med historiske kanalvalg på testsettet (n = 18 820). Fremgangsmåten er:
 
@@ -925,7 +925,7 @@ For å estimere lønnsomhetseffekten sammenlignes modellens prediksjoner med his
 2. For enheter der modellen avviker fra historisk kanalvalg (7,6 % av testsettet): estimeres marginen for den predikerte kanalen ved bruk av gjennomsnittsverdier fra tabell 7.4.
 3. Differansen mellom modellens estimerte totalmargin og historisk totalmargin utgjør lønnsomhetseffekten.
 
-Beregningen er basert på at SAP-registrerte revenue og cost-verdier reflekterer faktisk realisert lønnsomhet per kanal. Metodens begrensninger diskuteres i avsnitt 8.4.
+**Viktig antakelse:** Beregningen forutsetter at modellens prediksjoner er korrekte der de avviker fra historisk kanalvalg – det vil si at de historiske valgene var suboptimale i disse tilfellene. Dette er en optimistisk antakelse som ikke kan verifiseres uten ekstern validering av grade-til-klasse-mappingen mot Modinos faktiske kanaldata. Estimatet representerer dermed en øvre grense for lønnsomhetseffekten, ikke et forventet gjennomsnittlig utfall. Metodens øvrige begrensninger diskuteres i avsnitt 8.4.
 
 ### 7.7.3 Resultater
 
@@ -956,7 +956,7 @@ Tabell 7.6 viser bidraget fra de ulike klassifiseringsfeilene. Den dominerende g
 | C | C | 2 687 | 0 | 0 *(korrekt)* |
 | | **Sum** | **18 820** | | **+156 072** |
 
-*Tabell 7.6: Estimert margindifferanse per klassifiseringsutfall på testsettet. Positive verdier indikerer at modellens predikerte kanal gir høyere estimert margin enn historisk kanal. Egenprodusert.*
+*Tabell 7.6: Estimert margindifferanse per klassifiseringsutfall på testsettet under antakelsen om at modellens prediksjoner er korrekte. Merk at radene C→A og C→B representerer modellens feilklassifiseringer av BER-enheter; de viser positiv margindifferanse fordi gjennomsnittsmarginen for klasse A/B er høyere enn for klasse C i SAP-dataene, men dersom disse enhetene i virkeligheten ikke kan oppnå klasse A- eller B-marginer, representerer de en kostnad. Egenprodusert.*
 
 ### 7.7.4 Oppskalert estimat
 
@@ -964,7 +964,7 @@ Testsettet utgjør 20 % av datasettet. Oppskalert til hele datasettet (94 096 ob
 
 > **Estimert netto forbedring per år: ~390 000 NOK**
 
-Dette er et konservativt estimat basert på gjennomsnittsmarginer og begrensede tall for misklassifiseringskostnader. Beregningen forutsetter at modellens prediksjoner er korrekte der de avviker fra historisk kanalvalg. Estimatet bør tolkes som en størrelsesorden snarere enn et eksakt tall, da det er heftet med metodiske usikkerheter som diskuteres i avsnitt 8.4.
+Dette er et estimat under den optimistiske antakelsen om at modellen er riktig i alle avvik fra historisk kanalvalg. Reell effekt kan være lavere dersom noen av avvikene er modellens feil snarere enn forbedringer. Estimatet bør tolkes som en øvre størrelsesorden, ikke et forventet gjennomsnittlig utfall. Metodiske usikkerheter diskuteres i avsnitt 8.4.
 
 ---
 
@@ -1014,7 +1014,7 @@ I denne oppgaven har vi utviklet og evaluert en AI-basert klassifiseringsmodell 
 
 **Delproblem 1 – Klassifiseringsnøyaktighet:** En Random Forest-modell med optimerte hyperparametere oppnår **92,4 % accuracy** på et holdout-testsett med 18 820 enheter – godt over minimumskravet på 80 %. Modellen identifiserer 96,7 % av alle BER-enheter korrekt (recall klasse C), noe som betyr at svært få ulønnsomme enheter sendes til unødvendig reparasjon. Precision for klasse C er 98,1 %, som innebærer at nesten alle enheter modellen klassifiserer som BER, faktisk er BER.
 
-**Delproblem 2 – Lønnsomhetseffekt:** Gjennomsnittlig margin per lønnsomhetsklasse er 484 NOK for klasse A (nettbutikk), 197 NOK for klasse B (B2B/reservedeler) og 195 NOK for klasse C (BER/avhending). Den estimerte netto lønnsomhetseffekten av modellens klassifisering sammenlignet med historiske kanalvalg er **+156 072 NOK på testsettet** (18 820 enheter), tilsvarende **~390 000 NOK per år** oppskalert til fullt volum. Den primære gevinsten stammer fra at modellen korrekt identifiserer klasse A-enheter som historisk ble sendt til lavere-marginkanaler. Estimatet er beheftet med usikkerhet som følge av target leakage og grade-til-klasse-mappingens gyldighet, og bør tolkes som en størrelsesorden.
+**Delproblem 2 – Lønnsomhetseffekt:** Gjennomsnittlig margin per lønnsomhetsklasse er 484 NOK for klasse A (nettbutikk), 197 NOK for klasse B (B2B/reservedeler) og 195 NOK for klasse C (BER/avhending). Den estimerte netto lønnsomhetseffekten av modellens klassifisering sammenlignet med historiske kanalvalg er **+156 072 NOK på testsettet** (18 820 enheter), tilsvarende **~390 000 NOK per år** oppskalert til fullt volum. Dette er en øvre grense under antakelsen om at modellen er riktig der den avviker fra historisk kanalvalg; reell effekt kan være lavere dersom noen avvik er modellens feil snarere enn forbedringer. Estimatet er videre beheftet med usikkerhet knyttet til target leakage og grade-til-klasse-mappingens gyldighet.
 
 De tre viktigste prediktorene er estimert markedsverdi (Inspected Device Value), kostnadsforhold (cost / markedsverdi) og enhetskategori (Device Category). Disse variablene står for 44,8 % av modellens prediktive kraft og bekrefter den teoretiske forventningen fra Ferguson et al. (2009) om at forholdet mellom reparasjonskostnad og markedsverdi er den sentrale driveren for lønnsomhetsklassifisering.
 
