@@ -412,7 +412,7 @@ Modino har to komplementære datakilder som til sammen dekker klassifiseringspro
 
 **Modino-inspeksjonsdata** inneholder enhetsspesifikke inspeksjonsresultater: tilstandsgrad, registrerte feil (QuotedFaults og InspectedFaults), inspeksjonsdato, forhandler og butikk, samt inspeksjonsverdi satt av systemet. Disse dataene representerer informasjonen som er tilgjengelig på beslutningstidspunktet – det vil si inputvariablene modellen skal bruke for å predikere klasse.
 
-De to datasettene er koblet på enhetsnivå og danner til sammen et historisk datasett for perioden 2024–2025 med om lag 10 000–15 000 transaksjoner.
+De to datasettene er koblet på enhetsnivå og danner til sammen et historisk datasett for perioden 2024–2025 med 94 096 transaksjoner.
 
 ## 3.6 Problemets antatte årsak
 
@@ -435,7 +435,7 @@ Prosjektet er videre forankret i en beslutningsstøtte-ramme slik Turban et al. 
 Det overordnede designvalget kan oppsummeres i fire steg som følger prosjektets røde tråd:
 
 ```
-[FIGUR 3.1 – Egenprodusert]
+[FIGUR 4.1 – Egenprodusert]
 Prosjektets forskningsdesign – fire steg
 
   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
@@ -445,7 +445,7 @@ Prosjektets forskningsdesign – fire steg
   └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
       Data                Data           Prediksjon          Lønnsomhet
 
-Figur 3.1: Prosjektets fire designsteg fra datauttrekk til lønnsomhetsevaluering.
+Figur 4.1: Prosjektets fire designsteg fra datauttrekk til lønnsomhetsevaluering.
 Egenprodusert.
 ```
 
@@ -457,7 +457,7 @@ I tråd med kompendiet (Rekdal & Pettersen, 2025, kap. 7.8) refereres Claude Cod
 
 ### 4.1.3 Tidshorisont og avgrensning
 
-Prosjektet analyserer historiske transaksjonsdata fra Modinos interne SAP-system for perioden **2024–2025**, geografisk avgrenset til **Norge**. Prosjektet bygger en klassifiseringsmodell for beslutningsstøtte – ressursallokering, kapasitetsplanlegging og optimering av reparasjonskø ligger utenfor omfanget.
+Prosjektet analyserer historiske transaksjonsdata fra Modinos interne SAP-system for perioden **2024–2025**, geografisk avgrenset til **Estland, Norge, Finland, Sverige og Romania** (de fem landene med ≥ 1 000 transaksjoner i datasettet). Prosjektet bygger en klassifiseringsmodell for beslutningsstøtte – ressursallokering, kapasitetsplanlegging og optimering av reparasjonskø ligger utenfor omfanget.
 
 ---
 
@@ -471,7 +471,7 @@ Datagrunnlaget er historiske transaksjonsdata fra Modino AS sitt interne **SAP-s
 
 Basert på prosjektets klassifiseringsproblem forventes følgende variabelkategorier å inngå i datasettet. Tabellen er foreløpig og oppdateres i sin helhet etter gjennomgang av Modinos SAP-uttrekk i fase 3 – metodekapittelet ferdigstilles da:
 
-**Tabell 3.1: Forventede variabler i datasettet**
+**Tabell 4.1: Forventede variabler i datasettet**
 
 | Variabelkategori | Eksempler | Type |
 |---|---|---|
@@ -481,7 +481,7 @@ Basert på prosjektets klassifiseringsproblem forventes følgende variabelkatego
 | Markedsverdi | Estimert salgspris ved reparasjon | Numerisk |
 | Historisk utfall | Faktisk kanal (nettbutikk, B2B, avhend) | Kategorisk (målvariabel) |
 
-*Tabell 3.1: Forventede variabler i datasettet. Endelig variabelliste fastsettes etter
+*Tabell 4.1: Forventede variabler i datasettet. Endelig variabelliste fastsettes etter
 gjennomgang av Modinos SAP-uttrekk. Egenprodusert.*
 
 **Målvariabelen** konstrueres fra historiske utfall og defineres som:
@@ -540,7 +540,7 @@ Valget avgjøres etter analyse av klassefordelingen i det rensede datasettet.
 Analysen gjennomføres som en **supervised learning klassifiseringsanalyse** i Python med scikit-learn som primært bibliotek (Géron, 2022).
 
 ```
-[FIGUR 3.2 – Egenprodusert]
+[FIGUR 4.2 – Egenprodusert]
 Analyseopplegg – fra data til evaluert modell
 
   Renset datasett
@@ -564,7 +564,7 @@ Analyseopplegg – fra data til evaluert modell
         ▼
   Valgt modell
 
-Figur 3.2: Analyseopplegg fra renset datasett til endelig evaluert modell. Egenprodusert.
+Figur 4.2: Analyseopplegg fra renset datasett til endelig evaluert modell. Egenprodusert.
 ```
 
 ### 4.4.2 Train/test-split og håndtering av lite datasett
@@ -587,7 +587,7 @@ Tre klassifiseringsalgoritmer vurderes:
 
 For Random Forest gjennomføres hyperparameteroptimering ved hjelp av **5-fold kryssvalidering** på treningssettet (`GridSearchCV` i scikit-learn):
 
-**Tabell 3.2: Hyperparametere for Random Forest**
+**Tabell 4.2: Hyperparametere for Random Forest**
 
 | Parameter | Beskrivelse | Søkerom |
 |---|---|---|
@@ -596,11 +596,11 @@ For Random Forest gjennomføres hyperparameteroptimering ved hjelp av **5-fold k
 | `min_samples_split` | Min. observasjoner for splitting | 2, 5, 10 |
 | `class_weight` | Håndtering av klasseimbalanse | balanced, None |
 
-*Tabell 3.2: Søkerom for hyperparameteroptimering via GridSearchCV. Egenprodusert.*
+*Tabell 4.2: Søkerom for hyperparameteroptimering via GridSearchCV. Egenprodusert.*
 
 ### 4.4.5 Verktøy og reproduserbarhet
 
-**Tabell 3.3: Verktøy benyttet i analysen**
+**Tabell 4.3: Verktøy benyttet i analysen**
 
 | Verktøy | Bruksområde | Referanse |
 |---|---|---|
@@ -611,7 +611,7 @@ For Random Forest gjennomføres hyperparameteroptimering ved hjelp av **5-fold k
 | Claude Code CLI | Kodegenerering og analytisk støtte | Anthropic (2025) |
 | GitHub | Versjonskontroll og dokumentasjon | – |
 
-*Tabell 3.3: Verktøy benyttet i analysen. Egenprodusert.*
+*Tabell 4.3: Verktøy benyttet i analysen. Egenprodusert.*
 
 All kode lagres i prosjektets GitHub-repositorium med tydelig mappestruktur og kommentarer. Tilfeldig frø settes til `random_state=42` i alle steg som involverer tilfeldighet, for å sikre reproduserbarhet.
 
@@ -623,7 +623,7 @@ All kode lagres i prosjektets GitHub-repositorium med tydelig mappestruktur og k
 
 Modellens ytelse evalueres med følgende metrikker på testsettet (Sokolova & Lapalme, 2009):
 
-**Tabell 3.4: Evalueringsmetrikker og forretningsmessig tolkning**
+**Tabell 4.4: Evalueringsmetrikker og forretningsmessig tolkning**
 
 | Metrikk | Minimumskrav | Forretningsmessig tolkning |
 |---|---|---|
@@ -632,7 +632,7 @@ Modellens ytelse evalueres med følgende metrikker på testsettet (Sokolova & La
 | Recall (klasse C) | Fastsettes etter datagjennomgang | Fang opp BER-enheter tidlig |
 | Confusion matrix | Visualisering | Identifiser systematiske feilklassifiseringer |
 
-*Tabell 3.4: Evalueringsmetrikker og forretningsmessig tolkning. Egenprodusert.*
+*Tabell 4.4: Evalueringsmetrikker og forretningsmessig tolkning. Egenprodusert.*
 
 Feilkostnadene er asymmetriske: en A→C-feil (enhet som burde vært solgt, avhendes) gir tapt salgsinntekt, mens en C→A-feil (BER-enhet repareres unødvendig) gir direkte reparasjonskostnad uten inntekt. De konkrete ytelseskravene for precision og recall per klasse fastsettes i samarbeid med Modino etter gjennomgang av kostnadsstrukturen, slik at kravene reflekterer den faktiske kostnaden per feiltype.
 
@@ -655,7 +655,7 @@ Tre sentrale begrensninger erkjennes eksplisitt:
 
 **Ekstern validitet:** Modellen er trent på Modinos data for 2024–2025 og er ikke nødvendigvis generaliserbar til andre aktører, markeder eller tidsperioder. Ibrahim og Abdul-Kader (2025) finner at alder er en sterk prediktor for disponeringskategori, noe som indikerer at modellen kan bli utdatert relativt raskt i takt med teknologiskifter i smarttelefonmarkedet.
 
-**Datamengde:** Dersom datasettet er lite (< 500 observasjoner), øker risikoen for overfitting og ustabile estimater. I så fall vurderes enklere modeller eller forsterket regularisering, og 80/20-splitt erstattes med k-fold kryssvalidering som beskrevet i avsnitt 3.4.2.
+**Datamengde:** Dersom datasettet er lite (< 500 observasjoner), øker risikoen for overfitting og ustabile estimater. I så fall vurderes enklere modeller eller forsterket regularisering, og 80/20-splitt erstattes med k-fold kryssvalidering som beskrevet i avsnitt 4.4.2.
 
 ---
 
@@ -694,7 +694,7 @@ Zheng, A., & Casari, A. (2018). *Feature engineering for machine learning*. O'Re
 Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). SAGE Publications. [Brukes kun som kontrast i avsnitt 3.1.1 – ikke primærkilden for designvalget]
 # 5. Modellering
 
-Dette kapittelet beskriver den matematiske formuleringen av klassifiseringsproblemet og modellstrukturen som benyttes. Evalueringsmetrikker er beskrevet i avsnitt 3.5.
+Dette kapittelet beskriver den matematiske formuleringen av klassifiseringsproblemet og modellstrukturen som benyttes. Evalueringsmetrikker er beskrevet i avsnitt 4.5.
 
 ## 5.1 Problemformulering
 
@@ -726,7 +726,7 @@ Random Forest (Breiman, 2001) er et ensemble av B beslutningstrær der hvert tre
 
 der Tᵢ(x) er prediksjonen fra tre i. Denne randomiseringen reduserer variansen sammenlignet med et enkelt beslutningstre og gjør modellen robust mot overfitting (Hastie et al., 2009).
 
-Antall trær (B), trédybde og øvrige hyperparametere optimeres via GridSearchCV med 5-fold kryssvalidering på treningssettet (søkerom beskrevet i avsnitt 3.4.4). Ved klasseimbalanse kan `class_weight='balanced'` benyttes, som vekter hver klasse omvendt proporsjonalt med dens frekvens:
+Antall trær (B), trédybde og øvrige hyperparametere optimeres via GridSearchCV med 5-fold kryssvalidering på treningssettet (søkerom beskrevet i avsnitt 4.4.4). Ved klasseimbalanse kan `class_weight='balanced'` benyttes, som vekter hver klasse omvendt proporsjonalt med dens frekvens:
 
 ```
 wₖ = n / (K × nₖ)
@@ -738,7 +738,7 @@ Random Forest produserer i tillegg feature importance-verdier basert på gjennom
 
 ## 5.4 Gradient Boosting (reservemodell)
 
-Dersom Random Forest ikke oppnår minimumskravet på 80 % accuracy (jf. avsnitt 3.5.1), benyttes Gradient Boosting (XGBoost/LightGBM) som alternativ. Gradient Boosting bygger trær sekvensielt der hvert nytt tre korrigerer feilene fra de foregående, noe som kan gi høyere nøyaktighet på bekostning av tolkbarhet. Metoden inkluderes som reservemodell, ikke primærmodell, av to grunner: (1) Random Forests direkte feature importance-verdier er viktige for kommunikasjon av resultater til Modinos ledelse, og (2) sekvensiell trening gjør Gradient Boosting mer utsatt for overfitting på datasett med begrenset variasjon, og krever mer omfattende hyperparametertuning (learning rate, antall trær, trédybde) for å unngå dette.
+Dersom Random Forest ikke oppnår minimumskravet på 80 % accuracy (jf. avsnitt 4.5.1), benyttes Gradient Boosting (XGBoost/LightGBM) som alternativ. Gradient Boosting bygger trær sekvensielt der hvert nytt tre korrigerer feilene fra de foregående, noe som kan gi høyere nøyaktighet på bekostning av tolkbarhet. Metoden inkluderes som reservemodell, ikke primærmodell, av to grunner: (1) Random Forests direkte feature importance-verdier er viktige for kommunikasjon av resultater til Modinos ledelse, og (2) sekvensiell trening gjør Gradient Boosting mer utsatt for overfitting på datasett med begrenset variasjon, og krever mer omfattende hyperparametertuning (learning rate, antall trær, trédybde) for å unngå dette.
 
 ---
 
