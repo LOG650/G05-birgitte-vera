@@ -472,3 +472,52 @@ Alle confusion matrix-verdier verifisert mot modellkjøring – stemmer.
 ### ML-prompt lagret
 
 Prompten brukt til ML-analysen (`claude_code_prompt_modino.md`) kopiert fra Downloads til `005 report/` og endret "jeg/meg" til "vi/oss" (3 forekomster).
+
+---
+
+## Oppdatering – 2026-04-24
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### ACT-3.14 – Lønnsomhetsberegning / delproblem 2 fullført
+
+Gjennomførte lønnsomhetsberegningen som var høyest prioritert mot innlevering 27. april. Beregningen er basert på `004 data/modino_filtered.csv` (92 119 obs.) og confusion matrix fra den optimerte Random Forest-modellen.
+
+**Analyse-skript:** `004 data/lonnsomhet_analyse.py` (ikke versjonskontrollert – ligger i `.gitignore`-mappen)
+
+**Gjennomsnittlig margin per lønnsomhetsklasse:**
+
+| Klasse | Kanal | Revenue | Cost | Margin |
+|---|---|---|---|---|
+| A | Reparasjon + nettbutikk | 2 222 NOK | 1 738 NOK | **484 NOK** |
+| B | B2B / reservedeler | 946 NOK | 749 NOK | **197 NOK** |
+| C | BER / avhending | 899 NOK | 705 NOK | **195 NOK** |
+
+Viktig funn: klasse B og C har nær identiske marginer (197 vs. 195 NOK/enhet), fordi BER-enheter i praksis selges som reservedeler eller til B2B og dermed oppnår lignende realisert verdi. Den primære lønnsomhetsforskjellen er mellom klasse A og klassene B/C – klasse A genererer 2,5× høyere margin.
+
+**Estimert lønnsomhetseffekt (modell vs. historisk kanalvalg):**
+
+| | Totalmargin (NOK) |
+|---|---|
+| Historisk kanalvalg (testsett, n = 18 820) | 6 050 080 |
+| Modellens estimerte kanalvalg | 6 206 151 |
+| Netto forbedring | **+156 072** |
+
+Oppskalert til fullt volum (~47 000 enheter/år): **~390 000 NOK per år**.
+
+Beregningen forutsetter at SAP-registrert revenue og cost reflekterer faktisk kanalutfall. Target leakage-risiko er adressert som metodisk begrensning i kap. 8.4.
+
+### Rapportoppdateringer
+
+- **Kap. 7 Resultat** – ny seksjon 7.7 lagt til med fire underavsnitt:
+  - 7.7.1 Gjennomsnittlig margin per klasse (tabell 7.4)
+  - 7.7.2 Estimeringsmetodikk
+  - 7.7.3 Resultater (tabell 7.5 total, tabell 7.6 per misklassifisering)
+  - 7.7.4 Oppskalert estimat (~390 000 NOK/år)
+- **Kap. 9 Konklusjon** – oppdatert med eksplisitt svar på delproblem 2; punkt 3 i videre forskning endret fra "beregn kostnadsbesparelse" til "innhent faktiske kanalmarginer fra Modino"
+- **Prosjektstatus_G05.md** – ACT-3.14 markert ferdig (4 av 5 punkter avhuket)
+
+### Gjenstår i fase 3 (frist 27. april)
+
+- ACT-3.15 Sammenstille rapportutkast (tekniske rettinger, bibliografi, sammendrag, abstract, forside)
+- ACT-3.14 review og lukking
