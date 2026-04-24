@@ -1031,4 +1031,63 @@ Følgende områder anbefales for videre arbeid:
 5. **Inkludere Device Model** som feature gjennom gruppering eller embeddings, da 518 unike modeller potensielt inneholder verdifull informasjon som brand alene ikke fanger.
 
 # Bibliografi
+
+Anthropic. (2025). *Claude Code CLI* [KI-verktøy]. Anthropic. https://claude.ai/code
+
+Breiman, L. (2001). Random forests. *Machine Learning*, *45*(1), 5–32. https://doi.org/10.1023/A:1010933404324
+
+Chawla, N. V., Bowyer, K. W., Hall, L. O., & Kegelmeyer, W. P. (2002). SMOTE: Synthetic minority over-sampling technique. *Journal of Artificial Intelligence Research*, *16*, 321–357. https://doi.org/10.1613/jair.953
+
+Fawcett, T. (2006). An introduction to ROC analysis. *Pattern Recognition Letters*, *27*(8), 861–874. https://doi.org/10.1016/j.patrec.2005.10.010
+
+Ferguson, M., Guide, V. D. R., Koca, E., & Souza, G. C. (2009). The value of quality grading in remanufacturing. *Production and Operations Management*, *18*(3), 300–314. https://doi.org/10.1111/j.1937-5956.2009.01033.x
+
+Fleischmann, M., Bloemhof-Ruwaard, J. M., Dekker, R., van der Laan, E., van Nunen, J. A. E. E., & Van Wassenhove, L. N. (1997). Quantitative models for reverse logistics: A review. *European Journal of Operational Research*, *103*(1), 1–17. https://doi.org/10.1016/S0377-2217(97)00230-0
+
+Galbreth, M. R., & Blackburn, J. D. (2006). Optimal acquisition and sorting policies for remanufacturing. *Production and Operations Management*, *15*(3), 384–392. https://doi.org/10.1111/j.1937-5956.2006.tb00252.x
+
+Geissdoerfer, M., Savaget, P., Bocken, N. M. P., & Hultink, E. J. (2017). The circular economy – a new sustainability paradigm? *Journal of Cleaner Production*, *143*, 757–768. https://doi.org/10.1016/j.jclepro.2016.12.048
+
+Géron, A. (2022). *Hands-on machine learning with Scikit-Learn, Keras, and TensorFlow* (3. utg.). O'Reilly Media.
+
+Geyer, R., Van Wassenhove, L. N., & Atasu, A. (2007). The economics of remanufacturing under limited component durability and finite product life cycles. *Management Science*, *53*(1), 88–100. https://doi.org/10.1287/mnsc.1060.0600
+
+Govindan, K., Soleimani, H., & Kannan, D. (2015). Reverse logistics and closed-loop supply chain: A comprehensive review to explore the future. *European Journal of Operational Research*, *240*(3), 603–626. https://doi.org/10.1016/j.ejor.2014.07.012
+
+Guide, V. D. R., & Van Wassenhove, L. N. (2009). The evolution of closed-loop supply chain research. *Operations Research*, *57*(1), 10–18. https://doi.org/10.1287/opre.1080.0628
+
+Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The elements of statistical learning: Data mining, inference, and prediction* (2. utg.). Springer. https://doi.org/10.1007/978-0-387-84858-7
+
+Hübner, A., Kuhn, H., & Wollenburg, J. (2020). Integrated decision-making in reverse logistics: An optimisation of interacting acquisition, grading and disposition processes. *International Journal of Production Research*, *58*(19), 5786–5805. https://doi.org/10.1080/00207543.2019.1659518
+
+Ibrahim, A. A., & Abdul-Kader, W. (2025). A predictive and prescriptive analytics approach for sustainable cellphone return management. *Cleaner and Responsible Consumption*. https://doi.org/10.1016/j.clrc.2025.100100
+
+James, G., Witten, D., Hastie, T., & Tibshirani, R. (2021). *An introduction to statistical learning with applications in R* (2. utg.). Springer. https://doi.org/10.1007/978-1-0716-1418-1
+
+Kirchherr, J., Reike, D., & Hekkert, M. (2017). Conceptualizing the circular economy: An analysis of 114 definitions. *Resources, Conservation and Recycling*, *127*, 221–232. https://doi.org/10.1016/j.resconrec.2017.09.005
+
+Potting, J., Hekkert, M. P., Worrell, E., & Hanemaaijer, A. (2017). *Circular economy: Measuring innovation in the product chain* (PBL-rapport nr. 2544). PBL Netherlands Environmental Assessment Agency. https://www.pbl.nl/sites/default/files/downloads/pbl-2016-circular-economy-measuring-innovation-in-product-chains-2544.pdf
+
+Proske, M., Clemm, C., & Scheidt, L. (2018). Does the circular economy grow the pie? The case of rebound effects from smartphone reuse. *Frontiers in Energy Research*, *6*, artikkel 39. https://doi.org/10.3389/fenrg.2018.00039
+
+Quinlan, J. R. (1986). Induction of decision trees. *Machine Learning*, *1*(1), 81–106. https://doi.org/10.1007/BF00116251
+
+Rekdal, P. K., & Pettersen, B.-I. (2025). *Vitenskapelig skriving – en praktisk innføring: Kompendium LOG650 Forskningsprosjekt: Logistikk og kunstig intelligens*. Høgskolen i Molde.
+
+Rogers, D. S., & Tibben-Lembke, R. S. (1999). *Going backwards: Reverse logistics trends and practices*. Reverse Logistics Executive Council.
+
+Sokolova, M., & Lapalme, G. (2009). A systematic analysis of performance measures for classification tasks. *Information Processing & Management*, *45*(4), 427–437. https://doi.org/10.1016/j.ipm.2009.03.002
+
+Stahel, W. R. (2016). The circular economy. *Nature*, *531*(7595), 435–438. https://doi.org/10.1038/531435a
+
+Teunter, R. H., & Flapper, S. D. P. (2011). Optimal core acquisition and remanufacturing policies under uncertain core quality fractions. *European Journal of Operational Research*, *210*(2), 241–248. https://doi.org/10.1016/j.ejor.2010.09.024
+
+Turban, E., Sharda, R., & Delen, D. (2011). *Decision support and business intelligence systems* (9. utg.). Pearson.
+
+Turkolmez, G. B., El Hathat, Z., Subramanian, N., Kuppusamy, S., & Sreedharan, V. R. (2024). Machine learning algorithms for pricing end-of-life remanufactured laptops. *Information Systems Frontiers*. https://doi.org/10.1007/s10796-024-10515-9
+
+Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). SAGE Publications.
+
+Zheng, A., & Casari, A. (2018). *Feature engineering for machine learning*. O'Reilly Media.
+
 # Vedlegg
