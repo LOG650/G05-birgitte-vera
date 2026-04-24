@@ -521,3 +521,29 @@ Beregningen forutsetter at SAP-registrert revenue og cost reflekterer faktisk ka
 
 - ACT-3.15 Sammenstille rapportutkast (tekniske rettinger, bibliografi, sammendrag, abstract, forside)
 - ACT-3.14 review og lukking
+
+---
+
+## Oppdatering – 2026-04-24 (del 2)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Kvalitetssikring av kap. 7.7 – metodisk svakhet identifisert og rettet
+
+Gjennomførte en kritisk gjennomgang av kap. 7 (Resultat) fra perspektivet til en tester og kvalitetssikrer.
+
+**Kap. 7.1–7.6 (delproblem 1):** Godkjent. Alle tall verifisert mot confusion matrix og feature importance – ingen feil funnet.
+
+**Kap. 7.7 (delproblem 2):** Fire problemer identifisert og rettet:
+
+1. **Logisk svikt (alvorlig):** Beregningen forutsatte implisitt at modellen er riktig der den avviker fra historisk kanalvalg, men disse avvikene er per definisjon modellens feil mot grunnlabelen (accuracy = 92,4 %). Antakelsen er nå gjort eksplisitt i seksjon 7.7.2 med advarsel om at estimatet er en øvre grense.
+
+2. **Misvisende tabelltekst:** Radene C→A (23 enheter) og C→B (69 enheter) i tabell 7.6 viste positive margindifferanser, men disse er modellens feilklassifiseringer av BER-enheter – ikke gevinster. Fotnoten er utvidet med forklaring.
+
+3. **Feil terminologi:** "Konservativt estimat" i 7.7.4 erstattet med "estimat under den optimistiske antakelsen ... øvre størrelsesorden."
+
+4. **Skrivefeil:** "Estimeringmetodikk" rettet til "Estimeringsmetodikk."
+
+Konklusjonen (kap. 9, delproblem 2) er oppdatert tilsvarende.
+
+Estimatet på ~390 000 NOK/år er beholdt, men presenteres nå som øvre grense betinget av en eksplisitt antakelse – ikke som et forventet faktisk utfall.
