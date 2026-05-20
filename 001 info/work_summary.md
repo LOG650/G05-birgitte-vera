@@ -547,3 +547,53 @@ Gjennomførte en kritisk gjennomgang av kap. 7 (Resultat) fra perspektivet til e
 Konklusjonen (kap. 9, delproblem 2) er oppdatert tilsvarende.
 
 Estimatet på ~390 000 NOK/år er beholdt, men presenteres nå som øvre grense betinget av en eksplisitt antakelse – ikke som et forventet faktisk utfall.
+
+---
+
+## Oppdatering – 2026-05-19
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Gjennomgang av ny data og prosessforståelse
+
+Gjennomgikk ny renset data i `004 data/data may 2026/` og prosessdiagrammet `BuyBack_Process_Flow_v2.pptx` for å bygge felles forståelse av Modinos fullstendige enhetssyklus.
+
+### Fullstendig prosessflyt dokumentert
+
+Den komplette flyten fra mottak til utgang ble kartlagt og er nå dokumentert i `HANDOVER_CONTEXT.md`:
+
+1. **Steg 1 – Mottak og første gradering (CellDe):** Enheter graderes A–F ved mottak. Output er `InspectedDeviceREport_cleaned.xlsx`.
+2. **Steg 2 – SAP-import → Innkjøpsordre med "buy-back"-artikkelnummer:** CellDe-filen importeres til SAP og skaper en PO med buy-back-artikkelnumre (format: `nummer_variant_grad`, eks. `16854_2_0`).
+3. **Steg 3 – Tre mulige utganger:**
+   - **Sti 1 – Salg til tredjepartshandler** (Foxway, Bridge Nine, Renewed AB m.fl.): Selges uten renovering med buy-back-artikkelnummer.
+   - **Sti 2 – Renovering → Teleoutlet (sluttkunde):** Går gjennom renovering via subcontracting PO. Buy-back-artikkelnummer endres til "2nd"-artikkelnummer (eks. `47731`). Selges via One2cel AS (Modinos bruktmarkedsbutikk, Teleoutlet) til sluttkunder.
+   - **Sti 3 – Skrap/BER:** Selges som skrap til kunde `1365865` ("Modino vareuttak") med **buy-back**-artikkelnummer (ikke 2nd).
+
+### Viktige avklaringer og korreksjoner
+
+**Korrektur 1 – Andre gradering er kodet i artikkelbeskrivelsen:**
+Bokstaven rett etter `2nd-` i `maktx`-kolonnen (eks. `2nd-C iPhone 13 128GB Midnight`) er selve andre graderingen etter renovering. Det finnes ikke et separat graderingssteg – graden er innbakt i artikkelnummerbeskrivelsen.
+
+**Korrektur 2 – Skrap bruker buy-back-artikkelnumre:**
+Skrap/BER-enheter selges med buy-back-artikkelnumre, ikke 2nd-artikkelnumre. Kun Teleoutlet-salg (sluttkunder) bruker 2nd-artikkelnumre.
+
+**Korrektur 3 – Graderingsforbedring er mulig men ikke garantert:**
+En enhet kjøpt inn som grad A trenger ingen forbedring. For slike enheter vil 2nd-graden være identisk med CellDe-inntaksgraden.
+
+### Ny analysemulighet identifisert – Graderingsforbedring
+
+Siden begge graderinger er tilgjengelige og kan kobles på IMEI, er det mulig å beregne **gradendringen per enhet** for alle renoverte enheter (2nd-artikkelbefolkning):
+
+- Inntaksgrad: fra `InspectedDeviceREport_cleaned.xlsx` (CellDe-grad A–F)
+- Utgangsgrad: fra `maktx` i `Z_BBTI_IMEI_TRACK_cleaned.xlsx` (bokstav etter `2nd-`)
+- Koblingsnøkkel: IMEI
+
+Foreslåtte analyser:
+1. Gradendring per enhet (forbedret, uendret eller forverret?)
+2. Gjennomsnittlig antall graderingstrinn forbedret
+3. Korrelasjon mellom inntaksgrad og utgangsgrad – finnes det et tak på forbedring?
+4. Kombinert med margindata: gir større graderingsforbedring faktisk høyere margin etter renovering?
+
+### Oppdatert fil
+
+`004 data/data may 2026/HANDOVER_CONTEXT.md` er oppdatert med fullstendig prosessflyt, artikkelnummerlogikk, korreksjonene over og den foreslåtte graderingsanalysen – klar til bruk for Vera i neste sesjon.
