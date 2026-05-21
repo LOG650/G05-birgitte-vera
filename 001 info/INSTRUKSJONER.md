@@ -14,10 +14,11 @@ Den aktive rapporten er **`005 report/Prosjektoppgave_LOG650_G05_BETA.md`**. Den
 
 ## Kritiske regler
 
-1. **Slå aldri sammen dataffilene.** CellDe og SAP er to separate filer med to separate flows. De kobles kun i minnet (`merged = cellde.merge(sap_clean, ...)`) og lagres aldri som én kombinert fil.
-2. **Bruk alltid `kunnr` (numerisk kunde-ID) for identifisering** — ikke kundenavn (`name1`), som er upålitelig pga. tegnsett og varianter.
-3. **Be om tillatelse før du skriver innhold i rapporten** — ett kapittel om gangen.
-4. **Ikke bruk SAP-data som features i modellen** (target leakage). Kun CellDe-data er tilgjengelig ved mottakstidspunktet.
+1. **Bruk alltid data fra `004 data/data may 2026/`** når du jobber med `005 report/Prosjektoppgave_LOG650_G05_BETA.md`. Bruk av data fra andre mapper vil gi feil analyse og feil resultater. Dette er den eneste gyldige datakilden for BETA-rapporten.
+2. **Slå aldri sammen dataffilene.** CellDe og SAP er to separate filer med to separate flows. De kobles kun i minnet (`merged = cellde.merge(sap_clean, ...)`) og lagres aldri som én kombinert fil.
+3. **Bruk alltid `kunnr` (numerisk kunde-ID) for identifisering** — ikke kundenavn (`name1`), som er upålitelig pga. tegnsett og varianter.
+4. **Be om tillatelse før du skriver innhold i rapporten** — ett kapittel om gangen.
+5. **Ikke bruk SAP-data som features i modellen** (target leakage). Kun CellDe-data er tilgjengelig ved mottakstidspunktet.
 
 ---
 
