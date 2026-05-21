@@ -1,33 +1,56 @@
 # Status for G05 – Modino-prosjektet
-**Statusdato:** 2026-04-24
+**Statusdato:** 2026-05-21
 **Gruppe:** G05 – Birgitte & Vera
 **Fag:** LOG650
 
-Denne statusen gjenspeiler faktisk fremdrift per 2026-04-24, med planbaselinen i `Prosjektstyringsplan_G05.md` og `Prosjekt_GANTT_G05.mpp` som referanse for avvik.
+Denne statusen gjenspeiler faktisk fremdrift per 2026-05-21. Den opprinnelige rapporten (`Prosjektoppgave_LOG650_G05.md`) er forkastet pga. feil datapipeline og feil klassifiseringslogikk. En ny BETA-rapport (`Prosjektoppgave_LOG650_G05_BETA.md`) er under utarbeidelse med korrekt data og metodikk.
+
+---
+
+## ⚠️ Viktig kontekstendring – BETA-rapport
+
+Den opprinnelige analysen brukte en feil tilnærming:
+- Datarensingen slo feilaktig sammen CellDe og SAP til én fil
+- Klassifiseringen var basert på inspeksjonsgrad (A–F), ikke faktisk salgskanal
+- Revenue, cost og margin ble brukt som features (target leakage)
+- Accuracy på 92,4 % var kunstig høy pga. lekkasje
+
+**Ny tilnærming (BETA):**
+- CellDe (`InspectedDeviceREport_cleaned_anon.xlsx`) og SAP (`Z_BBTI_IMEI_TRACK_cleaned_anon.xlsx`) behandles som separate filer og kobles kun i minnet
+- Klassifiseringen er basert på faktisk observert salgskanal via artikkelnummertype og kunnr
+- Kun features tilgjengelig ved mottak (CellDe-data) brukes — ingen target leakage
+- Ny accuracy: 80 % (Decision Tree og Random Forest er tilnærmet like)
 
 ---
 
 ## Kort status
 
-Prosjektet er i sluttfasen av fase 3 (9. mar – 27. apr). Alle analyseaktiviteter og rapportkapitler (1–9) er fullført. Det som gjenstår i fase 3 er lønnsomhetsberegningen (delproblem 2), tekniske rettinger i rapporten og sammenstilling av bibliografi, sammendrag og forside – med frist 27. april for godkjent hovedutkast og peer review.
+BETA-rapporten er påbegynt. Data er analysert, klassifiseringslogikk er fastlagt, feature engineering er gjennomført og modeller er trent. Kapittel 2 (Litteratur) og kapittel 3 (Teori) er skrevet inn. Gjenstående kapitler: Casebeskrivelse (4), Metode og data (5), Modellering (6), Analyse (7), Resultat (8), Diskusjon (9). Innledning (1) og Konklusjon (10) skrives sist.
 
-Fase 4 (27. apr – 31. mai) starter umiddelbart etter og dekker ferdigstilling av konklusjon og innledning, kvalitetssikring, korrektur, referanseliste, muntlig presentasjon og endelig innlevering. Det er én måneds buffer til fase 4-fristen.
+Innleveringsfrist: **2026-05-31**.
 
-- ACT-3.1 Hente og rense data fra Modino er fullført per 2026-04-17.
-- ACT-3.2 Feature engineering og klassemapping er fullført per 2026-04-19. Inspeksjonsgradene A–F er mappet til tre lønnsomhetsklasser (A/B/C).
-- ACT-3.3 Trene og evaluere modell er fullført per 2026-04-19. Random Forest oppnådde 92,4 % accuracy – over 80 %-kravet.
-- ACT-3.4 Tolke resultater er fullført per 2026-04-19. Feature importance dokumentert; target leakage-risiko identifisert som metodisk begrensning.
-- ACT-3.5 Skrive kapittel 1 Innledning er fullført per 2026-04-18.
-- ACT-3.6 Skrive kapittel 2 Teori og litteratur er fullført per 2026-04-18. Tre faglige pilarer med APA7-referanser.
-- ACT-3.7 Skrive kapittel 3 Casebeskrivelse er fullført per 2026-04-19.
-- ACT-3.8 Skrive kapittel 4 Data og metode er fullført per 2026-04-18.
-- ACT-3.9 Skrive kapittel 5 Modellering er fullført per 2026-04-19.
-- ACT-3.10 Skrive kapittel 6 Analyse er fullført per 2026-04-19.
-- ACT-3.11 Skrive kapittel 7 Resultat er fullført per 2026-04-19.
-- ACT-3.12 Skrive kapittel 8 Diskusjon er fullført per 2026-04-19.
-- ACT-3.13 Skrive kapittel 9 Konklusjon er fullført per 2026-04-19 – to dager foran plan.
+---
 
-**Neste steg:** ACT-3.14 Beregne kostnadsbesparelse / lønnsomhetseffekt (høyest prioritet). Parallelt: ACT-3.15 Sammenstille rapportutkast.
+## BETA-fremdrift per 2026-05-21
+
+| Aktivitet | Status | Kommentar |
+|---|---|---|
+| BETA-1 Ny klassifiseringslogikk fastlagt | ✅ Ferdig | kunnr + artikkelnummertype; 93 575 rader klassifisert |
+| BETA-2 Geografisk analyse (StoreName-proxy) | ✅ Ferdig | Ingen geografisk proxy i CellDe — dokumentert som begrensning |
+| BETA-3 Feature engineering | ✅ Ferdig | 8 features, alle fra CellDe, ingen target leakage |
+| BETA-4 Modelltrening (DT + RF) | ✅ Ferdig | 80 % accuracy, F1 A=0.75, B=0.84, C=0.75 |
+| BETA-5 Figurer generert | ✅ Ferdig | `figur_konfusjonsmatriser.png`, `figur_feature_importance.png` |
+| BETA-6 Kap. 2 Litteratur | ✅ Ferdig | Empiriske bidrag, posisjonering av prosjektet |
+| BETA-7 Kap. 3 Teori | ✅ Ferdig | 9R oppdatert, kostnadsforhold fjernet, CellDe-features |
+| BETA-8 Kap. 4 Casebeskrivelse | ⬜ Ikke startet | Ny, basert på CellDe/SAP-prosessforståelse |
+| BETA-9 Kap. 5 Metode og data | ⬜ Ikke startet | Ny pipeline, to separate filer |
+| BETA-10 Kap. 6 Modellering | ⬜ Ikke startet | |
+| BETA-11 Kap. 7 Analyse | ⬜ Ikke startet | |
+| BETA-12 Kap. 8 Resultat | ⬜ Ikke startet | |
+| BETA-13 Kap. 9 Diskusjon | ⬜ Ikke startet | Inkl. geografisk begrensning og class C-imbalanse |
+| BETA-14 Kap. 1 Innledning | ⬜ Sist | Overfladisk til å begynne med |
+| BETA-15 Kap. 10 Konklusjon | ⬜ Sist | Overfladisk til å begynne med |
+| BETA-16 Bibliografi, sammendrag, abstract, forside | ⬜ Ikke startet | |
 
 ---
 
@@ -249,24 +272,25 @@ Fase 4 (27. apr – 31. mai) starter umiddelbart etter og dekker ferdigstilling 
 
 ---
 
-## Rapportstatus
+## Rapportstatus – BETA-rapport
 
 | Kapittel | Status | Kommentar |
 |---|---|---|
-| 1 Innledning | Ferdig | Problemstilling, avgrensninger og antagelser |
-| 2 Teori og litteratur | Ferdig | Tre faglige pilarer med APA7-referanser |
-| 3 Casebeskrivelse | Ferdig | Modinos recommerce-prosess og klassifiseringsutfordring |
-| 4 Data og metode | Ferdig, tekniske rettinger gjenstår | Faktafeil i 4.1.3 og 4.2.2; tabell-/figurnavn har feil prefix |
-| 5 Modellering | Ferdig | Matematisk formulering og tre modelltyper |
-| 6 Analyse | Ferdig | Klassefordeling, features, split og trening |
-| 7 Resultat | Ferdig, mangler lønnsomhetsberegning | Delproblem 2 (kostnadsbesparelse) gjenstår |
-| 8 Diskusjon | Ferdig | Funn, litteratur, implikasjoner og begrensninger |
-| 9 Konklusjon | Ferdig, oppdatering avventes | Lønnsomhetskonklusjon oppdateres etter ACT-3.14 |
-| Bibliografi | Tom | Referanser spredt i kapitler – må samles og APA7-formateres |
-| Vedlegg | Tom | Avgjør innhold |
-| Sammendrag | Tom | Skrives etter alle kapitler er ferdig |
-| Abstract | Tom | Skrives etter sammendrag |
-| Forside | Tom | Tittel, forfatternavn, dato, veileder, studiepoeng |
+| 1 Innledning | ⬜ Placeholder | Skrives sist |
+| 2 Litteratur | ✅ Ferdig | Empiriske bidrag, posisjonering av prosjektet |
+| 3 Teori | ✅ Ferdig | 9R oppdatert, CellDe-features, ingen target leakage |
+| 4 Casebeskrivelse | ⬜ Ikke startet | Ny — CellDe/SAP to-kilde-arkitektur, tre kanaler |
+| 5 Metode og data | ⬜ Ikke startet | Ny pipeline — ingen sammenslåing av filer |
+| 6 Modellering | ⬜ Ikke startet | |
+| 7 Analyse | ⬜ Ikke startet | |
+| 8 Resultat | ⬜ Ikke startet | Inkl. figurer fra `005 report/` |
+| 9 Diskusjon | ⬜ Ikke startet | Inkl. geografisk begrensning og class C-imbalanse |
+| 10 Konklusjon | ⬜ Placeholder | Skrives sist |
+| Bibliografi | ⬜ Ikke startet | Referanser ligger i kap. 2 og 3 |
+| Vedlegg | ⬜ Ikke startet | |
+| Sammendrag | ⬜ Ikke startet | Skrives etter alle kapitler |
+| Abstract | ⬜ Ikke startet | Skrives etter sammendrag |
+| Forside | ⬜ Ikke startet | Tittel, forfatternavn, dato, veileder, studiepoeng |
 
 ---
 
@@ -292,16 +316,18 @@ Fase 4 (27. apr – 31. mai) starter umiddelbart etter og dekker ferdigstilling 
 
 ---
 
-## Viktigste risikoer
+## Viktigste risikoer – BETA
 
-**Grade-til-klasse-mapping er ikke validert med Modino.** Mappingen A+B→Klasse A, C→Klasse B, D+E+F→Klasse C er gjort basert på revenue-mønstre i datasettet. Dersom mappingen avviker fra faktisk kanalvalg, kan dette påvirke modellens gyldighet og lønnsomhetsberegningen.
+**Geografisk begrensning (ingen proxy tilgjengelig).** `ship_country` fra SAP er near-perfekt prediktor for A vs. B, men er target leakage. CellDe har ingen geografisk proxy — dette er en reell metodisk begrensning som gir A/B-forvirring i modellen. Dokumenteres eksplisitt i diskusjonskapittelet.
 
-**Target leakage.** Variablene revenue, cost og margin er post-beslutningsvariabler – de eksisterer ikke på beslutningstidspunktet. En modell uten disse bør kjøres som sensitivitetsanalyse. Dette er adressert som metodisk begrensning i kap. 8, men ikke gjennomført som tilleggsanalyse.
+**Class C ekstrem imbalanse.** Klasse C (skrap) utgjør kun 0,6 % av datasettet (539 obs.). `class_weight='balanced'` brukes som tiltak. Recall på 75 % er akseptabelt, men begrensningen dokumenteres.
 
-**Lønnsomhetsberegning gjenstår.** Delproblem 2 i forskningsspørsmålet er ikke beregnet. Dette er nødvendig for en komplett konklusjon og er høyest prioritet frem mot innlevering 27. april.
+**Modellnøyaktighet lavere enn gammel rapport.** 80 % accuracy (ny BETA) vs. 92,4 % (gammel rapport). Forskjellen skyldes at target leakage er fjernet. 80 % er realistisk og ærlig — og fortsatt over 80 %-kravet.
+
+**Tid.** Innlevering 2026-05-31. Ti dager gjenstår. Åtte kapitler må skrives. Realistisk men stramt.
 
 ---
 
-## Vurdering
+## Vurdering – per 2026-05-21
 
-Prosjektet er operativt på plan per 2026-04-24. Fase 3 avsluttes 27. april med godkjent utkast og peer review. Det som gjenstår i fase 3 er lønnsomhetsberegningen (ACT-3.14) og sammenstillingen av rapportutkastet (ACT-3.15) – kostnadsbesparelsen prioriteres umiddelbart. Fase 4 (27. apr – 31. mai) gir én hel måned til ferdigstilling av konklusjon og innledning, kvalitetssikring, korrektur, referanseliste og muntlig presentasjon. Tidsrammen vurderes som god forutsatt at ACT-3.14 fullføres i løpet av de neste dagene.
+BETA-rapporten er godt i gang. Dataanalysen og modelltreningen er fullført med korrekt metodikk, og to kapitler er skrevet. Det kritiske arbeidet fremover er å skrive de substantielle kapitlene (4–9) før innlevering 31. mai. Kapittel 4 (Casebeskrivelse) er naturlig neste steg da det gir kontekst for alle påfølgende kapitler. Tidsrammen er stram men gjennomførbar dersom det jobbes strukturert kapittel for kapittel.
