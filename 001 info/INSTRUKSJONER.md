@@ -194,9 +194,16 @@ G05-birgitte-vera/
 
 ---
 
-## Viktige kontekstfiler å lese ved oppstart
+## Oppstart av ny sesjon
 
-1. `001 info/INSTRUKSJONER.md` — denne filen
+**Claude skal lese igjennom alle filer i prosjektmappen ved starten av hver ny sesjon før noe arbeid påbegynnes.** Dette er nødvendig for å ha full kontekst og unngå feil.
+
+Les filene i denne rekkefølgen:
+
+1. `001 info/INSTRUKSJONER.md` — denne filen (regler og teknisk referanse)
 2. `004 data/data may 2026/HANDOVER_CONTEXT.md` — fullstendig prosessflyt og databeskrivelse
-3. `012 fase 2 - plan/Prosjektstatus_G05_BETA.md` — fremdriftsstatus
-4. `001 info/work_summary.md` — detaljert arbeidslogg
+3. `012 fase 2 - plan/Prosjektstatus_G05_BETA.md` — fremdriftsstatus og gjenstående arbeid
+4. `001 info/work_summary.md` — detaljert arbeidslogg over alle tidligere sesjoner
+5. `005 report/Prosjektoppgave_LOG650_G05_BETA.md` — gjeldende tilstand på rapporten
+
+Les også øvrige relevante filer i prosjektmappen etter behov før du foreslår eller gjennomfører noe.
