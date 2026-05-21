@@ -597,3 +597,121 @@ Foreslåtte analyser:
 ### Oppdatert fil
 
 `004 data/data may 2026/HANDOVER_CONTEXT.md` er oppdatert med fullstendig prosessflyt, artikkelnummerlogikk, korreksjonene over og den foreslåtte graderingsanalysen – klar til bruk for Vera i neste sesjon.
+
+---
+
+## Oppdatering – 2026-05-21
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Kontekst – ny BETA-rapport
+
+Den opprinnelige rapporten (`Prosjektoppgave_LOG650_G05.md`) er basert på feil datapipeline og feil klassifiseringslogikk. En ny BETA-rapport (`Prosjektoppgave_LOG650_G05_BETA.md`) skrives fra bunnen av med ny mai-data og korrekt metodikk. Ingen av filene slås sammen – CellDe og SAP behandles som separate datakilder og kobles kun i minnet ved analyse.
+
+### Geografisk analyse – StoreName som proxy
+
+Undersøkte om `StoreName` i CellDe-data kan brukes som geografisk proxy (for å unngå target leakage fra `ship_country` i SAP). Resultatet bekreftet at dette ikke er mulig: de samme butikknavnene (f.eks. Telenor-butikker) leverer enheter som ender opp i både Norge og Estland. StoreName beskriver *hvor enheten ble samlet inn fra kunden*, ikke *hvor den skal*. Konklusjon: ingen geografisk proxy er tilgjengelig i CellDe. Dette er en sentral metodisk begrensning som dokumenteres i rapporten.
+
+### Target leakage forklart og bekreftet
+
+`ship_country` fra SAP er near-perfekt prediktor (NO → 98,5 % klasse A, andre land → ~100 % klasse B), men kan ikke brukes som feature fordi den kun eksisterer *etter* salget. Denne begrensningen ble forklart og akseptert.
+
+### Klassifiseringslogikk bekreftet
+
+Endelig klassifiseringslogikk (alle identifikatorer er numeriske kundenummer fra SAP):
+
+| Klasse | Regel |
+|---|---|
+| C – Skrap | `kunnr == '1365865'` (sjekkes alltid først) |
+| A – Sluttkunde | `matnr` er rent numerisk (2nd-artikkel) |
+| B – Tredjepartshandler | `kunag` er i kjent trader-mengde |
+
+Kjente tradere (kunag): 544127, 707086, 995702, 498232, 1533558, 1536986, 1550704, 715038, 1530444, 1530472, 1602135, 1602088
+
+Klassifisering av totalt 93 580 SAP-rader:
+- B: 58 388 (62,4 %)
+- A: 34 648 (37,0 %)
+- C: 539 (0,6 %)
+- Uklassifisert (ekskludert): 5 rader
+
+### Feature engineering
+
+Utført på 93 564 rader (etter in-memory join og dropp av 11 nullrader):
+
+| Feature | Metode |
+|---|---|
+| `device_value` | Norsk tallformat (`'3 954,04'`) → float |
+| `grade_num` | Ordinal: A=6, B=5, C=4, D=3, E=2, F=1 |
+| `model_encoded` | Alle 557 modeller beholdt; kodet med median `device_value` per modell |
+| `color_group_enc` | 246 farger gruppert til 10 hovedgrupper (Black, White/Silver, Gray, Blue, Gold, Green, Purple/Violet, Red/Pink, Yellow, Other) → label encoding |
+| `Transaction Type_enc` | 21 kategorier → label encoding |
+| `Channel_enc` | 20 kategorier → label encoding |
+| `Device Category_enc` | 3 kategorier → label encoding |
+| `har_feil` | Binær (1 = InspectedFaults registrert, 0 = ikke registrert) |
+
+### Modelltrening – Decision Tree og Random Forest
+
+Stratifisert 80/20 train/test-split. Begge modeller trent med `class_weight='balanced'`.
+
+**Resultater (testsett, 18 713 rader):**
+
+| Modell | Accuracy | F1 klasse A | F1 klasse B | F1 klasse C |
+|---|---|---|---|---|
+| Decision Tree (baseline) | 80 % | 0.75 | 0.83 | 0.74 |
+| Random Forest (primær) | 80 % | 0.75 | **0.84** | **0.75** |
+
+Random Forest er marginalt bedre, spesielt for klasse B og C.
+
+**Confusion matrix – Random Forest:**
+
+| Faktisk \ Predikert | A | B | C |
+|---|---|---|---|
+| A (6 928) | 5 507 | 1 412 | 9 |
+| B (11 677) | 2 234 | 9 424 | 19 |
+| C (108) | 9 | 18 | 81 |
+
+Forvirring mellom A og B er det største problemet (som forventet uten geografisk signal). Klasse C håndteres overraskende godt (75 % recall) til tross for kun 0,6 % av dataene.
+
+**Feature importance (Random Forest):**
+
+| Feature | Viktighet |
+|---|---|
+| device_value | 30,7 % |
+| Device Category | 20,7 % |
+| grade_num | 15,4 % |
+| model_encoded | 14,0 % |
+| color_group | 7,1 % |
+| Transaction Type | 6,5 % |
+| Channel | 3,5 % |
+| har_feil | 2,1 % |
+
+Enhetens verdi og kategori (smartphone vs. tablet) er de klart viktigste prediktorene. Modell og grade bidrar betydelig.
+
+### Figurer lagret
+
+To figurer generert og lagret i `005 report/` (pushet til main):
+- `figur_konfusjonsmatriser.png` – Decision Tree og Random Forest side ved side med antall og prosent per celle
+- `figur_feature_importance.png` – feature importance for Random Forest
+
+### Kapittel 2 og 3 skrevet inn i BETA-rapporten
+
+**Kapittel 2 (Litteratur):** Gjennomgang av empiriske bidrag med posisjonering av prosjektet. Dekker Ibrahim & Abdul-Kader (2025), Turkolmez et al. (2024), Govindan et al. (2015), Hübner et al. (2020), Ferguson et al. (2009) og Proske et al. (2018). Avslutter med å skille prosjektet fra eksisterende litteratur på tre punkter: to-kilde-arkitektur, faktisk observert salgskanal som målvariabel, og fravær av geografisk informasjon som feature.
+
+**Kapittel 3 (Teori):** Adaptet fra den gamle rapporten med tre viktige oppdateringer:
+1. 9R-figuren er oppdatert: A = Sluttkunde/Teleoutlet (R5–R6 Refurbish), B = Tredjepartshandler (R3 Reuse), C = Skrap (R8–R9 Recycle/Recover)
+2. "Kostnadsforhold" fjernet fra feature engineering-seksjonen (target leakage)
+3. Feature-listen oppdatert til å reflektere faktiske CellDe-features
+
+Tre pilarer: sirkulærøkonomi og recommerce (3.1), beslutningsstøtte og verdifall (3.2), maskinlæring og klassifisering (3.3), med oppsummering (3.4).
+
+### Git
+
+Committet og pushet til main (`ac71860`): kapittel 2 + 3 i BETA-rapporten, `figur_konfusjonsmatriser.png` og `figur_feature_importance.png`.
+
+### Gjenstår
+
+- Kapittel 4 (Casebeskrivelse) – ny, basert på faktisk prosessforståelse (CellDe → SAP, tre kanaler)
+- Kapittel 5 (Metode og data) – ny pipeline, to separate filer, klassifiseringslogikk
+- Kapittel 6–9 (Modellering, Analyse, Resultat, Diskusjon)
+- Kapittel 1 (Innledning) og 10 (Konklusjon) – skrives sist, overfladisk til å begynne med
+- Bibliografi, sammendrag, abstract, forside
