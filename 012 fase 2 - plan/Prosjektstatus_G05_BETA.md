@@ -45,8 +45,8 @@ Innleveringsfrist: **2026-05-31**.
 | BETA-8 Kap. 4 Casebeskrivelse | ✅ Ferdig | Ny, basert på CellDe/SAP-prosessforståelse |
 | BETA-9 Kap. 5 Metode og data | ✅ Ferdig | Ny pipeline, to separate filer |
 | BETA-10 Kap. 6 Modellering | ✅ Ferdig | |
-| BETA-11 Kap. 7 Analyse | ⬜ Ikke startet | |
-| BETA-12 Kap. 8 Resultat | ⬜ Ikke startet | |
+| BETA-11 Kap. 7 Analyse | ✅ Ferdig | |
+| BETA-12 Kap. 8 Resultat | ✅ Ferdig | |
 | BETA-13 Kap. 9 Diskusjon | ⬜ Ikke startet | Inkl. geografisk begrensning og class C-imbalanse |
 | BETA-14 Kap. 1 Innledning | ⬜ Sist | Overfladisk til å begynne med |
 | BETA-15 Kap. 10 Konklusjon | ⬜ Sist | Overfladisk til å begynne med |
@@ -282,8 +282,8 @@ Innleveringsfrist: **2026-05-31**.
 | 4 Casebeskrivelse | ✅ Ferdig | Ny — CellDe/SAP to-kilde-arkitektur, tre kanaler |
 | 5 Metode og data | ✅ Ferdig | Ny pipeline — ingen sammenslåing av filer |
 | 6 Modellering | ✅ Ferdig | |
-| 7 Analyse | ⬜ Ikke startet | |
-| 8 Resultat | ⬜ Ikke startet | Inkl. figurer fra `005 report/` |
+| 7 Analyse | ✅ Ferdig | |
+| 8 Resultat | ✅ Ferdig | Inkl. figurer fra `005 report/` |
 | 9 Diskusjon | ⬜ Ikke startet | Inkl. geografisk begrensning og class C-imbalanse |
 | 10 Konklusjon | ⬜ Placeholder | Skrives sist |
 | Bibliografi | ⬜ Ikke startet | Referanser ligger i kap. 2 og 3 |
@@ -332,6 +332,6 @@ Innleveringsfrist: **2026-05-31**.
 
 ---
 
-## Vurdering – per 2026-05-22
+## Vurdering – per 2026-05-22 (oppdatert)
 
-Kapittel 4 (Casebeskrivelse), 5 (Metode og data) og 6 (Modellering) er skrevet inn i BETA-rapporten. Sensor-gjennomgang av kap. 2–6 er gjennomført og syv rettinger er lagt inn (tabellnumre, skrivefeil, klassetall, label encoding-merknad, hyperparametervalg, kompendiereferanse, Modino-kilde). Kompendiet (Rekdal & Pettersen, 2026) er lest og integrert. Gjenstående arbeid: kap. 7 (Analyse), 8 (Resultat), 9 (Diskusjon), deretter ML-pipeline-verifisering, og til slutt kap. 1, 10, bibliografi, sammendrag og forside.
+Kapittel 4–8 er skrevet inn i BETA-rapporten. Figurene figur_prosessflyt.png og figur_klassefordeling.png er generert og satt inn. Lønnsomhetseffekten er re-beregnet mot BETA-konfusjonsmatrisen: +235 912 NOK på testsettet / ~590 000 NOK/år (øvre estimat). Gjenstående: kap. 9 (Diskusjon), ML-pipeline-verifisering, kap. 1 og 10, bibliografi, sammendrag og forside. Innlevering 2026-05-31 — åtte dager igjen.

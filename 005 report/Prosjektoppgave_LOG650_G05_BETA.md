@@ -785,35 +785,172 @@ F1-score er særlig nyttig for klasse C, der precision og recall kan avvike bety
 
 ## 7. Analyse
 
-Hvordan skrive bacheloroppgave etter at metodedelen er laget? Jo, du lager en analyse!
+Dette kapittelet beskriver gjennomføringen av analysen — hva som faktisk ble gjort, og hvilke observasjoner som ble gjort underveis. Kapittelet bygger på metodebeskrivelsen i kapittel 5 og modellbeskrivelsen i kapittel 6, og leder frem til resultatpresentasjonen i kapittel 8.
 
-Dette er siste bit før du kan presentere selve resultatene av studiene. Du kan velge mellom forskjellige metoder, nemlig:
+### 7.1 Datapreparering og målvariabel
 
-- Kvalitativ metode (intervju eller lignende)
-- Kvantitativ metode
-- Dokumentanalyse
+Etter innlasting og in-memory-join av CellDe- og SAP-filene på IMEI-nøkkel ble klassifiseringslogikken (avsnitt 5.2.3) applisert på 93 580 SAP-rader. Fem rader tilfredsstilte ingen av de tre betingelsene og ble ekskludert. Ytterligere 11 rader med manglende verdier i en eller flere features ble droppet under feature-konstruksjonen, slik at det endelige analyseklare datasettet utgjorde **93 575 rader**.
 
-Prat gjerne med veilederen din om du er usikker på hvilken metode som er best for akkurat din problemstilling.
+Den resulterende klassefordelingen — B: 62,4 %, A: 37,0 %, C: 0,6 % — reflekterer Modinos faktiske operasjonelle realitet i perioden 2024–2025. Dominansen til klasse B er konsistent med den geografiske analysen: enheter som sendes til Estland (Foxway OÜ og andre tredjepartshandlere) utgjør majoriteten av SAP-volumet, mens klasse A (norske sluttkunder via Teleoutlet) er en klar minoritet. Klasse C er svært sjelden — kun 539 av 93 575 enheter ble klassifisert som skrap — noe som er realistisk gitt at BER-enheter kun utgjør en liten andel av innkommende volum.
+
+Et sentralt analytisk funn allerede på dette stadiet er at den geografiske segregeringen mellom klasse A og B er nær-deterministisk i datasettet: `ship_country` fra SAP er en tilnærmet perfekt prediktor (NO → 98,5 % klasse A, andre land → ~100 % klasse B), men denne informasjonen er utilgjengelig ved mottakstidspunktet. Modellen må derfor forsøke å rekonstruere et signal som i praksis ikke er til stede i CellDe-dataene — noe som setter et strukturelt tak på oppnåelig nøyaktighet for A/B-skillet.
+
+### 7.2 Observasjoner fra feature-konstruksjonen
+
+Gjennomgangen av de åtte feature-variablene avdekket følgende mønstre i det faktiske datasettet:
+
+**`device_value`** viste betydelig spredning på tvers av klassene. Enheter i klasse A (sluttkunde) hadde gjennomgående høyere estimert markedsverdi enn enheter i klasse B (tredjepartshandler), som igjen lå noe høyere enn klasse C (skrap). Dette gir intuitiv mening: høyverdige enheter har større potensial for lønnsomhet etter renovering, mens lavverdige enheter raskere passerer BER-terskelen eller selges direkte til B2B.
+
+**`grade_num`** viste at de fleste enheter i datasettet er gradert B eller C ved mottak — enheter i topp-tilstand (grad A) er relativt sjeldne, mens enheter med svært lav grad (E, F) utgjør BER-kandidatene. Graden er sterkere korrelert med klasse C enn med skillet mellom A og B, noe som er konsistent med at A/B-skillet primært drives av geografisk destinasjon.
+
+**`model_encoded`** kodingen samlet 557 unike modellnavn i én kontinuerlig variabel basert på median `device_value` per modell. iPhone-modeller tenderte mot høye verdier, eldre Android-modeller mot lave. Kodingen bevarer den verdimessige rangeringen uten å introdusere 557 binære dummyvariabler.
+
+**`color_group_enc`** — grupperingen av 246 fargenavn til 10 kategorier viste at Black og White/Silver dominerte datasettet med til sammen over halvparten av enhetene. De resterende gruppene (Gray, Blue, Gold m.fl.) hadde mer jevn fordeling. Fargegruppen hadde lav forklaringskraft for kanalklasse, noe som ble bekreftet av feature importance-resultatene.
+
+**`har_feil`** — om enheten hadde registrerte feil i CellDe — var positivt korrelert med klasse C (BER-enheter har naturligvis hyppigere registrerte feil) og negativt korrelert med klasse A (renoverte sluttkunde-enheter er gjerne uten alvorlige feil). Variabelen er enkel men informativ.
+
+### 7.3 Modelltrening
+
+Begge modeller ble trent på treningssettet (74 862 rader) med `class_weight='balanced'` og `random_state=42` for reproduserbarhet.
+
+**Decision Tree** ble trent uten dybdebegrensning, noe som innebærer at treet vokser til alle løvnoder er rene på treningsdataene. Dette gir tilnærmet perfekt nøyaktighet på treningssettet, men forventes å prestere dårligere på testsettet som følge av overfitting. Baseline-rollen er å etablere et referansepunkt for Random Forest.
+
+**Random Forest** ble trent med 100 trær (`n_estimators=100`). Ensemblet er langt mer robust mot overfitting enn et enkelt tre: ved at hvert tre trenes på et bootstrap-utvalg og kun et tilfeldig underutvalg av features vurderes per splittepunkt, reduseres korrelasjonen mellom trærne og variansen i prediksjonene dempes.
+
+En viktig analytisk observasjon er at begge modeller oppnår **80 % accuracy** på testsettet. Den marginale forbedringen fra Decision Tree til Random Forest (F1 klasse B: 0,83 → 0,84; F1 klasse C: 0,74 → 0,75) er liten. Dette indikerer at det bindende elementet ikke er modellkapasiteten, men den manglende geografiske informasjonen: selv en mer kraftfull ensemble-metode kan ikke kompensere for et latent signal som ikke finnes i feature-rommet. Modellene konvergerer mot det samme taket fordi de opererer på identisk informasjonsgrunnlag.
+
+### 7.4 Generaliserbarhet og intern validering
+
+For å vurdere om Random Forest-modellen generaliserer utover treningsdataene benyttes to indikatorer:
+
+**Out-of-bag (OOB) score:** Ved bagging holdes omtrent én tredel av observasjonene utenfor hvert enkelt tre. Disse out-of-bag-observasjonene kan brukes som en intern valideringsmekanisme uten å berøre testsettet. OOB-scoren gir et uavhengig estimat på generaliseringsevnen og forventes å ligge nær test-accuracy for en veltilpasset modell.
+
+**Train/test-gap:** Et stort gap mellom treningsaccuracy og testaccuracy er et tegn på overfitting. For Random Forest er treningsaccuracy nær 100 % (et ubeskåret ensemble tilpasser seg treningsdataene nesten perfekt), mens testaccuracy er 80 %. Et gap på ~20 prosentpoeng er betydelig, men skyldes primært det strukturelle A/B-problemet — ikke klassisk overfitting. Dersom geografisk informasjon hadde vært tilgjengelig, ville trolig både trenings- og testaccuracy konvergert mot et høyere felles nivå.
+
+**Stratifisert split:** Den stratifiserte 80/20-delingen sikrer at klassefordelingen i testsett og treningssett er representativ for populasjonen. For klasse C (108 observasjoner i testsettet) er dette særlig viktig: uten stratifisering ville tilfeldig variasjon i hvem av de 539 C-enhetene som havner i test- versus treningssettet, gi ustabile estimater for F1 klasse C.
 
 ---
 
 ## 8. Resultat
 
-Den kanskje viktigste delen når du skal skrive en bacheloroppgave, er resultatdelen. Her beskriver du alle funnene som er gjort i analyser og studier.
+Dette kapittelet presenterer resultatene av modelltreningen og evalueringen objektivt. Tolkning og diskusjon av funnene er forbeholdt kapittel 9.
 
-Det er viktig at du presenterer resultatene på en klar og tydelig måte – gjerne ved bruk av tabeller og figurer.
+### 8.1 Modellytelse — sammenligning av Decision Tree og Random Forest
 
-Noen viktige punkter:
+Tabell 8.1 viser ytelsesmetrikker for begge modeller på testsettet (18 713 rader). F1-score per klasse er hovedmålet ettersom det balanserer precision og recall, noe som er særlig relevant ved den sterke klasseimbalansen i datasettet.
 
-- Dersom dette er et eget kapittel så skal dere her kun presentere resultatene i form av tabeller og/eller figurer.
-- Tabeller: Oppsummerte resultater
-- Resultatene er direkte linket til forskningsspørsmålet!
-- Dersom det ikke er det så er det to alternativer:
-  - Kjør analysene på nytt i henhold til forskningsspørsmålet
-  - Endre forskningsspørsmålet slik at det er samsvar med analysene
-- NB: En forklarende tekst for hver tabell og hver figur!
-- Som regel kommer teksten før tabellen/figuren, men noen ganger etter og noen ganger litt tekst først og litt etter tabellen/figuren.
-- Dere vil synes at det er overflødig med forklarende tekst, men det må gjøres og kun det som dere ser: en objektiv presentasjon.
+**Tabell 8.1: Modellsammmenligning — testsett (n = 18 713)**
+
+| Modell | Accuracy | F1 klasse A | F1 klasse B | F1 klasse C |
+|---|---|---|---|---|
+| Decision Tree (baseline) | 80 % | 0,75 | 0,83 | 0,74 |
+| **Random Forest (primær)** | **80 %** | **0,75** | **0,84** | **0,75** |
+
+Begge modeller oppnår 80 % accuracy. Random Forest er marginalt bedre enn Decision Tree for klasse B og C, mens ytelsen for klasse A er identisk. 80 %-kravet definert i prosjektplanen er oppfylt.
+
+Tabell 8.2 viser precision og recall separat for Random Forest, beregnet fra konfusjonsmatrisen i avsnitt 8.2.
+
+**Tabell 8.2: Precision og recall per klasse — Random Forest**
+
+| Klasse | Precision | Recall | F1 |
+|---|---|---|---|
+| A — Sluttkunde | 0,71 | 0,80 | 0,75 |
+| B — Tredjepartshandler | 0,87 | 0,81 | 0,84 |
+| C — Skrap/BER | 0,74 | 0,75 | 0,75 |
+
+Klasse B har den høyeste precision (0,87): av alle enheter modellen sender til tredjepartshandler, er 87 % korrekte. Klasse A har den høyeste recall (0,80): 80 % av de faktiske sluttkunde-enhetene identifiseres korrekt.
+
+Figur 8.1 viser konfusjonsmatrisene for begge modeller side ved side.
+
+![Figur 8.1: Konfusjonsmatriser — Decision Tree og Random Forest](figur_konfusjonsmatriser.png)
+
+*Figur 8.1: Konfusjonsmatriser for Decision Tree (venstre) og Random Forest (høyre) på testsettet. Diagonalverdier er korrekte prediksjoner. Egenprodusert.*
+
+### 8.2 Konfusjonsmatrise — Random Forest
+
+Tabell 8.3 viser den fullstendige konfusjonsmatrisen for Random Forest på testsettet. Rader angir faktisk klasse, kolonner angir predikert klasse.
+
+**Tabell 8.3: Konfusjonsmatrise — Random Forest (testsett, n = 18 713)**
+
+| Faktisk \ Predikert | A | B | C |
+|---|---|---|---|
+| **A** (n = 6 928) | 5 507 | 1 412 | 9 |
+| **B** (n = 11 677) | 2 234 | 9 424 | 19 |
+| **C** (n = 108) | 9 | 18 | 81 |
+
+Det dominerende feilmønsteret er forvekslingen mellom klasse A og klasse B: 1 412 faktiske A-enheter predikeres som B, og 2 234 faktiske B-enheter predikeres som A. Til sammenligning er klasse C godt identifisert: 81 av 108 skrap-enheter (75 %) klassifiseres korrekt, og kun 18 ekstra enheter feilklassifiseres inn i klasse C.
+
+### 8.3 Feature importance — Random Forest
+
+Tabell 8.4 viser feature importance for Random Forest, normalisert slik at verdiene summerer til 100 %.
+
+**Tabell 8.4: Feature importance — Random Forest**
+
+| Rang | Feature | Viktighet |
+|---|---|---|
+| 1 | `device_value` (estimert markedsverdi) | 30,7 % |
+| 2 | `Device Category` (enhetskategori) | 20,7 % |
+| 3 | `grade_num` (inntaksgrad) | 15,4 % |
+| 4 | `model_encoded` (modellverdi) | 14,0 % |
+| 5 | `color_group_enc` (fargegruppe) | 7,1 % |
+| 6 | `Transaction Type_enc` | 6,5 % |
+| 7 | `Channel_enc` | 3,5 % |
+| 8 | `har_feil` (registrerte feil) | 2,1 % |
+
+De fire øverste features (`device_value`, `Device Category`, `grade_num`, `model_encoded`) forklarer til sammen 80,8 % av total Gini-reduksjon. `device_value` alene er den klart viktigste enkeltprediktoren med 30,7 %. Figur 8.2 illustrerer fordelingen.
+
+![Figur 8.2: Feature importance — Random Forest](figur_feature_importance.png)
+
+*Figur 8.2: Feature importance for Random Forest. `device_value` og `Device Category` er de to viktigste prediktorene med til sammen 51,4 % av forklaringskraften. Egenprodusert.*
+
+### 8.4 Estimert lønnsomhetseffekt (delproblem 2)
+
+For å besvare delproblem 2 — om en klassifiseringsmodell kan forbedre lønnsomheten — beregnes den estimerte marginforbedringen dersom Random Forests prediksjoner hadde styrt kanalvalgene i stedet for det historisk observerte kanalvalget.
+
+#### 8.4.1 Gjennomsnittlig margin per klasse
+
+Gjennomsnittlig margin per enhet per klasse er beregnet fra SAP-dataene som gjennomsnitt av (salgspris − kostnad) per kanal:
+
+**Tabell 8.5: Gjennomsnittlig margin per klasse**
+
+| Klasse | Kanal | Gjennomsnittlig salgspris | Gjennomsnittlig kostnad | Margin per enhet |
+|---|---|---|---|---|
+| A | Sluttkunde (Teleoutlet) | 2 222 NOK | 1 738 NOK | **484 NOK** |
+| B | Tredjepartshandler | 946 NOK | 749 NOK | **197 NOK** |
+| C | Skrap/BER | 899 NOK | 705 NOK | **195 NOK** |
+
+Klasse A genererer 2,5 × høyere margin enn klasse B og C. Klasse B og C har nær identiske marginer (197 vs. 195 NOK/enhet), noe som innebærer at feilklassifisering mellom B og C har svært liten lønnsomhetseffekt. Den kritiske feilklassifiseringen er A/B-forvekslingen.
+
+#### 8.4.2 Estimeringsmetodikk
+
+Lønnsomhetseffekten estimeres ved å sammenligne totalmargin under to scenarioer på testsettet:
+
+- **Historisk scenario:** total margin = Σ margin(faktisk klasse_i) for alle *i* i testsettet
+- **Modellscenario:** total margin = Σ margin(predikert klasse_i) for alle *i* i testsettet
+
+Metoden forutsetter at modellens avvik fra historisk kanalvalg representerer korrekte forbedringer — det vil si at modellen har rett der den er uenig med historien. Dette er en optimistisk antakelse som gir et **øvre estimat**. I praksis vil noen av modellens avvik fra historisk praksis være modellens egne feil, ikke forbedringer.
+
+#### 8.4.3 Resultater
+
+**Tabell 8.6: Estimert lønnsomhetseffekt på testsettet (n = 18 713)**
+
+| Scenario | Totalmargin |
+|---|---|
+| Historisk kanalvalg | 5 674 581 NOK |
+| Modellens kanalvalg (estimert) | 5 910 493 NOK |
+| **Netto forbedring** | **+235 912 NOK** |
+
+Den estimerte lønnsomhetsforbedringen på testsettet er **+235 912 NOK**, drevet primært av at modellen reklassifiserer 2 234 faktiske B-enheter som A (gevinst: 2 234 × 287 NOK = +641 158 NOK), delvis motvirket av at 1 412 faktiske A-enheter feilklassifiseres som B (tap: 1 412 × 287 NOK = −405 244 NOK).
+
+#### 8.4.4 Oppskalert estimat
+
+Med et årlig volum på omtrent 46 800 enheter (basert på 93 575 enheter over to år) gir testsettet et representativt utsnitt på 18 713 / 93 575 ≈ 20 %. Oppskalert til fullt årlig volum:
+
+```
+235 912 × (46 800 / 18 713) ≈ 590 000 NOK per år
+```
+
+Det oppskalerte estimatet er **~590 000 NOK per år** under den optimistiske antakelsen om at alle modellens avvik fra historisk praksis er korrekte. Dette representerer en øvre størrelsesorden, ikke et forventet faktisk utfall.
 
 ---
 

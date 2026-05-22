@@ -773,3 +773,47 @@ Følgende rettinger lagt inn i rapporten:
 - Kapittel 1 (Innledning) og 10 (Konklusjon) — skrives sist
 - Bibliografi, sammendrag, abstract, forside
 - Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
+
+---
+
+## Oppdatering – 2026-05-22 (del 2)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Figurer generert og satt inn
+
+To nye figurer generert med Python (matplotlib) fra hardkodede kjente statistikker:
+
+- `figur_prosessflyt.png` — prosessflytdiagram fra CellDe-mottak til tre salgskanaler (kap. 4.3)
+- `figur_klassefordeling.png` — horisontalt søylediagram for A/B/C-fordeling med n per klasse (kap. 5.2.3)
+
+Eksisterende figurer referert på riktig sted i rapporten:
+- `figur_feature_importance.png` referert i kap. 6.3.1 (Figur 6.1)
+- `figur_konfusjonsmatriser.png` referert i kap. 8.1 (Figur 8.1)
+
+### Kapittel 7 – Analyse skrevet inn
+
+- 7.1 Datapreparering og målvariabel — 93 575 rader, klassefordeling og geografisk A/B-observasjon
+- 7.2 Observasjoner fra feature-konstruksjonen — mønstre i device_value, grade_num, model_encoded, color_group, har_feil
+- 7.3 Modelltrening — DT og RF begge 80 %; observasjon at bindende element er manglende geografisk signal, ikke modellkapasitet
+- 7.4 Generaliserbarhet — OOB-score, train/test-gap, stratifisert split
+
+### Kapittel 8 – Resultat skrevet inn
+
+- 8.1 Modellsammenligning — tabell 8.1 (accuracy/F1) og tabell 8.2 (precision/recall RF)
+- 8.2 Konfusjonsmatrise RF — tabell 8.3 med celleverdier; A/B-forveksling er dominerende feilmønster
+- 8.3 Feature importance — tabell 8.4; device_value + Device Category = 51,4 %
+- 8.4 Lønnsomhetseffekt (delproblem 2) — ny BETA-beregning fra BETA-konfusjonsmatrisen:
+  - Historisk margin (testsettet): 5 674 581 NOK
+  - Modellmargin (estimert): 5 910 493 NOK
+  - Netto forbedring: +235 912 NOK på testsettet
+  - Oppskalert: ~590 000 NOK/år (øvre estimat)
+  - Merk: høyere enn gammel rapport (156 072 / 390 000) fordi BETA-modellen har annet prediksjonsmønster
+
+### Gjenstår
+
+- Kapittel 9 (Diskusjon)
+- ML-pipeline-verifisering (kjøre kode mot rådata for å bekrefte alle tall)
+- Kapittel 1 (Innledning) og 10 (Konklusjon) — skrives sist
+- Bibliografi, sammendrag, abstract, forside
+- Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
