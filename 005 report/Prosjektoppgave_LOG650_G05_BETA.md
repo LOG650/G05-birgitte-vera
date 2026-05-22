@@ -457,7 +457,13 @@ Enheten selges uten renovering til en profesjonell B2B-aktør (tredjepartshandle
 **Kanal C — Skrap/BER**
 Enheten er vurdert som Beyond Economical Repair — reparasjonskostnadene overstiger forventet markedsverdi etter renovering. Enheten selges som skrap til kunde `1365865` («Modino vareuttak»), alltid med buy-back-artikkelnummer. BER-enheter gjennomgår aldri renovering og tildeles aldri et 2nd-artikkelnummer. Denne kanalen utgjør 0,6 % av klassifiserte enheter — en sterk klasseimbalanse som adresseres metodisk i kapittel 5.
 
-Forholdet mellom artikkelnummertype og salgskanal er oppsummert i tabell 4.1.
+Figur 4.1 illustrerer den fullstendige prosessflyten fra mottak til salgskanal.
+
+![Figur 4.1: Prosessflyt fra mottak til salgskanal](figur_prosessflyt.png)
+
+*Figur 4.1: Prosessflyt — fra inntak og CellDe-gradering til de tre salgskanaler A, B og C. Egenprodusert.*
+
+Forholdet mellom artikkelnummertype og salgskanal er oppsummert i tabell 4.2.
 
 **Tabell 4.2: Artikkelnummertype og salgskanal**
 
@@ -581,6 +587,12 @@ Enheter som ikke tilfredsstiller noen av de tre betingelsene (5 rader) ekskluder
 | Uklassifisert (ekskludert) | — | 5 | < 0,1 % |
 | **Totalt** | | **93 580** | **100 %** |
 
+Den sterke dominansen til klasse B og den svært lave andelen til klasse C er tydelig illustrert i figur 5.1.
+
+![Figur 5.1: Klassefordeling](figur_klassefordeling.png)
+
+*Figur 5.1: Klassefordeling i det analyseklare datasettet (n = 93 575). Klasse B (tredjepartshandler) dominerer med 62,4 %, mens klasse C (skrap/BER) utgjør kun 0,6 %. Egenprodusert.*
+
 #### 5.2.4 Feature engineering
 
 Et gjennomgående designprinsipp er at kun informasjon som er tilgjengelig i CellDe *ved mottakstidspunktet* kan benyttes som feature. SAP-data (pris, kostnad, artikkelnummer, destinasjonsland) tilhører salgstidspunktet og er utilgjengelig på beslutningstidspunktet — bruk av slike variabler ville innebære target leakage og gi en modell uten praktisk anvendbarhet.
@@ -701,7 +713,11 @@ Random Forest produserer feature importance-verdier som angir hvilke variabler s
 Importance(j) = (1/B) · Σ_{b=1}^{B} Σ_{t: split on j} ΔGini(t, j)
 ```
 
-Verdiene normaliseres slik at de summerer til 1, og tolkes som andelen av total Gini-reduksjon som kan tilskrives feature *j*. Feature importance gir innsikt i hvilke enhetsattributter som driver kanalvalget, og er dermed direkte verdifull for Modino utover selve klassifiseringsprediksjonene.
+Verdiene normaliseres slik at de summerer til 1, og tolkes som andelen av total Gini-reduksjon som kan tilskrives feature *j*. Feature importance gir innsikt i hvilke enhetsattributter som driver kanalvalget, og er dermed direkte verdifull for Modino utover selve klassifiseringsprediksjonene. Resultatene presenteres i figur 8.2 i kapittel 8.
+
+![Figur 6.1: Feature importance — Random Forest](figur_feature_importance.png)
+
+*Figur 6.1: Feature importance for Random Forest-modellen. `device_value` (estimert markedsverdi) og `Device Category` er de to viktigste prediktorene. Egenprodusert.*
 
 #### 6.3.2 Håndtering av klasseimbalanse
 
