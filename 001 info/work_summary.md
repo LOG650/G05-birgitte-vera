@@ -715,3 +715,61 @@ Committet og pushet til main (`ac71860`): kapittel 2 + 3 i BETA-rapporten, `figu
 - Kapittel 6–9 (Modellering, Analyse, Resultat, Diskusjon)
 - Kapittel 1 (Innledning) og 10 (Konklusjon) – skrives sist, overfladisk til å begynne med
 - Bibliografi, sammendrag, abstract, forside
+
+---
+
+## Oppdatering – 2026-05-22
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Kapittel 4 – Casebeskrivelse skrevet inn
+
+Nytt kapittel 4 skrevet fra bunnen av, basert på faktisk prosessforståelse fra HANDOVER_CONTEXT.md:
+
+- 4.1 Modino AS og recommerce-markedet
+- 4.2 Enheter og graderingssystem (A–F, CellDe, tabell)
+- 4.3 Klassifiseringsprosessen — tre kanaler (A/B/C) med artikkelnummerlogikk og tabell
+- 4.4 Datagrunnlaget — to-kilde-arkitektur med koblingsnøkkel og radtall (tabell)
+- 4.5 Klassifiseringsutfordringen — geografisk konfund, target leakage forklart
+
+### Kapittel 5 – Metode og data skrevet inn
+
+Nytt kapittel 5 med full pipeline-beskrivelse:
+
+- 5.1.1 Forskningsdesign (kvantitativ casestudie, Yin 2018, positivistisk)
+- 5.1.2 Metodevalg (supervised learning, begrunnelse for RF over optimering)
+- 5.2.1 Datakilder og innlasting med kodeeksempler
+- 5.2.2 Datakvalitet og rensing (IMEI-validering, duplikatanalyse, anonymisering)
+- 5.2.3 Klassifiseringslogikk steg for steg med tabell (B: 62,4 %, A: 37,0 %, C: 0,6 %)
+- 5.2.4 Feature engineering — alle 8 features med transformasjoner og tabell
+- 5.2.5 Stratifisert 80/20-split og begrunnelse for class_weight='balanced' vs. SMOTE
+
+### Kapittel 6 – Modellering skrevet inn
+
+Kompendiet (Rekdal & Pettersen, 2026, kap. 9) lest og integrert som referanse:
+
+- 6.1 Formalisering av klassifiseringsproblemet (f: ℝ⁸ → {A,B,C})
+- 6.2 Decision Tree — Gini-formel, ΔGini-formel, baseline-rolle
+- 6.3 Random Forest — bagging, feature-underutvalg, majoritetsstemme-formel, feature importance-formel, class_weight-formel, hyperparametere
+- 6.4 Evalueringsrammeverk — accuracy, precision, recall, F1 med formler, confusion matrix
+
+### Sensor-gjennomgang av kap. 2–6 gjennomført
+
+Følgende rettinger lagt inn i rapporten:
+
+1. Skrivefeil "arbeidssminnet" → "arbeidsminnet" (kap. 5.2.1)
+2. Tabellnummer lagt til graderingstabellen: Tabell 4.1. Øvrige tabeller i kap. 4 renummerert til 4.2 og 4.3
+3. Korrigerte klassetall i treningssettet: A: 27 720, B: 46 711 (var 27 718, 46 710)
+4. Metodisk merknad om label encoding for uordnede kategorier lagt inn i kap. 5.2.4
+5. Hyperparametervalg begrunnet i kap. 6.3.3 (ingen GridSearchCV, bevisst valg)
+6. Kompendiet (Rekdal & Pettersen, 2026) lagt inn i kap. 3.3.3
+7. Kilde for Modinos markedsposisjon lagt inn i kap. 4.1
+
+### Gjenstår
+
+- Verifisere klassetall (train A/B/C) mot kjørt kode — utsatt til ML-testsesjonen
+- Kapittel 7 (Analyse), 8 (Resultat), 9 (Diskusjon)
+- Kjøre ML-pipeline på nytt for å verifisere confusion matrix og feature importance mot rapporten
+- Kapittel 1 (Innledning) og 10 (Konklusjon) — skrives sist
+- Bibliografi, sammendrag, abstract, forside
+- Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer

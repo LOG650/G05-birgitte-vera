@@ -42,9 +42,9 @@ Innleveringsfrist: **2026-05-31**.
 | BETA-5 Figurer generert | ✅ Ferdig | `figur_konfusjonsmatriser.png`, `figur_feature_importance.png` |
 | BETA-6 Kap. 2 Litteratur | ✅ Ferdig | Empiriske bidrag, posisjonering av prosjektet |
 | BETA-7 Kap. 3 Teori | ✅ Ferdig | 9R oppdatert, kostnadsforhold fjernet, CellDe-features |
-| BETA-8 Kap. 4 Casebeskrivelse | ⬜ Ikke startet | Ny, basert på CellDe/SAP-prosessforståelse |
-| BETA-9 Kap. 5 Metode og data | ⬜ Ikke startet | Ny pipeline, to separate filer |
-| BETA-10 Kap. 6 Modellering | ⬜ Ikke startet | |
+| BETA-8 Kap. 4 Casebeskrivelse | ✅ Ferdig | Ny, basert på CellDe/SAP-prosessforståelse |
+| BETA-9 Kap. 5 Metode og data | ✅ Ferdig | Ny pipeline, to separate filer |
+| BETA-10 Kap. 6 Modellering | ✅ Ferdig | |
 | BETA-11 Kap. 7 Analyse | ⬜ Ikke startet | |
 | BETA-12 Kap. 8 Resultat | ⬜ Ikke startet | |
 | BETA-13 Kap. 9 Diskusjon | ⬜ Ikke startet | Inkl. geografisk begrensning og class C-imbalanse |
@@ -279,9 +279,9 @@ Innleveringsfrist: **2026-05-31**.
 | 1 Innledning | ⬜ Placeholder | Skrives sist |
 | 2 Litteratur | ✅ Ferdig | Empiriske bidrag, posisjonering av prosjektet |
 | 3 Teori | ✅ Ferdig | 9R oppdatert, CellDe-features, ingen target leakage |
-| 4 Casebeskrivelse | ⬜ Ikke startet | Ny — CellDe/SAP to-kilde-arkitektur, tre kanaler |
-| 5 Metode og data | ⬜ Ikke startet | Ny pipeline — ingen sammenslåing av filer |
-| 6 Modellering | ⬜ Ikke startet | |
+| 4 Casebeskrivelse | ✅ Ferdig | Ny — CellDe/SAP to-kilde-arkitektur, tre kanaler |
+| 5 Metode og data | ✅ Ferdig | Ny pipeline — ingen sammenslåing av filer |
+| 6 Modellering | ✅ Ferdig | |
 | 7 Analyse | ⬜ Ikke startet | |
 | 8 Resultat | ⬜ Ikke startet | Inkl. figurer fra `005 report/` |
 | 9 Diskusjon | ⬜ Ikke startet | Inkl. geografisk begrensning og class C-imbalanse |
@@ -324,10 +324,14 @@ Innleveringsfrist: **2026-05-31**.
 
 **Modellnøyaktighet lavere enn gammel rapport.** 80 % accuracy (ny BETA) vs. 92,4 % (gammel rapport). Forskjellen skyldes at target leakage er fjernet. 80 % er realistisk og ærlig — og fortsatt over 80 %-kravet.
 
-**Tid.** Innlevering 2026-05-31. Ti dager gjenstår. Åtte kapitler må skrives. Realistisk men stramt.
+**Tid.** Innlevering 2026-05-31. Ni dager gjenstår. Fem kapitler gjenstår (7–9 + 1 + 10). Realistisk men stramt.
+
+**Label encoding for uordnede kategorier.** `Transaction Type`, `Channel` og `Device Category` er label-kodet. For trebaserte metoder er dette akseptabelt i praksis, men begrensningen er dokumentert i kap. 5.2.4 og skal diskuteres i kap. 9.
+
+**Klassetall i treningssettet uverifisert mot kjørt kode.** Korrigert til A: 27 720, B: 46 711, C: 431 basert på aritmetikk. Bør verifiseres når ML-pipeline kjøres.
 
 ---
 
-## Vurdering – per 2026-05-21
+## Vurdering – per 2026-05-22
 
-BETA-rapporten er godt i gang. Dataanalysen og modelltreningen er fullført med korrekt metodikk, og to kapitler er skrevet. Det kritiske arbeidet fremover er å skrive de substantielle kapitlene (4–9) før innlevering 31. mai. Kapittel 4 (Casebeskrivelse) er naturlig neste steg da det gir kontekst for alle påfølgende kapitler. Tidsrammen er stram men gjennomførbar dersom det jobbes strukturert kapittel for kapittel.
+Kapittel 4 (Casebeskrivelse), 5 (Metode og data) og 6 (Modellering) er skrevet inn i BETA-rapporten. Sensor-gjennomgang av kap. 2–6 er gjennomført og syv rettinger er lagt inn (tabellnumre, skrivefeil, klassetall, label encoding-merknad, hyperparametervalg, kompendiereferanse, Modino-kilde). Kompendiet (Rekdal & Pettersen, 2026) er lest og integrert. Gjenstående arbeid: kap. 7 (Analyse), 8 (Resultat), 9 (Diskusjon), deretter ML-pipeline-verifisering, og til slutt kap. 1, 10, bibliografi, sammendrag og forside.

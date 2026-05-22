@@ -356,7 +356,7 @@ Klassifisering er en type supervised learning der målet er å predikere hvilken
 
 **Decision Tree** (Quinlan, 1986) benyttes som basismodell. Den er enkel og tolkbar, men utsatt for overfitting.
 
-**Random Forest** (Breiman, 2001) er primærkandidaten. Metoden bygger et stort antall decision trees på tilfeldige underutvalg av data og variabler, og kombinerer prediksjonene gjennom majoritetsstemme. Metoden er robust mot overfitting, håndterer kategoriske variabler og klasseimbalanse godt, og produserer feature importance-verdier som angir hvilke enhetsattributter som driver kanalklassen. Ibrahim og Abdul-Kader (2025) og Turkolmez et al. (2024) demonstrerer begge at trebaserte metoder gir høy nøyaktighet på klassifisering av returnert forbrukerelektronikk, noe som støtter dette valget empirisk.
+**Random Forest** (Breiman, 2001) er primærkandidaten. Metoden bygger et stort antall decision trees på tilfeldige underutvalg av data og variabler, og kombinerer prediksjonene gjennom majoritetsstemme. Metoden er robust mot overfitting, håndterer kategoriske variabler og klasseimbalanse godt, og produserer feature importance-verdier som angir hvilke enhetsattributter som driver kanalklassen. Ibrahim og Abdul-Kader (2025) og Turkolmez et al. (2024) demonstrerer begge at trebaserte metoder gir høy nøyaktighet på klassifisering av returnert forbrukerelektronikk, noe som støtter dette valget empirisk. Rekdal og Pettersen (2026, kap. 9) viser i tillegg at CART-beslutningstrær for disposisjonsbeslutninger i returlogistikk gir 92,4 % treff mot optimale etiketter — en direkte parallell til dette prosjektets problemstruktur.
 
 **Kilder:**
 Breiman, L. (2001). Random forests. *Machine Learning*, *45*(1), 5–32. https://doi.org/10.1023/A:1010933404324
@@ -417,61 +417,353 @@ Sirkulærøkonomi-litteraturen (Stahel, 2016; Potting et al., 2017; Geissdoerfer
 
 ## 4. Casebeskrivelse
 
-Her skal problemstillingen utbroderes for den bedriften du samarbeidet med eller det aktuelle temaet. Ta med all relevant informasjon som er nødvendig for å få en full forståelse av problemet, men ikke mer. Husk å holde den røde tråden til problemstillingen, unødvendig informasjon trekker ned. Man kan gjerne beskrive om en bransje eller en teori hvis problemstillingen ikke omhandler en spesifikk bedrift.
+### 4.1 Modino AS og recommerce-markedet
 
-Anta vi f.eks. har som problemstilling å forbedre gjennomløpstiden for en vare i en produksjonsbedrift:
+Modino AS er en nordisk recommerce-aktør med virksomhet i Norge, Sverige, Finland og Estland (basert på prosjektinformasjon fra Modino AS). Selskapet kjøper brukte mobilenheter fra mobiloperatører, forsikringsselskaper og privatpersoner, og videreseller dem enten direkte til profesjonelle kjøpere (B2B) eller etter renovering til sluttkunder via sin netthandelsplattform Teleoutlet (One2cel AS). Modino opererer dermed i skjæringspunktet mellom reverse logistics og recommerce, og håndterer hele kjeden fra innkjøp og gradering til reparasjon og distribusjon.
 
-- Type bedrift og hvorfor produktet har lav gjennomløpstid.
-- Beskrivelse av produktets oppbygning i komponenter.
-- Hvordan bedriften gjennomfører produksjonen av produktet i dag?
-- Hvilke faktorer som påvirker gjennomløpstiden.
-- Hvilke data som bedriften har for prosessen.
-- Hva bedriften tror som forårsaker lav gjennomløpstid.
+Markedet for brukte mobilenheter er i vekst og drives av økt bevissthet om ressursbruk, regulatoriske krav til produktlevetid og voksende etterspørsel etter rimelige alternativer til nye enheter (Proske et al., 2018). Recommerce skiller seg fra tradisjonell lineær handel ved at produktets verdi ikke avskrives fullt ut ved første salg — gjenværende bruksverdi kan realiseres gjennom renovering og videresalg. For Modino er evnen til å identifisere hvilken kanal en enhet passer best for, direkte avgjørende for lønnsomheten i hvert enkelt produkt.
+
+### 4.2 Enheter og graderingssystem
+
+Modinos sortiment består utelukkende av brukte smarttelefoner og nettbrett. Enhetene ankommer i varierende tilstand — fra tilnærmet nye enheter med kosmetiske skjønnhetsfeil til enheter med alvorlige funksjonsfeil eller strukturelle skader.
+
+Ved mottak gjennomgår hver enhet en automatisert inspeksjon i **CellDe** — Modinos digitale inspeksjons- og graderingsverktøy. CellDe tester enhetens funksjoner (skjerm, batteri, kamera, tilkobling m.m.) og registrerer eventuelle feil. På bakgrunn av denne inspeksjonen tildeles enheten en **inntaksgrad** på skalaen A–F, der A representerer best tilstand og F representerer enhet med alvorlige feil som gjør reparasjon ulønnsom:
+
+**Tabell 4.1: CellDe-graderingsskala**
+
+| Grad | Beskrivelse |
+|---|---|
+| A | Tilnærmet som ny — ingen eller minimale kosmetiske feil |
+| B | Lettere slitasje — mindre riper, fullt funksjonell |
+| C | Merkbar slitasje — synlige riper eller skader, funksjoner intakte |
+| D | Betydelig slitasje eller enkeltfeil som krever reparasjon |
+| E | Alvorlige feil — krever omfattende reparasjon |
+| F | BER-kandidat — reparasjon ikke lønnsomt |
+
+Inntaksgraden er den primære informasjonen om enhetens tilstand på det tidspunktet en kanaliseringsbeslutning må tas. Den registreres alltid, og er tilgjengelig for alle enheter i datasettet. CellDe registrerer i tillegg enhetens estimerte markedsverdi (`Inspected Device Value`), enhetsmodell, farge, enhetskategori, transaksjonstype og kanal — informasjon som alle er tilgjengelig ved mottakstidspunktet.
+
+### 4.3 Klassifiseringsprosessen — tre kanaler ut av Modino
+
+Etter inntak og CellDe-gradering importeres enhetens data til Modinos ERP-system, **SAP S/4HANA**. SAP oppretter en innkjøpsordre (Purchase Order) for enheten med et *buy-back*-artikkelnummer på formen `nummer_variant_grad` (for eksempel `16854_2_0`). Dette artikkelnummeret identifiserer enheten i SAP frem til den eventuelt gjennomgår renovering.
+
+Fra dette punktet kan enheten ta én av tre veier ut av Modino:
+
+**Kanal A — Sluttkunde via Teleoutlet (renovering)**
+Enheten sendes til renovering gjennom en underleverandørordre (Subcontracting PO). Etter vellykket renovering endres artikkelnummeret fra buy-back-format til et *2nd*-artikkelnummer (rent numerisk, for eksempel `47731`). Den nye artikkelbeskrivelsen i SAP (`maktx`) koder eksplisitt inn post-renoverings-graden: en beskrivelse som `2nd-C iPhone 13 128GB Midnight` angir at enheten er gradert C etter renovering. Enheten selges deretter til privatkunder gjennom One2cel AS / Teleoutlet. Denne kanalen representerer 37,0 % av klassifiserte enheter i datasettet.
+
+**Kanal B — Tredjepartshandler (direkte salg)**
+Enheten selges uten renovering til en profesjonell B2B-aktør (tredjepartshandler) ved hjelp av det opprinnelige buy-back-artikkelnummeret. Selskapet faktureres direkte, og enheten forlater Modino uten ytterligere behandling. Kjente tredjepartshandlere i datasettet inkluderer Foxway OÜ, Bridge Nine OÜ, Renewed AB og Care1 A/S, identifisert via numerisk kunde-ID (`kunag`). Denne kanalen er den dominerende og representerer 62,4 % av klassifiserte enheter.
+
+**Kanal C — Skrap/BER**
+Enheten er vurdert som Beyond Economical Repair — reparasjonskostnadene overstiger forventet markedsverdi etter renovering. Enheten selges som skrap til kunde `1365865` («Modino vareuttak»), alltid med buy-back-artikkelnummer. BER-enheter gjennomgår aldri renovering og tildeles aldri et 2nd-artikkelnummer. Denne kanalen utgjør 0,6 % av klassifiserte enheter — en sterk klasseimbalanse som adresseres metodisk i kapittel 5.
+
+Forholdet mellom artikkelnummertype og salgskanal er oppsummert i tabell 4.1.
+
+**Tabell 4.2: Artikkelnummertype og salgskanal**
+
+| Artikkelnummertype | Format | Eksempel | Salgskanal |
+|---|---|---|---|
+| Buy-back | `nummer_variant_grad` | `16854_2_0` | Tredjepartshandler eller Skrap/BER |
+| 2nd | Rent numerisk | `47731` | Sluttkunde (Teleoutlet) |
+
+### 4.4 Datagrunnlaget — to-kilde-arkitektur
+
+Modinos operasjon genererer data i to separate systemer, og disse utgjør prosjektets to kildefiler:
+
+**CellDe-filen** (`InspectedDeviceREport_cleaned_anon.xlsx`) representerer enhetens tilstand *ved inntak*. Filen inneholder én rad per inspeksjon og dekker 103 400 unike enheter fordelt på 2024 (45 676 rader) og 2025 (57 867 rader). Nøkkelfeltet er `IMEI` (15-sifret tekststreng), og relevante kolonner er blant annet `Grade`, `Inspected Device Value`, `Device Model`, `Device Category`, `Inspection Color`, `Transaction Type`, `Channel` og `InspectedFaults`.
+
+**SAP-filen** (`Z_BBTI_IMEI_TRACK_cleaned_anon.xlsx`) representerer enhetens *utgang* — hvilken kanal den faktisk gikk til, til hvilken pris og med hvilken kostnad. Filen inneholder én rad per unike IMEI og dekker 93 580 enheter. Nøkkelfeltet er `imei`, og relevante kolonner inkluderer `kunag` (selge-til kunde-ID), `kunnr` (sende-til kunde-ID), `matnr` (artikkelnummer) og `maktx` (artikkelbeskrivelse).
+
+De to filene kobles utelukkende i minnet under analyse, via IMEI som koblingsnøkkel. De lagres aldri som én sammenslått fil. Av 103 400 CellDe-registrerte enheter har 93 580 (90,5 %) en tilsvarende SAP-rad — de resterende 9 820 antas å være i lager, under renovering eller avskrevet. Tabellen under oppsummerer datagrunnlaget.
+
+**Tabell 4.3: Datagrunnlag**
+
+| Fil | Kilde | Periode | Rader | Unike IMEI |
+|---|---|---|---|---|
+| `InspectedDeviceREport_cleaned_anon.xlsx` | CellDe | 2024–2025 | 103 543 (rådata) | 103 400 |
+| `Z_BBTI_IMEI_TRACK_cleaned_anon.xlsx` | SAP S/4HANA | 2024–2025 | 93 580 | 93 580 |
+| Koblet datasett (i minnet) | CellDe + SAP | 2024–2025 | 93 575 | 93 575 |
+
+*Merk: 93 575 rader etter frafall av 5 uklassifiserte enheter og 11 rader med manglende verdier i features.*
+
+### 4.5 Klassifiseringsutfordringen
+
+Kanalvalget for en enhet bestemmes i prinsippet av enhetens verdi og tilstand — og bør ideelt sett kunne predikeres fra CellDe-data som foreligger ved mottak. I praksis viser analysen at den sterkeste prediktoren for om en enhet ender i kanal A eller B er **destinasjonsland** (`ship_country` fra SAP): enheter som sendes til Norge havner i 98,5 % av tilfellene i kanal A (sluttkunde/Teleoutlet), mens enheter som sendes til andre land — primært Estland — i nærmere 100 % av tilfellene ender i kanal B (tredjepartshandler).
+
+Dette representerer imidlertid en fundamental metodisk begrensning: `ship_country` eksisterer kun *etter* at salget er gjennomført og er dermed utilgjengelig som feature på beslutningstidspunktet (target leakage). CellDe-systemet registrerer ingen geografisk informasjon om enhetens destinasjon — de samme innleveringsbutikkene (for eksempel Telenor-butikker) leverer enheter som havner i både Norge og Estland, avhengig av markedssituasjon og lagerstyring.
+
+Konsekvensen er at modellen må ta kanaliseringsbeslutningen uten tilgang til den informasjonen som i realiteten er mest avgjørende for utfallet. Dette forklarer en strukturell begrensning i modellnøyaktigheten for A/B-skillet, og diskuteres nærmere i kapittel 9. Det metodisk riktige valget er likevel å ekskludere destinasjonsinformasjon fra modellen, da en modell basert på post-salgsdata ikke ville vært anvendbar i en faktisk driftssetting.
 
 ---
 
-## 5. Metode og data (kan splittes i to)
-
-Litt avhengig av omfanget, kan det være lurt å vurdere om du skal splitte kapittelet i to eller ikke.
+## 5. Metode og data
 
 ### 5.1 Metode
 
-I oppgavens metodedel skal du beskrive valgt metode. Dette skal beskrives så nøyaktig at andre skal kunne klare å gjenta prosessen. Metodedelen gir leseren mulighet til å vurdere hvorvidt oppgaven kan inneholde feil i fremgangsmåten.
+#### 5.1.1 Forskningsdesign
 
-Oppgi paradigme betraktninger, forskningsperspektiv, forskningsdesign, innsamlingsmetode for data, utvalgskriterier, utvalgsmetode, utvalgsstørrelse og analysemetoder.
+Prosjektet er utformet som en kvantitativ casestudie (Yin, 2018). Datagrunnlaget er historiske transaksjonsdata fra Modinos operasjonelle systemer, og analysen er gjennomført på et ferdig avgrenset datasett uten innsamling gjennom intervju eller spørreskjema. Den vitenskapelige tilnærmingen er positivistisk: det antas at observerte mønstre i historiske utfall er systematiske og stabile nok til at en modell trent på dem kan generalisere til fremtidige enheter (James et al., 2021).
 
-Du kan også ta opp eventuelle etiske spørsmål og potensielle feilkilder.
+Problemstillingen er prediktiv — målet er ikke å forklare *hvorfor* enheter havner i ulike kanaler, men å predikere *hvilken* kanal en enhet med gitte egenskaper vil ende i. Dette skiller prosjektet fra en tradisjonell forklarende studie og motiverer valget av maskinlæring fremfor regresjonsanalyse.
 
-Eksempel:
+**Kilde:**
+Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). Sage.
 
-- Hvilken forskningsmetode er valgt?
-- For de fleste er det case-metode
-- Kvantitativ eller kvalitativ?
-- Hva slags data (spørreskjema, intervju, fra ERP systemet)
-- Teori rundt det å lage spørreskjema
-- Teori rundt det med nøyaktigheten av data fra ERP system
-- Metode for analyse, kvantitativ, kvalitativ
-- Kort beskrivelse av den metoden som er valgt
-- Statistisk metode? regresjon?
-- Kort beskrivelse (bruk lærebøker)
-- Dataverktøy for eksempel SPSS eller excel
+#### 5.1.2 Valg av metode
+
+Supervised learning klassifisering er valgt fordi Modinos historiske data inneholder dokumenterte utfall: det er kjent hvilken salgskanal hver enhet faktisk gikk til. Dette gir grunnlag for en etikettert treningsdataset, som er en forutsetning for supervised learning (Hastie et al., 2009).
+
+Alternativet — en optimaliseringsmodell (for eksempel lineær programmering) — ble vurdert og forkastet. En optimaliseringsmodell krever en eksplisitt målfunksjon, beslutningsvariabler og restriksjoner, og forutsetter at kanalenes relative lønnsomhet er kjent og stabil. Klassifisering er metodisk enklere å begrunne og gjennomføre innenfor prosjektets rammer, og gir en direkte operasjonell output — predikert kanal — som kan integreres i Modinos eksisterende arbeidsflyt.
+
+**Decision Tree** (Quinlan, 1986) benyttes som basismodell (baseline) fordi den er transparent og enkelt tolkbar. **Random Forest** (Breiman, 2001) er primærmodellen, valgt for sin robusthet mot overfitting, evne til å håndtere klasseubalanse og produksjon av feature importance-verdier.
+
+Analysene er gjennomført i **Python 3** med bibliotekene `pandas` (databehandling), `scikit-learn` (modellering) og `openpyxl` (Excel-innlasting).
 
 ### 5.2 Data
 
-Her beskriver du hvilke data du har brukt, hvordan du har fått tak i de og hvordan leser evt. kan få tak i dataene om nødvendig.
+#### 5.2.1 Datakilder og innlasting
 
-Hvordan er data samlet inn:
+Datagrunnlaget er hentet direkte fra Modinos operasjonelle systemer og stilt til rådighet for prosjektet i anonymisert form. Dataperioden er 2024–2025. Filene er i Excel-format (.xlsx) og leses inn separat:
 
-- Tidsperiode
-- Intervju – hvor mange og til hvem? (Hvorfor ble disse valgt som intervjuobjekt)
-- Spørreskjema – hvor mange er det sent til, hvor mange fikk dere inn, hvor mange kunne dere bruke – hvem sendte dere til – er det flere versjoner?
-- Data fra ERP-systemet: Periode–antall observasjoner rå data, antall observasjoner etter cleaning.
+CellDe-filen inneholder to regneark — ett per år — som konkatenteres til ett samlet datasett. Duplikater på IMEI-nivå fjernes ved å beholde den første forekomsten:
+
+```python
+cd24 = pd.read_excel(cellde_path, sheet_name='2024', dtype={'IMEI': str})
+cd25 = pd.read_excel(cellde_path, sheet_name='2025', dtype={'IMEI': str})
+cellde = pd.concat([cd24, cd25], ignore_index=True).drop_duplicates(subset='IMEI', keep='first')
+```
+
+SAP-filen leses inn med `kunag` og `kunnr` som tekststrenger for å bevare ledende nuller i kunde-ID:
+
+```python
+sap = pd.read_excel(sap_path, sheet_name='Sheet1',
+                    dtype={'imei': str, 'kunag': str, 'kunnr': str})
+```
+
+De to filene kobles deretter i minnet via en venstrejoin på IMEI. Filene lagres aldri sammenslått — sammenslåingen eksisterer kun i arbeidsminnet under analysen. Av 103 400 CellDe-enheter har 93 580 (90,5 %) en tilsvarende SAP-rad. Etter sammenkobling og frafall av rader med manglende feature-verdier utgjør det analyseklare datasettet 93 575 rader.
+
+#### 5.2.2 Datakvalitet og rensing
+
+Begge kildefiler er levert i forhåndsrenset form. Rensingen som er gjennomført på rådata inkluderer:
+
+- Fjerning av rader med blankt IMEI
+- Fjerning av rader med ugyldig IMEI (ikke nøyaktig 15 sifre)
+- Fjerning av dummy-IMEI `101010101010101` (oppsto 478 ganger totalt)
+- IMEI lagret som 15-sifret tekststreng (eliminerer problemer med vitenskapelig notasjon fra Excel)
+- For SAP-filen: fjerning av 864 duplikate IMEI-rader (samme enhet fakturert flere ganger samme dato); deduplisering beholder tidligste fakturadato per IMEI
+
+Dataene er anonymisert av Modino: kundenavn er fjernet, og alle identifikatorer er numeriske kunde-IDer. I prosjektet benyttes utelukkende `kunnr` (numerisk sende-til kunde-ID) og `kunag` (numerisk selge-til kunde-ID) for klassifisering — ikke kundenavn, som er upålitelig som følge av tegnsettproblem i kildesystemet.
+
+#### 5.2.3 Klassifisering — definisjon av målvariabelen
+
+Målvariabelen `klasse` defineres på bakgrunn av SAP-data og angir hvilken salgskanal enheten faktisk gikk til. Klassifiseringen gjennomføres i tre trinn som sjekkes i fast prioritetsrekkefølge:
+
+**Trinn 1 — Klasse C (Skrap/BER):** Enheten er klassifisert som skrap dersom `kunnr == '1365865'`. Denne kunden («Modino vareuttak») er mottaker for alle BER-enheter. Sjekken utføres alltid først for å forhindre feilklassifisering dersom en BER-enhet skulle sammenfalle med andre betingelser.
+
+**Trinn 2 — Klasse A (Sluttkunde):** Enheten er klassifisert som sluttkunde-salg dersom `matnr` er rent numerisk (regulært uttrykk: `^\d+$`). Et rent numerisk artikkelnummer identifiserer et 2nd-artikkel, som per Modinos prosess utelukkende brukes for enheter som har gjennomgått renovering og selges via Teleoutlet.
+
+**Trinn 3 — Klasse B (Tredjepartshandler):** Enheten er klassifisert som B2B-salg dersom `kunag` tilhører den kjente trader-mengden. Trader-IDene er numeriske kunde-IDer identifisert fra SAP:
+
+```python
+traders = {'544127', '707086', '995702', '498232', '1533558', '1536986',
+            '1550704', '715038', '1530444', '1530472', '1602135', '1602088'}
+```
+
+Enheter som ikke tilfredsstiller noen av de tre betingelsene (5 rader) ekskluderes fra analysen. Klassifiseringsresultatet er oppsummert i tabell 5.1.
+
+**Tabell 5.1: Klassifiseringsresultat**
+
+| Klasse | Kanal | Antall | Andel |
+|---|---|---|---|
+| A | Sluttkunde (Teleoutlet) | 34 648 | 37,0 % |
+| B | Tredjepartshandler | 58 388 | 62,4 % |
+| C | Skrap/BER | 539 | 0,6 % |
+| Uklassifisert (ekskludert) | — | 5 | < 0,1 % |
+| **Totalt** | | **93 580** | **100 %** |
+
+#### 5.2.4 Feature engineering
+
+Et gjennomgående designprinsipp er at kun informasjon som er tilgjengelig i CellDe *ved mottakstidspunktet* kan benyttes som feature. SAP-data (pris, kostnad, artikkelnummer, destinasjonsland) tilhører salgstidspunktet og er utilgjengelig på beslutningstidspunktet — bruk av slike variabler ville innebære target leakage og gi en modell uten praktisk anvendbarhet.
+
+Åtte features er konstruert fra CellDe-data:
+
+**`grade_num`** — Inntaksgraden konverteres til en ordinal numerisk variabel: A=6, B=5, C=4, D=3, E=2, F=1. Ordinal koding bevarer den rangmessige relasjonen mellom graderingstrinnene.
+
+**`device_value`** — `Inspected Device Value` er lagret i norsk tallformat med komma som desimalskilletegn og mellomrom som tusenskille (for eksempel `'3 954,04'`). Verdien parses til float med følgende funksjon:
+
+```python
+def parse_no_number(s):
+    if pd.isna(s): return np.nan
+    s = str(s).strip().replace('\xa0', '').replace(' ', '').replace(',', '.')
+    try: return float(s)
+    except: return np.nan
+```
+
+**`model_encoded`** — `Device Model` inneholder 557 unike modellnavn. For å ivareta all modellinformasjon uten å introdusere svært høy dimensjonalitet, kodes hver modell med medianverdien av `device_value` for alle enheter av den modellen. Dette gir en kontinuerlig variabel som rangerer modeller etter typisk markedsverdi.
+
+**`color_group_enc`** — `Inspection Color` inneholder 246 ulike fargenavn. Fargene grupperes i ti semantiske grupper — Black, White/Silver, Gray, Blue, Gold, Green, Purple/Violet, Red/Pink, Yellow og Other — og kodes deretter med label encoding (0–9).
+
+**`Transaction Type_enc`** — 21 kategorier label-kodet (0–20).
+
+**`Channel_enc`** — 20 kategorier label-kodet (0–19).
+
+**`Device Category_enc`** — 3 kategorier (for eksempel smarttelefon, nettbrett) label-kodet (0–2).
+
+**`har_feil`** — Binær variabel: 1 dersom `InspectedFaults` inneholder registrerte feil, 0 ellers.
+
+Det bemerkes at label encoding for `Transaction Type`, `Channel` og `Device Category` teknisk sett impliserer en ordinal relasjon mellom kategorier som ikke nødvendigvis eksisterer. For trebaserte metoder (Decision Tree og Random Forest) har dette i praksis begrenset betydning, ettersom splittepunktvalget ikke forutsetter noen lineær avstandsrelasjon mellom koder. Bruken av label encoding for uordnede kategorier i trebaserte modeller er et kjent og akseptert forenklingsvalg i litteraturen (Zheng & Casari, 2018), men begrensningen dokumenteres i diskusjonskapittelet.
+
+Alle 8 features er oppsummert i tabell 5.2.
+
+**Tabell 5.2: Feature-oversikt**
+
+| Feature | Kilde (CellDe-kolonne) | Transformasjon |
+|---|---|---|
+| `grade_num` | `Grade` | Ordinal: A=6 … F=1 |
+| `device_value` | `Inspected Device Value` | Norsk format → float |
+| `model_encoded` | `Device Model` | Median `device_value` per modell |
+| `color_group_enc` | `Inspection Color` | 246 farger → 10 grupper → label encoding |
+| `Transaction Type_enc` | `Transaction Type` | 21 kategorier → label encoding |
+| `Channel_enc` | `Channel` | 20 kategorier → label encoding |
+| `Device Category_enc` | `Device Category` | 3 kategorier → label encoding |
+| `har_feil` | `InspectedFaults` | Binær (1 = feil registrert) |
+
+#### 5.2.5 Train/test-split og håndtering av klasseimbalanse
+
+Datasettet deles i et treningssett (80 %) og et testsett (20 %) med stratifisert sampling (`stratify=y`). Stratifisering sikrer at klassenes relative fordeling er lik i begge sett — særlig viktig for klasse C som kun utgjør 0,6 % av dataene. Det stratifiserte splittet gir:
+
+- Treningssett: 74 862 rader (A: 27 720 / B: 46 711 / C: 431)
+- Testsett: 18 713 rader (A: 6 928 / B: 11 677 / C: 108)
+
+Klasseimbalansen (C utgjør 0,6 %) håndteres ved `class_weight='balanced'` i scikit-learn. Dette justerer hver enkelt observasjons vekt omvendt proporsjonalt med klassens frekvens under trening, uten å generere syntetiske datapunkter. SMOTE (Chawla et al., 2002) ble vurdert som alternativ men forkastet da `class_weight='balanced'` er enklere å implementere, ikke introduserer risiko for overfitting på syntetiske punkter, og gir sammenlignbare resultater i litteraturen.
 
 ---
 
 ## 6. Modellering
 
-*(Beskriv modellering her)*
+### 6.1 Formalisering av klassifiseringsproblemet
+
+La hver enhet *i* representeres ved en feature-vektor **x**_i ∈ ℝ⁸, der de åtte elementene tilsvarer de CellDe-baserte variablene beskrevet i avsnitt 5.2.4. Målvariabelen *y*_i ∈ {A, B, C} angir den observerte salgskanalen. Klassifiseringsproblemet er å lære en funksjon
+
+```
+f : ℝ⁸ → {A, B, C}
+```
+
+slik at *f*(**x**_i) ≈ *y*_i for treningsdataene, og at *f* generaliserer til nye, ukjente enheter. Problemet er et multiclass classification-problem (tre klasser) innen supervised learning (James et al., 2021).
+
+Rekdal og Pettersen (2026, kap. 9) beskriver en strukturelt analog problemstilling — disposisjonsbeslutning for returnerte enheter — der samme trebaserte tilnærming benyttes for å velge mellom reparere, refurbishe, resirkulere og deponere. Denne parallellen støtter valget av metodikk i dette prosjektet.
+
+### 6.2 Decision Tree (baseline)
+
+Et beslutningstre partisjonerer feature-rommet rekursivt ved å velge, i hvert node, den feature og terskelverdi som minimerer urenheten i de resulterende undernodene (Quinlan, 1986). Urenheten måles med **Gini-indeksen**:
+
+```
+Gini(t) = 1 - Σ_k p(k|t)²
+```
+
+der *p(k|t)* er andelen observasjoner av klasse *k* i node *t*, og summen går over alle klasser. En Gini-verdi på 0 betyr at noden er ren (alle observasjoner tilhører samme klasse); verdien er maksimal når klassene er likt fordelt. Ved hvert splittepunkt velges den feature *j* og terskel *s* som gir størst vektet Gini-reduksjon:
+
+```
+ΔGini = Gini(t) - [|t_L|/|t| · Gini(t_L) + |t_R|/|t| · Gini(t_R)]
+```
+
+Rekursjonen fortsetter til et stoppkriterium er nådd — i dette prosjektet er ingen eksplisitt dybdebegrensning satt, slik at treet vokser til alle løvnoder er rene eller ikke kan splittes videre. Prediksjonen for en ny enhet er klassen med flertall i den løvnoden enheten havner i.
+
+Decision Tree benyttes som basismodell (baseline) fordi den er enkel å tolke og gir et referansepunkt for å vurdere gevinsten av en mer kompleks modell. En kjent svakhet er at treet er utsatt for overfitting: det tilpasser seg treningsdataene så nøyaktig at generaliseringsevnen svekkes (Breiman, 2001). Random Forest adresserer dette.
+
+I kompendiet (Rekdal & Pettersen, 2026, kap. 9, Eksempel 3) demonstreres at et CART-beslutningstre med maksimal dybde 4 oppnår 92,4 % treff mot oracle-etiketter i en analog disposisjonsbeslutning for returnert elektronikk — noe som bekrefter metodens egnethet for denne typen problem.
+
+Basismodellen er konfigurert som følger:
+
+```python
+DecisionTreeClassifier(class_weight='balanced', random_state=42)
+```
+
+### 6.3 Random Forest (primærmodell)
+
+Random Forest er en ensemblemetode som bygger *B* uavhengige beslutningstrær og kombinerer prediksjonene gjennom **majoritetsstemme** (Breiman, 2001). To mekanismer sikrer at trærne er uavhengige:
+
+**Bagging (Bootstrap Aggregating):** Hvert tre trenes på et tilfeldig utvalg med tilbakelegging (*bootstrap sample*) av treningsdataene. Omtrent én tredel av observasjonene holdes utenfor hvert tre (out-of-bag, OOB) og kan brukes til intern validering.
+
+**Feature-underutvalg:** Ved hvert splittepunkt vurderes kun et tilfeldig underutvalg av features — typisk √*p* av totalt *p* features. Dette reduserer korrelasjonen mellom trærne, som er den primære årsaken til at ensemblet er mer robust enn ett enkelt tre.
+
+Den endelige prediksjonen er klassen som flest trær stemmer på:
+
+```
+ŷ = argmax_k Σ_{b=1}^{B} 𝟙[f_b(x) = k]
+```
+
+#### 6.3.1 Feature importance
+
+Random Forest produserer feature importance-verdier som angir hvilke variabler som bidrar mest til klassifiseringsnøyaktigheten. Viktigheten til feature *j* beregnes som gjennomsnittlig Gini-reduksjon over alle splittepunkter og alle trær der feature *j* benyttes:
+
+```
+Importance(j) = (1/B) · Σ_{b=1}^{B} Σ_{t: split on j} ΔGini(t, j)
+```
+
+Verdiene normaliseres slik at de summerer til 1, og tolkes som andelen av total Gini-reduksjon som kan tilskrives feature *j*. Feature importance gir innsikt i hvilke enhetsattributter som driver kanalvalget, og er dermed direkte verdifull for Modino utover selve klassifiseringsprediksjonene.
+
+#### 6.3.2 Håndtering av klasseimbalanse
+
+Med `class_weight='balanced'` justeres observasjonsvektene omvendt proporsjonalt med klassens frekvens:
+
+```
+w_k = n / (K · n_k)
+```
+
+der *n* er totalt antall observasjoner, *K* er antall klasser og *n_k* er antall observasjoner i klasse *k*. For klasse C (539 av 93 575 observasjoner) gir dette en vekt på omtrent 58 × gjennomsnittet, som gjør at modellen «ser» klasse C-feil som langt mer kostbare under trening.
+
+#### 6.3.3 Hyperparametere
+
+Primærmodellen er konfigurert som følger:
+
+```python
+RandomForestClassifier(
+    n_estimators=100,
+    class_weight='balanced',
+    random_state=42,
+    n_jobs=-1
+)
+```
+
+`n_estimators=100` er valgt som et veletablert standardnivå der ensemblet er stabilt; i litteraturen er det vist at gevinsten av ytterligere trær avtar raskt etter 100–200 (Breiman, 2001). Det er ikke gjennomført systematisk hyperparametertuning (GridSearchCV) i denne analysen — prosjektets formål er å demonstrere klassifiseringstilnærmingens egnethet for Modinos kontekst, ikke å maksimere ytelse gjennom ekshaustivt parametersøk. Begrensningen diskuteres i kapittel 9. `random_state=42` sikrer reproduserbarhet. `n_jobs=-1` aktiverer parallell trening på alle tilgjengelige CPU-kjerner.
+
+**Kilde:**
+Rekdal, P. K., & Pettersen, B.-I. (2026). *Kvantitative metoder i logistikk*. Høgskolen i Molde. Hentet fra https://kml-site-production.up.railway.app/
+
+### 6.4 Evalueringsrammeverk
+
+Modellenes ytelse vurderes på testsettet (18 713 rader) med fire komplementære metrikker (Sokolova & Lapalme, 2009):
+
+**Accuracy** angir andelen korrekte prediksjoner totalt:
+
+```
+Accuracy = (TP_A + TP_B + TP_C) / n
+```
+
+Accuracy er enkel å tolke, men kan være misvisende ved sterk klasseimbalanse: en modell som alltid predikerer klasse B vil oppnå 62,4 % accuracy uten å lære noe nyttig.
+
+**Precision per klasse** angir andelen av de enhetene som ble predikert til klasse *k* som faktisk tilhørte klasse *k*:
+
+```
+Precision_k = TP_k / (TP_k + FP_k)
+```
+
+**Recall per klasse** angir andelen av de enhetene som faktisk tilhørte klasse *k* som modellen korrekt identifiserte:
+
+```
+Recall_k = TP_k / (TP_k + FN_k)
+```
+
+**F1-score** er det harmoniske gjennomsnittet av precision og recall, og gir ett samlet mål per klasse:
+
+```
+F1_k = 2 · (Precision_k · Recall_k) / (Precision_k + Recall_k)
+```
+
+F1-score er særlig nyttig for klasse C, der precision og recall kan avvike betydelig. Recall for klasse C er spesielt kritisk operasjonelt: en BER-enhet som feilklassifiseres som A eller B vil belastes unødvendig med renoveringskostnader.
+
+**Confusion matrix** visualiserer fordelingen av korrekte og feilaktige prediksjoner for alle tre klasser, og gjør det mulig å identifisere systematiske feilklassifiseringsmønstre — for eksempel om A og B forveksles hyppig (Fawcett, 2006).
 
 ---
 
