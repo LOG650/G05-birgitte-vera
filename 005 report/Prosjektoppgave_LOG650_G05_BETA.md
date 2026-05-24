@@ -88,13 +88,21 @@ Oppgaver som er unntatt offentlighet eller båndlagt vil ikke bli publisert.
 
 ## Sammendrag
 
-*(Skriv sammendrag på norsk her)*
+Recommerce-markedet for brukte mobilenheter er i vekst, og evnen til å kanalisere innkommende enheter til riktig salgskanal er direkte avgjørende for lønnsomheten. Denne oppgaven undersøker hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger hos Modino AS — en nordisk recommerce-aktør som kjøper, renoverer og videreselger brukte smarttelefoner og nettbrett.
+
+Datagrunnlaget er hentet fra to separate operasjonelle systemer: CellDe (inspeksjon og gradering ved mottak) og SAP S/4HANA (salg og fakturering). Totalt 93 575 enheter fra 2024 og 2025 er analysert. Klassifiseringslogikken bygger på faktisk observert salgskanal — sluttkunde via Teleoutlet (klasse A), tredjepartshandler (klasse B) eller skrap/BER (klasse C) — definert fra SAP-data. En Random Forest-modell er trent på åtte features hentet utelukkende fra CellDe på mottakstidspunktet, slik at target leakage unngås.
+
+Modellen oppnår 80 % accuracy på testsettet, med F1-score på 0,75 (klasse A), 0,84 (klasse B) og 0,75 (klasse C). Minimumskravet på 80 % er oppfylt. Den viktigste prediktoren er enhetens estimerte markedsverdi (30,7 %), etterfulgt av enhetskategori (20,7 %) og inntaksgrad (15,4 %). Den dominerende feilkilden er forveksling mellom klasse A og B, drevet av fraværet av geografisk salgsinformasjon på beslutningstidspunktet. Den estimerte lønnsomhetsforbedringen ved modellbasert klassifisering er ~590 000 NOK per år (øvre estimat).
 
 ---
 
 ## Abstract
 
-*(Write abstract in English here)*
+Recommerce-markedet for brukte mobilenheter er i rask vekst, og evnen til å kanalisere innkommende enheter til riktig salgskanal er direkte avgjørende for lønnsomheten. Denne oppgaven undersøker hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger hos Modino AS — en nordisk recommerce-aktør som kjøper, renoverer og videreselger brukte smarttelefoner og nettbrett.
+
+Datagrunnlaget stammer fra to separate operasjonelle systemer: CellDe (inspeksjon og gradering ved inntak) og SAP S/4HANA (salg og fakturering). Totalt 93 575 enheter fra 2024 og 2025 er analysert. Målvariabelen er den faktisk observerte salgskanalen — sluttkunde via Teleoutlet (klasse A), tredjepartshandler (klasse B) eller skrap/BER (klasse C) — utledet fra SAP-data. En Random Forest-modell er trent på åtte features hentet utelukkende fra CellDe ved mottakstidspunktet, slik at target leakage unngås.
+
+Modellen oppnår 80 % nøyaktighet på testsettet, med F1-score på 0,75 (klasse A), 0,84 (klasse B) og 0,75 (klasse C), og oppfyller det definerte minimumskravet. Den viktigste prediktoren er enhetens estimerte markedsverdi (30,7 %), etterfulgt av enhetskategori (20,7 %) og inntaksgrad (15,4 %). Det dominerende feilmønsteret er forveksling mellom klasse A og B, drevet av fraværet av geografisk salgsinformasjon på beslutningstidspunktet. Den estimerte lønnsomhetsforbedringen ved modellbasert klassifisering er om lag 590 000 NOK per år (øvre estimat).
 
 ---
 
@@ -102,19 +110,49 @@ Oppgaver som er unntatt offentlighet eller båndlagt vil ikke bli publisert.
 
 - [1. Innledning](#1-innledning)
   - [1.1 Problemstilling](#11-problemstilling)
-  - [1.2 Delproblemer (valgfri)](#12-delproblemer-valgfri)
+  - [1.2 Delproblemer](#12-delproblemer)
   - [1.3 Avgrensinger](#13-avgrensinger)
   - [1.4 Antagelser](#14-antagelser)
 - [2. Litteratur](#2-litteratur)
+  - [2.1 Maskinlæring for klassifisering av returnerte forbrukerelektronikk](#21-maskinlæring-for-klassifisering-av-returnerte-forbrukerelektronikk)
+  - [2.2 Integrert beslutningsstøtte i reverse logistics](#22-integrert-beslutningsstøtte-i-reverse-logistics)
+  - [2.3 Recommerce og sirkulær økonomi for mobilenheter](#23-recommerce-og-sirkulær-økonomi-for-mobilenheter)
+  - [2.4 Posisjonering av dette prosjektet](#24-posisjonering-av-dette-prosjektet)
 - [3. Teori](#3-teori)
+  - [3.1 Sirkulærøkonomi og recommerce](#31-sirkulærøkonomi-og-recommerce)
+  - [3.2 Beslutningsstøtte og verdifall](#32-beslutningsstøtte-og-verdifall)
+  - [3.3 Maskinlæring og klassifisering](#33-maskinlæring-og-klassifisering)
+  - [3.4 Oppsummering og kobling til problemstilling](#34-oppsummering-og-kobling-til-problemstilling)
 - [4. Casebeskrivelse](#4-casebeskrivelse)
-- [5. Metode og data](#5-metode-og-data-kan-splittes-i-to)
+  - [4.1 Modino AS og recommerce-markedet](#41-modino-as-og-recommerce-markedet)
+  - [4.2 Enheter og graderingssystem](#42-enheter-og-graderingssystem)
+  - [4.3 Klassifiseringsprosessen — tre kanaler ut av Modino](#43-klassifiseringsprosessen--tre-kanaler-ut-av-modino)
+  - [4.4 Datagrunnlaget — to-kilde-arkitektur](#44-datagrunnlaget--to-kilde-arkitektur)
+  - [4.5 Klassifiseringsutfordringen](#45-klassifiseringsutfordringen)
+- [5. Metode og data](#5-metode-og-data)
   - [5.1 Metode](#51-metode)
   - [5.2 Data](#52-data)
 - [6. Modellering](#6-modellering)
+  - [6.1 Formalisering av klassifiseringsproblemet](#61-formalisering-av-klassifiseringsproblemet)
+  - [6.2 Decision Tree (baseline)](#62-decision-tree-baseline)
+  - [6.3 Random Forest (primærmodell)](#63-random-forest-primærmodell)
+  - [6.4 Evalueringsrammeverk](#64-evalueringsrammeverk)
 - [7. Analyse](#7-analyse)
+  - [7.1 Datapreparering og målvariabel](#71-datapreparering-og-målvariabel)
+  - [7.2 Observasjoner fra feature-konstruksjonen](#72-observasjoner-fra-feature-konstruksjonen)
+  - [7.3 Modelltrening](#73-modelltrening)
+  - [7.4 Generaliserbarhet og intern validering](#74-generaliserbarhet-og-intern-validering)
 - [8. Resultat](#8-resultat)
+  - [8.1 Modellytelse — sammenligning av Decision Tree og Random Forest](#81-modellytelse--sammenligning-av-decision-tree-og-random-forest)
+  - [8.2 Konfusjonsmatrise — Random Forest](#82-konfusjonsmatrise--random-forest)
+  - [8.3 Feature importance — Random Forest](#83-feature-importance--random-forest)
+  - [8.4 Estimert lønnsomhetseffekt (delproblem 2)](#84-estimert-lønnsomhetseffekt-delproblem-2)
 - [9. Diskusjon](#9-diskusjon)
+  - [9.1 Svar på problemstillingen](#91-svar-på-problemstillingen)
+  - [9.2 Sammenligning med litteraturen](#92-sammenligning-med-litteraturen)
+  - [9.3 Forretningsmessig betydning for Modino](#93-forretningsmessig-betydning-for-modino)
+  - [9.4 Metodiske begrensninger](#94-metodiske-begrensninger)
+  - [9.5 Videre forskning](#95-videre-forskning)
 - [10. Konklusjon](#10-konklusjon)
 - [Bibliografi](#bibliografi)
 - [Vedlegg](#vedlegg)
@@ -123,67 +161,45 @@ Oppgaver som er unntatt offentlighet eller båndlagt vil ikke bli publisert.
 
 ## 1. Innledning
 
-Introduksjonen bør ikke være for lang, mellom 1-4 sider, helst kun 1-2. For mye skrift her kan være et tegn på at man sliter med å være presis. Ta utgangspunkt i et generelt tema og deretter beskriv den aktuelle problemstillingen.
+Markedet for brukte forbrukerelektronikk er i sterk vekst. Økt bevissthet om ressursbruk, regulatoriske krav til produktlevetid og voksende etterspørsel etter rimeligere alternativer til nye enheter driver en rask ekspansjon av recommerce — kjøp, renovering og videresalg av brukte produkter (Proske et al., 2018). For recommerce-aktører som kjøper inn brukte mobilenheter i stort volum, er evnen til å bestemme hva som skal skje med hver enkelt enhet ved mottak, direkte avgjørende for lønnsomheten. En enhet som sendes til renovering og videresalg til sluttkunde gir vesentlig høyere margin enn en enhet solgt direkte til en B2B-aktør — men renovering er bare lønnsomt dersom enhetens tilstand og markedsverdi gjør det forsvarlig (Ferguson et al., 2009).
 
-Svar på følgende spørsmål:
+Beslutningen om hvilken kanal en innkommende enhet skal til — renovering, direkte B2B-salg eller skrap — må i praksis tas raskt, basert på begrenset informasjon og under tidspress. Guide og Van Wassenhove (2009) dokumenterer at 10 ukers forsinkelse i å få en brukt mobilenhet tilbake på markedet kan tilsvare et tap på omtrent 10 % av enhetens totalverdi. Feil kanalvalg er dermed ikke bare et operasjonelt problem, men et lønnsomhetsproblem med direkte konsekvenser for virksomhetens resultat.
 
-- Hvilket tema handler oppgaven om?
-- Hvorfor er tema aktuelt?
-- Hva har blitt gjort tidligere (de mest vesentlige referansene)?
-- Hva er rapportens problemstilling (eget underavsnitt)?
-- Hvilke avgrensinger gjøres (eget underavsnitt)?
+Maskinlæring tilbyr en løsning: ved å trene en klassifiseringsmodell på historiske kanalutfall kan systemet lære hvilke enhetsattributter — tilstandsgrad, estimert markedsverdi, modell, farge — som predikerer hvilken kanal en enhet vil havne i. Ibrahim og Abdul-Kader (2025) demonstrerer at trebaserte klassifiseringsmodeller gir høy nøyaktighet på returdata for mobiltelefoner med tre disponeringskategorier. Turkolmez et al. (2024) finner tilsvarende resultater for refabrikerte laptoper. Govindan et al. (2015) identifiserer datadrevne tilnærminger til operasjonelle graderingsbeslutninger som et anerkjent gap i reverse logistics-litteraturen.
 
-Viktige momenter:
+Det som mangler i eksisterende litteratur er en studie som (1) benytter en to-kilde-arkitektur med separate innkjøps- og salgsdata, (2) bruker faktisk observert salgskanal — ikke en lønnsomhetsberegning — som målvariabel, og (3) eksplisitt ekskluderer geografisk salgsinformasjon fra features for å sikre en modell som er anvendbar på beslutningstidspunktet. Dette prosjektet fyller dette gapet gjennom en casestudie hos **Modino AS** — en nordisk recommerce-aktør som kjøper, renoverer og videreselger brukte mobilenheter i Norge, Sverige, Finland og Estland.
 
-- Skap nysgjerrighet slik at leseren ønsker å lese videre. Kunsten er ofte å aktualisere temaet for deretter å peke på konsekvenser som resultatet kan gi. Men unngå å brodere ut hvordan resultatet oppnås – for da må leseren lese videre.
-- Prøv å gi leseren innblikk i strukturen til rapporten gjennom hele introduksjonen.
-- «Lakseprisens volatilitet påvirker svært mange aktører som…»
-- «Ref 1 har vist at lakseprisen er avhengig av…»
-- «Derimot argumenter Ref 2 at volatiliteten også påvirkes av»
-- «Litteraturstudiet vårt viser at ingen har inkludert faktorer som …»
-- «For Maritech skaper volatiliteten utfordringer for kundene fordi…»
-- «Med bedre modeller kan Maritech gi fordel til sine kunder ved at…»
-- «Vi har brukt bedriftens salgsdata for å kartlegge hvilke faktorer som…»
-- «Basert på statistisk regresjonsteori har vi beskrevet en ny modell som…»
-- «I analysen har vi indentifisert interessante funn som bl.a…»
-- «Konklusjonen er derfor at…»
-- Det er lurt å henvise tilbake til introduksjonen indirekte ved å f.eks. bruke setninger som gjentar litt det som ble sagt i introduksjonen. På den måten skapes det en rød tråd hos leseren gjennom hele rapporten hvor hen minnes på hvorfor rapporten er interessant.
+Rapporten er strukturert som følger: Kapittel 2 gjennomgår relevant empirisk litteratur. Kapittel 3 presenterer det teoretiske rammeverket. Kapittel 4 beskriver Modino AS og datagrunnlaget. Kapittel 5 redegjør for metode og datapipeline. Kapittel 6 formaliserer og beskriver modellene. Kapittel 7 dokumenterer analysegjennomføringen. Kapittel 8 presenterer resultatene. Kapittel 9 diskuterer funnene. Kapittel 10 konkluderer.
 
 ### 1.1 Problemstilling
 
-Problemstillingen din er avgjørende for et godt resultat. Dette skal ikke være et «hva»- eller «hvilket»-spørsmål.
+Hvordan kan en AI-basert klassifiseringsmodell forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS?
 
-Sørg for at du har en «hvordan»- eller «hvorfor»-spørsmål, noe som vil gjøre problemstillingen din mye mer omfattende.
+### 1.2 Delproblemer
 
-En god problemstilling danner grunnlaget for hele oppgaven din, så her er det verdt å tenke seg nøye om.
+Problemstillingen operasjonaliseres gjennom to delproblemer:
 
-Kan godt gjenta noe av det som ble sagt i innledningen.
+**Delproblem 1:** I hvilken grad kan en klassifiseringsmodell basert på CellDe-inntaksdata korrekt predikere hvilken salgskanal en brukt mobilenhet vil ende i?
 
-Her er det viktig at du:
-
-- er så spesifikk som mulig
-- er svært nøye med formuleringene
-- ikke skriver noe du ikke svarer på (dangerzone)
-- ikke svarer på noe mer enn det som står i problemstillingen (da burde det enten vært tatt ut eller vært inkludert i problemstillingen) (dangerzone)
-
-### 1.2 Delproblemer (valgfri)
-
-Du kan om nødvendig dele opp problemstillingen din i flere delproblemer, dersom problemstillingen er komplisert eller omfattende. Det er da viktig at disse delproblemene blir fremstilt i en logisk rekkefølge som gir mening for hovedproblemstillingen. Vær også tydelig til leseren hvilket delproblem du svarer på til enhver tid.
+**Delproblem 2:** I hvilken grad kan en mer presis klassifisering øke netto lønnsomhet sammenlignet med historisk kanalvalg?
 
 ### 1.3 Avgrensinger
 
-Avgrensing er en svært viktig måte å snevre inn en problemstilling. Her forklarer du hvorfor du ikke har tatt med det og det. Pass på at du ikke avgrenser noe uten å forklare hvorfor, og husk aldri skriv at du ikke har nok tid e.l. det er et stort tegn på en for vidt formulert problemstilling.
+**Produktkategori:** Analysen omfatter utelukkende brukte smarttelefoner og nettbrett håndtert av Modino AS. Andre produktkategorier er ikke inkludert.
 
-- «Vi avgrenser oppgaven til kun ett produkt siden…»
-- «Vi analyserer 80% av kundene da de resterende ikke…»
-- «Oppgaven omfatter kun Norge, da det utenlandske markedet ikke…»
+**Tidsperiode:** Datagrunnlaget dekker perioden 2024–2025. Konklusjoner om fremtidig ytelse forutsetter at markedsforholdene og Modinos kanalstruktur er tilstrekkelig stabile.
+
+**Beslutningsomfang:** Prosjektet omhandler utelukkende klassifisering av innkommende enheter i tre kanalklasser. Prisingsbeslutninger, lageroptimering og logistikkplanlegging er ikke inkludert.
+
+**Datagrunnlag:** Analysen er basert utelukkende på historiske transaksjonsdata fra Modinos operasjonelle systemer (CellDe og SAP). Det er ikke gjennomført intervjuer, spørreundersøkelser eller innsamling fra andre virksomheter.
+
+**Features:** Kun informasjon tilgjengelig i CellDe på mottakstidspunktet benyttes som input til modellen. SAP-data — inkludert destinasjonsland, salgspris og kostnad — er ekskludert som features.
 
 ### 1.4 Antagelser
 
-Antagelser er en måte å presisere en problemstilling på. En antagelser er ikke det samme som avgrensing. En avgrensing snevrer inn omfanget, mens en antagelse presiserer situasjonen som analyseres. Man må forklare hvorfor man har tatt antagelsen, og hvilke konsekvenser den får på aktualiteten til analysen.
+**Historiske utfall som etiketter:** Det antas at Modinos historisk observerte kanalvalg er konsistente nok til å fungere som treningsetiketter. Modellen lærer av det Modino faktisk har gjort — ikke nødvendigvis det optimale kanalvalget. Konsekvensen er at systematiske historiske feilklassifiseringer potensielt videreføres i modellen, noe som diskuteres i avsnitt 9.4.3.
 
-- «Vi antar at antall innkommende ordrer er Poissonfordelt fordi…dette gjør at…»
-- «Vi antar at vi kan se vekk fra effekten av prisene i Sverige fordi…dette gjør at…»
+**Stabile markedsforhold:** Det antas at verdifall, kanalstruktur og graderingslogikk er tilstrekkelig stabile i analyseperioden til at mønstre lært på 2024-data er gyldige på 2025-data og fremover. Endringer i Modinos salgsstruktur — for eksempel nye tredjepartshandlere eller nye geografiske markeder — vil kreve ny modelltrening.
 
 ---
 
@@ -956,49 +972,171 @@ Det oppskalerte estimatet er **~590 000 NOK per år** under den optimistiske ant
 
 ## 9. Diskusjon
 
-I diskusjonsdelen skal du diskutere de forskjellige funnene du har gjort. Her skal du blant annet inkludere en kritisk metodediskusjon, der du vurderer om metoden din var riktig.
+Dette kapittelet drøfter funnene fra analysen og resultatene opp mot prosjektets problemstilling og delproblemer, sammenligner med eksisterende litteratur, vurderer den forretningsmessige betydningen for Modino, og diskuterer metodiske begrensninger og muligheter for videre forskning.
 
-Diskuter hvor pålitelige funnene dine er, om de er generaliserbare og eventuelle svakheter. Forklar også hvorvidt studiet har gitt ny teoretisk innsikt, og om hypoteser kan avkreftes.
+### 9.1 Svar på problemstillingen
 
-Noen viktige punkter:
+Prosjektets problemstilling spør hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS. Analysen viser at Random Forest-modellen klassifiserer innkommende enheter i de tre kanalklassene A, B og C med **80 % accuracy** på et testsett på 18 713 enheter — nøyaktig på grensen til det definerte minimumskravet på 80 %. Modellen er dermed i stand til å automatisere og standardisere en beslutning som i dag er manuell, og den gjør det med tilstrekkelig nøyaktighet til at prosjektets formål er faglig begrunnet.
 
-- Her skal resultatene diskuteres
-- Studenter blander ofte sammen diskusjon og resultater...
-- Her skal dere kommentere de resultatene som dere har funnet
-- Er dette som forventet?
-- Uventede funn? Hvis ja hvordan kan dere forklare dette
-- Stemmer deres resultater med forskningslitteraturen?
-  - Hvis ikke, hvorfor ikke? Og det kan være bra!
-  - Hvis ja, kan dere henvise til forskningslitteraturen for å understøtte deres resultater
-- Resultatene diskuteres opp mot problemstillingen! Har dere fått svar på forskningsspørsmålet?
-- Hvilken betydning for næringslivet?
-  - Anbefales som eget punkt i diskusjonen (dette er et viktig punkt i oppgaven)
-  - Hva medfører deres resultater for næringslivet/bedriften?
-  - Hvilke endringer bør bedriften/næringslivet gjøre?
-- Mulig å generalisere?
-- Ta med begrensinger/svakheter i oppgaven
-  - Ikke overfokuser på dette punktet men vær ærlige
+Resultatet må tolkes i lys av hvilken informasjon modellen faktisk har tilgang til. Modellen opererer utelukkende på CellDe-data fra mottakstidspunktet — det er nettopp dette som gjør den praktisk anvendbar. Tidligere analyseforsøk oppnådde 92,4 % accuracy, men brukte SAP-data som features. SAP-data eksisterer kun etter at salget er gjennomført, og en modell basert på slike data kan ikke benyttes til å ta beslutningen *ved mottak*. Reduksjonen fra 92,4 % til 80 % er dermed ikke et tegn på en dårligere modell — det er et tegn på en *ærlig* modell som opererer under de rammebetingelsene som faktisk gjelder i en driftssetting.
+
+#### 9.1.1 Delproblem 1 — Klassifiseringsnøyaktighet
+
+Det definerte minimumskravet på 80 % accuracy er oppfylt. F1-score for de tre klassene er 0,75 (A), 0,84 (B) og 0,75 (C). Klasse B oppnår den høyeste F1-scoren, noe som er konsistent med at klasse B er den dominerende klassen (62,4 % av datasettet) og at modellen dermed har flest treningseksempler for denne gruppen. At klasse C oppnår F1 på 0,75 til tross for at den utgjør kun 0,6 % av datasettet, er et positivt funn — `class_weight='balanced'` fungerer etter hensikten.
+
+Det dominerende feilmønsteret er forvekslingen mellom klasse A og klasse B: 1 412 faktiske A-enheter predikeres som B, og 2 234 faktiske B-enheter predikeres som A. Dette er ikke tilfeldig støy — det er et strukturelt problem som diskuteres nærmere i avsnitt 9.4.
+
+#### 9.1.2 Delproblem 2 — Lønnsomhetseffekt
+
+Den estimerte lønnsomhetsforbedringen er **+235 912 NOK på testsettet**, tilsvarende **~590 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under den eksplisitte antakelsen om at alle modellens avvik fra historisk kanalvalg er korrekte forbedringer — i praksis vil noen av avvikene være modellens egne feil. Det reelle forbedringspotensialet er lavere, men retningen er robust: modellen omdirigerer et netto antall enheter fra klasse B til klasse A (høyere margin), og gevinsten av dette overstiger tapet fra motsatt feilklassifisering. Lønnsomhetsanalysen støttes av Ferguson et al. (2009), som empirisk viser at presis gradering ved mottak reduserer totalkostnader med omtrent 11 % — en størrelsesorden som er konsistent med funnene i dette prosjektet.
+
+---
+
+### 9.2 Sammenligning med litteraturen
+
+#### 9.2.1 Klassifiseringsnøyaktighet
+
+Ibrahim og Abdul-Kader (2025) demonstrerer at trebaserte klassifiseringsmodeller gir høy nøyaktighet på returdata for mobiltelefoner, med en problemstruktur som er direkte parallell til dette prosjektet — tre disponeringskategorier og samme produktkategori. Prosjektets 80 % accuracy er lavere enn det Ibrahim og Abdul-Kader oppnår, men sammenligningen er ikke direkte: det er sannsynlig at deres datasett inkluderer informasjon som er tilgjengelig etter at disponeringsbeslutningen er tatt, noe som ville tilsvare target leakage i Modino-konteksten. Den realistiske sammenligningen er at begge studier bekrefter at trebaserte metoder er egnet for denne problemtypen — og at nøyaktigheten er sterkt avhengig av hvilken informasjon som faktisk foreligger på beslutningstidspunktet.
+
+Turkolmez et al. (2024) finner tilsvarende at Random Forest gir høy nøyaktighet på klassifisering av refabrikerte laptoper. Studien underbygger metodevalgene i dette prosjektet, selv om laptoper og mobiltelefoner har ulike verdifallsprofiler.
+
+#### 9.2.2 Feature importance og praktisk innsikt
+
+Det sterkeste enkeltfunnet fra feature importance-analysen er at **enhetens estimerte markedsverdi** (`device_value`, 30,7 %) og **enhetskategori** (`Device Category`, 20,7 %) til sammen forklarer over halvparten av klassifiseringskraften. Inntaksgraden (`grade_num`, 15,4 %) er viktig, men ikke dominerende. Dette er konsistent med Galbreth og Blackburn (2006), som viser at optimal sorteringspolitikk er drevet av enhetens realiserte verdi snarere enn av tilstandsgrad alene. Markedsverdien er en mer direkte indikator på hvilket kanalutfall som er lønnsomt — og modellen «oppdager» dette empirisk fra dataene uten at det er hardkodet inn.
+
+Det er bemerkelsesverdig at `har_feil` (binær feil-indikator) bidrar med kun 2,1 % av forklaringskraften, til tross for at registrerte feil intuitivt er en åpenbar prediktor for klasse C (BER). En mulig forklaring er at `device_value` og `grade_num` allerede fanger opp mye av den samme informasjonen — enheter med alvorlige feil er gradert lavt og har lav markedsverdi, slik at den binære feil-indikatoren ikke tilfører vesentlig ny informasjon utover det disse to variablene allerede gir.
+
+---
+
+### 9.3 Forretningsmessig betydning for Modino
+
+#### 9.3.1 Fra manuell til modellbasert klassifisering
+
+I Modinos nåværende prosess tas kanaliseringsbeslutningen manuelt, basert på CellDe-graden og operatørens erfaring. En klassifiseringsmodell som systematisk benytter alle åtte CellDe-features har to klare fordeler: den er konsistent (samme input gir alltid samme output, uavhengig av hvem som tar beslutningen og når), og den utnytter mønstre på tvers av 93 575 historiske enheter som ingen enkeltperson kan ha internalisert.
+
+Hübner et al. (2020) viser at integrert automatisert beslutningsstøtte for innkjøp, gradering og disponering gir vesentlig bedre lønnsomhet enn sekvensielle manuelle beslutninger. Modino-prosjektet er et steg i denne retningen: klassifiseringsmodellen integrerer inntaksdata direkte i en kanalanbefaling, uten at operatøren trenger å gjøre en separat skjønnsmessig vurdering.
+
+#### 9.3.2 Praktisk implementering
+
+For at modellen skal ha operasjonell verdi må den integreres i Modinos CellDe-arbeidsflyt slik at en predikert klasse (A, B eller C) presenteres automatisk for operatøren etter at inspeksjonen er fullført. Modellen bør ikke erstatte operatørens vurdering i sin helhet — særlig for grensetilfeller med lav prediksjonskonfidens bør den menneskelige vurderingen opprettholdes. En konfidensterskel, der modellen kun presenterer en anbefaling dersom prediksjonssannsynligheten overstiger for eksempel 70 %, kan redusere antallet tvilsomme prediksjoner som presenteres som fakta.
+
+Videre bør modellen oppdateres jevnlig ettersom markedsforholdene for brukte mobilenheter endres — verdifallet for eldre modeller akselererer ved lanseringen av nye generasjoner, og en modell trent utelukkende på 2024–2025-data vil miste presisjon over tid (Guide & Van Wassenhove, 2009).
+
+---
+
+### 9.4 Metodiske begrensninger
+
+#### 9.4.1 Den geografiske konfunden — det bindende elementet
+
+Den mest sentrale metodiske begrensningen i dette prosjektet er fraværet av geografisk informasjon på beslutningstidspunktet. Analysen viser at destinasjonsland (`ship_country` fra SAP) er en tilnærmet perfekt prediktor for klasse A versus klasse B: enheter som sendes til Norge havner i 98,5 % av tilfellene i klasse A, mens enheter som sendes til andre land — primært Estland — i nærmere 100 % av tilfellene ender i klasse B. Denne segregeringen er ikke drevet av enhetenes tilstand eller verdi, men av Modinos geografiske salgsstruktur: norske sluttkunder kjøper via Teleoutlet (klasse A), mens estlandske og øvrige europeiske B2B-aktører kjøper direkte (klasse B).
+
+Fordi `ship_country` kun eksisterer etter at salget er gjennomført, er variabelen utilgjengelig som feature — å inkludere den ville innebære target leakage. CellDe-systemet registrerer ingen geografisk informasjon om enhetens destinasjon; de samme innleveringsbutikkene leverer enheter som ender opp i begge kanaler. Konsekvensen er at modellen må klassifisere A mot B uten tilgang til den faktoren som i virkeligheten avgjør utfallet. Dette setter et strukturelt tak på oppnåelig nøyaktighet for A/B-skillet, og forklarer hvorfor to svært ulike modeller (Decision Tree og Random Forest) konvergerer mot identisk accuracy på 80 %. Det bindende elementet er ikke modellkapasiteten, men informasjonsgrunnlaget.
+
+En mulig vei videre er å undersøke om geografisk informasjon kan innhentes *på eller nær mottakstidspunktet* — for eksempel om leverandørens kontraktstype (norsk vs. estlandsk operatør) er tilgjengelig i CellDe eller i Modinos innkjøpssystem. Dersom en slik proxy eksisterer, vil den trolig løfte A/B-nøyaktigheten betydelig.
+
+#### 9.4.2 Label encoding for uordnede kategorier
+
+`Transaction Type`, `Channel` og `Device Category` er label-kodet med heltall (0, 1, 2, …). Label encoding impliserer en ordinal relasjon mellom kategoriene som ikke nødvendigvis eksisterer — kode 0 er ikke «mindre enn» kode 1 i noen meningsfull forstand for uordnede kategorier. For trebaserte metoder er dette i praksis et begrenset problem, ettersom splittepunktvalget i hvert node vurderer alle mulige terskelverdier langs hver feature, og dermed i prinsippet kan skille mellom hvilken som helst kombinasjon av kategorier (Zheng & Casari, 2018). Begrensningen er reell for lineære modeller, men marginalt relevant for Random Forest. En alternativ fremgangsmåte er one-hot encoding, som øker dimensjonaliteten uten å introdusere ordinalantakelsen. For fremtidige iterasjoner av modellen kan det være verdt å sammenligne ytelsen med og uten one-hot encoding for å kvantifisere den faktiske effekten.
+
+#### 9.4.3 Historiske etiketter som grunnlag
+
+Modellen er trent på historisk observert kanalvalg — det vil si at etikett A, B eller C for hver enhet gjenspeiler den kanalen Modino *faktisk* valgte, ikke nødvendigvis den optimale kanalen. Dersom Modinos historiske klassifisering inneholder systematiske feil (enheter som burde ha vært i klasse A men ble sendt til klasse B), vil modellen lære disse feilene og videreføre dem. Dette er en iboende svakhet ved supervised learning basert på operasjonelle data (James et al., 2021). En mulig kvalitetssikring er å identifisere historiske enheter der modellens prediksjon avviker sterkt fra det observerte kanalvalget, og undersøke disse manuelt for å avdekke om de representerer feilklassifiseringer i historien eller legitime grensetilfeller.
+
+#### 9.4.4 Manglende hyperparametertuning
+
+Det er ikke gjennomført systematisk hyperparametertuning (GridSearchCV) i dette prosjektet. Standardparametere (`n_estimators=100`, ingen dybdebegrensning) er valgt basert på etablert praksis i litteraturen (Breiman, 2001). En systematisk søk over hyperparametere som `max_depth`, `min_samples_split` og `max_features` kan potensielt forbedre ytelsen — særlig for klasse C, der selv en marginal forbedring i recall er operasjonelt verdifull. Gitt at prosjektets primære formål er å demonstrere metodens egnethet snarere enn å maksimere ytelsen, er valget av standardparametere faglig begrunnet, men begrensningen bør anerkjennes.
+
+#### 9.4.5 Generaliserbarhet
+
+Analysen er gjennomført på data fra én bedrift (Modino AS) i én bransje (brukte mobilenheter) over en bestemt tidsperiode (2024–2025). Funnene er direkte generaliserbare til Modinos egen operasjon, men må tolkes med forsiktighet ved overføring til andre recommerce-aktører med annen salgsstruktur, annet produktmix eller andre geografiske markeder. Den metodiske tilnærmingen — å bruke to-kilde-arkitektur, faktisk observert salgskanal som målvariabel og kun inntaksdata som features — er imidlertid prinsipielt overførbar til andre recommerce-virksomheter med tilsvarende data.
+
+---
+
+### 9.5 Videre forskning
+
+Følgende retninger er særlig relevante for videre arbeid:
+
+**1. Geografisk proxy ved mottak.** Det viktigste enkelttiltaket for å forbedre A/B-nøyaktigheten er å undersøke om geografisk informasjon om enhetens destinasjon er tilgjengelig på eller nær mottakstidspunktet — for eksempel gjennom leverandørkontraktstype eller innkjøpskanal. Dersom en slik proxy finnes, bør den integreres som feature.
+
+**2. Systematisk hyperparametertuning.** En GridSearchCV over sentrale hyperparametere for Random Forest kan gi forbedret ytelse, særlig for den underrepresenterte klasse C.
+
+**3. Validering av lønnsomhetsestimatet med faktiske marginer.** Lønnsomhetsberegningen i avsnitt 8.4 bygger på gjennomsnittsmarginer per klasse beregnet fra SAP-dataene. En ekstern validering mot Modinos faktiske regnskapsdata for de aktuelle enhetene ville gi et langt mer presist anslag på den reelle gevinsten av modellbasert klassifisering.
+
+**4. Løpende modellvedlikehold.** Verdifallet for mobilenheter er modell- og tidssensitivt. Modellen bør trenes på nytt med jevne mellomrom — minst én gang per år — for å bevare nøyaktigheten når nye enhetsmodeller introduseres og markedsverdien for eksisterende modeller endres.
+
+**5. Utvidelse til andre produktkategorier.** Modino håndterer primært smarttelefoner, men prosessen er i prinsippet lik for nettbrett og annen forbrukerelektronikk. En analyse av om modellen generaliserer til disse kategoriene, eller om separate modeller per kategori gir bedre ytelse, er en naturlig videreføring.
 
 ---
 
 ## 10. Konklusjon
 
-I oppgavens konklusjon oppsummerer du hovedfunn sett i forhold til problemstilling.
+I denne oppgaven har vi undersøkt hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS. Problemstillingen ble operasjonalisert gjennom to delproblemer: (1) om en modell kan klassifisere innkommende enheter i de tre kanalklassene A, B og C med tilstrekkelig nøyaktighet, og (2) om korrekt klassifisering kan gi målbar lønnsomhetseffekt.
 
-Avslutt gjerne med spørsmål til videre forskning, og del personlige refleksjoner du eventuelt måtte ha.
+**Delproblem 1** er besvart positivt. En Random Forest-modell trent utelukkende på CellDe-data fra mottakstidspunktet oppnår **80 % accuracy** på testsettet (n = 18 713), med F1-score på 0,75 for klasse A (sluttkunde), 0,84 for klasse B (tredjepartshandler) og 0,75 for klasse C (skrap/BER). Minimumskravet på 80 % er nøyaktig oppfylt. En viktig presisering er at modellen opererer uten tilgang til destinasjonsland — den faktoren som i praksis er den sterkeste prediktoren for A/B-skillet. At modellen likevel når 80 %-grensen under disse betingelsene, understøtter at tilnærmingen er realistisk og praktisk anvendbar.
 
-- Hva er det viktigste dere har funnet?
-- Konkludere i henhold til oppgavens problemstilling. Ofte begynner en konklusjon med å gjenta forskningsspørsmålet:
-- «I denne oppgaven har analysert/redegjort for...».
-- «Hovedfunnene i oppgaven viser at ....»
-- «På tross av de svakhetene som oppgaven har er det indikasjoner om at ...»
-- I konklusjonen blir det ofte litt gjentagelse fra diskusjon/resultat men det er helt greit. Her skal dere dra frem de viktigste funnene og hvilken betydning det har for deres case.
+**Delproblem 2** er besvart med et estimat. Den beregnede lønnsomhetsforbedringen er **+235 912 NOK på testsettet**, tilsvarende **~590 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under antakelsen om at modellens avvik fra historisk kanalvalg representerer forbedringer. Det reelle potensialet er lavere, men størrelsesorden er robust og konsistent med Ferguson et al. (2009), som viser at presis gradering ved mottak reduserer totalkostnader med omtrent 11 %.
+
+**Overordnet konklusjon:** En AI-basert klassifiseringsmodell basert på CellDe-inntaksdata *kan* forbedre kanaliseringsbeslutningene hos Modino AS — både ved å standardisere en beslutning som i dag er manuell og inkonsistent, og ved å utnytte mønstre på tvers av et stort historisk datasett. Den viktigste metodiske innsikten er at modellens nøyaktighet er begrenset av et informasjonsgap: destinasjonslandet, som er den reelt avgjørende faktoren for A/B-skillet, er utilgjengelig ved mottakstidspunktet. Dette er ikke et argument mot å bruke modellen — det er et argument for å undersøke om denne informasjonen kan gjøres tilgjengelig tidligere i prosessen, noe som ville gi en vesentlig nøyaktighetsgevinst.
+
+Prosjektet bidrar til litteraturen ved å demonstrere en to-kilde-arkitektur (CellDe og SAP som separate filer koblet i minnet) der klassifiseringen er basert på faktisk observert salgskanal — ikke en lønnsomhetsberegning eller en intern gradering. Dette gir en modell med høy intern validitet og direkte operasjonell relevans. Tilnærmingen er prinsipielt overførbar til andre recommerce-aktører med tilsvarende datastruktur.
 
 ---
 
 ## Bibliografi
 
-*(Legg til referanser her)*
+Breiman, L. (2001). Random forests. *Machine Learning*, *45*(1), 5–32. https://doi.org/10.1023/A:1010933404324
+
+Chawla, N. V., Bowyer, K. W., Hall, L. O., & Kegelmeyer, W. P. (2002). SMOTE: Synthetic minority over-sampling technique. *Journal of Artificial Intelligence Research*, *16*, 321–357. https://doi.org/10.1613/jair.953
+
+Fawcett, T. (2006). An introduction to ROC analysis. *Pattern Recognition Letters*, *27*(8), 861–874. https://doi.org/10.1016/j.patrec.2005.10.010
+
+Ferguson, M., Guide, V. D. R., Koca, E., & Souza, G. C. (2009). The value of quality grading in remanufacturing. *Production and Operations Management*, *18*(3), 300–314. https://doi.org/10.1111/j.1937-5956.2009.01033.x
+
+Fleischmann, M., Bloemhof-Ruwaard, J. M., Dekker, R., van der Laan, E., van Nunen, J. A. E. E., & Van Wassenhove, L. N. (1997). Quantitative models for reverse logistics: A review. *European Journal of Operational Research*, *103*(1), 1–17. https://doi.org/10.1016/S0377-2217(97)00230-0
+
+Galbreth, M. R., & Blackburn, J. D. (2006). Optimal acquisition and sorting policies for remanufacturing. *Production and Operations Management*, *15*(3), 384–392. https://doi.org/10.1111/j.1937-5956.2006.tb00252.x
+
+Geissdoerfer, M., Savaget, P., Bocken, N. M. P., & Hultink, E. J. (2017). The circular economy – a new sustainability paradigm? *Journal of Cleaner Production*, *143*, 757–768. https://doi.org/10.1016/j.jclepro.2016.12.048
+
+Geyer, R., Van Wassenhove, L. N., & Atasu, A. (2007). The economics of remanufacturing under limited component durability and finite product life cycles. *Management Science*, *53*(1), 88–100. https://doi.org/10.1287/mnsc.1060.0600
+
+Govindan, K., Soleimani, H., & Kannan, D. (2015). Reverse logistics and closed-loop supply chain: A comprehensive review to explore the future. *European Journal of Operational Research*, *240*(3), 603–626. https://doi.org/10.1016/j.ejor.2014.07.012
+
+Guide, V. D. R., & Van Wassenhove, L. N. (2009). The evolution of closed-loop supply chain research. *Operations Research*, *57*(1), 10–18. https://doi.org/10.1287/opre.1080.0628
+
+Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The elements of statistical learning: Data mining, inference, and prediction* (2. utg.). Springer. https://doi.org/10.1007/978-0-387-84858-7
+
+Hübner, A., Kuhn, H., & Wollenburg, J. (2020). Integrated decision-making in reverse logistics: An optimisation of interacting acquisition, grading and disposition processes. *International Journal of Production Research*, *58*(19), 5786–5805. https://doi.org/10.1080/00207543.2019.1659518
+
+Ibrahim, [initialer]. & Abdul-Kader, [initialer]. (2025). [Tittel — fyll inn]. *[Tidsskrift — fyll inn]*, *[volum]*([nummer]), [sidetall]. [DOI — fyll inn]
+
+James, G., Witten, D., Hastie, T., & Tibshirani, R. (2021). *An introduction to statistical learning with applications in R* (2. utg.). Springer. https://doi.org/10.1007/978-1-0716-1418-1
+
+Kirchherr, J., Reike, D., & Hekkert, M. (2017). Conceptualizing the circular economy: An analysis of 114 definitions. *Resources, Conservation and Recycling*, *127*, 221–232. https://doi.org/10.1016/j.resconrec.2017.09.005
+
+Potting, J., Hekkert, M. P., Worrell, E., & Hanemaaijer, A. (2017). *Circular economy: Measuring innovation in the product chain* (PBL-rapport nr. 2544). PBL Netherlands Environmental Assessment Agency.
+
+Proske, M., Clemm, C., & Scheidt, L. (2018). Does the circular economy grow the pie? The case of rebound effects from smartphone reuse. *Frontiers in Energy Research*, *6*, artikkel 39. https://doi.org/10.3389/fenrg.2018.00039
+
+Quinlan, J. R. (1986). Induction of decision trees. *Machine Learning*, *1*(1), 81–106. https://doi.org/10.1007/BF00116251
+
+Rekdal, P. K., & Pettersen, B.-I. (2026). *Kvantitative metoder i logistikk*. Høgskolen i Molde. Hentet fra https://kml-site-production.up.railway.app/
+
+Rogers, D. S., & Tibben-Lembke, R. S. (1999). *Going backwards: Reverse logistics trends and practices*. Reverse Logistics Executive Council.
+
+Sokolova, M., & Lapalme, G. (2009). A systematic analysis of performance measures for classification tasks. *Information Processing & Management*, *45*(4), 427–437. https://doi.org/10.1016/j.ipm.2009.03.002
+
+Stahel, W. R. (2016). The circular economy. *Nature*, *531*(7595), 435–438. https://doi.org/10.1038/531435a
+
+Teunter, R. H., & Flapper, S. D. P. (2011). Optimal core acquisition and remanufacturing policies under uncertain core quality fractions. *European Journal of Operational Research*, *210*(2), 241–248. https://doi.org/10.1016/j.ejor.2010.09.024
+
+Turban, E., Sharda, R., & Delen, D. (2011). *Decision support and business intelligence systems* (9. utg.). Pearson.
+
+Turkolmez, [initialer], et al. (2024). [Tittel — fyll inn]. *[Tidsskrift — fyll inn]*, *[volum]*([nummer]), [sidetall]. [DOI — fyll inn]
+
+Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). Sage.
+
+Zheng, A., & Casari, A. (2018). *Feature engineering for machine learning*. O'Reilly Media.
 
 ---
 

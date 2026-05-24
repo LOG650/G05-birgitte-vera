@@ -812,8 +812,85 @@ Eksisterende figurer referert på riktig sted i rapporten:
 
 ### Gjenstår
 
-- Kapittel 9 (Diskusjon)
 - ML-pipeline-verifisering (kjøre kode mot rådata for å bekrefte alle tall)
 - Kapittel 1 (Innledning) og 10 (Konklusjon) — skrives sist
 - Bibliografi, sammendrag, abstract, forside
+- Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
+
+---
+
+## Oppdatering – 2026-05-24
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Tester- og sensor-gjennomgang av kap. 2–8
+
+Gjennomførte full tallkontroll av analysen (konfusjonsmatrise, accuracy, precision/recall/F1, lønnsomhetseffekt, feature importance). Alle tall er internt konsistente og korrekte.
+
+To feil funnet og flagget:
+1. **Aritmetisk feil i kap. 7.1:** Teksten beskriver det endelige datasettet som 93 575 rader etter frafall av 5 + 11 rader, men 93 580 − 5 − 11 = 93 564, ikke 93 575. Alle ML-tall er konsistente med 93 575 (som er riktig). Teksten må rettes av Birgitte og Vera under felles gjennomlesning.
+2. **Skrivefeil i tabell 8.1:** «Modellsammmenligning» → «Modellsammenligning».
+
+Sensor-gjennomgang avdekket at rapporten er faglig sterk på de skrevne kapitlene. Viktigste gjenstående: kap. 9 (Diskusjon) — nå skrevet, se under.
+
+### Kapittel 9 – Diskusjon skrevet inn
+
+Kapittel 9 er skrevet fra bunnen av og satt inn i rapporten. Struktur:
+
+- 9.1 Svar på problemstillingen (delproblem 1: 80 % accuracy oppfylt; delproblem 2: ~590 000 NOK/år øvre estimat)
+- 9.2 Sammenligning med litteraturen (Ibrahim & Abdul-Kader, Turkolmez, Ferguson, Galbreth & Blackburn)
+- 9.3 Forretningsmessig betydning for Modino (konsistens, integrasjon i CellDe-arbeidsflyt, modellvedlikehold)
+- 9.4 Metodiske begrensninger (5 avsnitt: geografisk konfund, label encoding, historiske etiketter, manglende tuning, generaliserbarhet)
+- 9.5 Videre forskning (5 punkter)
+
+### Gjenstår etter 2026-05-24
+
+- Rette aritmetisk feil i kap. 7.1 (93 575 vs. 93 564-beskrivelsen) — under felles gjennomlesning
+- Rette skrivefeil «Modellsammmenligning» i tabell 8.1 — under felles gjennomlesning
+- Fyll inn fulltekstreferanse for Ibrahim & Abdul-Kader (2025) og Turkolmez et al. (2024) i bibliografien
+- ML-pipeline-verifisering (kjøre kode mot rådata)
+- Forside (tittel, forfatternavn, dato, veileder, studiepoeng) — fylles ut av Birgitte og Vera
+- Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
+
+---
+
+## Oppdatering – 2026-05-24 (del 2)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Tester- og sensor-gjennomgang av kap. 2–8 — se over
+
+### Kapittel 9 – Diskusjon skrevet inn (se oppdatering del 1 over)
+
+### Kapittel 10 – Konklusjon skrevet inn
+
+Kompakt konklusjon (~1 side) som besvarer begge delproblemer eksplisitt:
+- Delproblem 1: 80 % accuracy oppfylt (nøyaktig på grensen)
+- Delproblem 2: ~590 000 NOK/år øvre estimat
+- Overordnet: modellen kan forbedre kanaliseringsbeslutninger, men geografisk konfund setter strukturelt tak på A/B-nøyaktigheten
+
+### Kapittel 1 – Innledning skrevet inn
+
+Innledning (~1,5 side) som leder fra sirkulærøkonomi og recommerce-vekst til Modinos konkrete problem. Inkluderer problemstilling, to delproblemer, fem avgrensinger og to antagelser. Refererer til Ibrahim & Abdul-Kader (2025), Turkolmez et al. (2024), Govindan et al. (2015), Ferguson et al. (2009) og Guide & Van Wassenhove (2009).
+
+### Bibliografi kompilert
+
+27 unike APA7-referanser samlet fra kap. 1–9 og sortert alfabetisk. To plassholdere gjenstår:
+- Ibrahim & Abdul-Kader (2025) — full tittel, tidsskrift og DOI mangler
+- Turkolmez et al. (2024) — full tittel, tidsskrift og DOI mangler
+
+### Sammendrag og abstract skrevet inn (begge på norsk)
+
+~230 ord hver. Dekker bakgrunn, metode, resultater og konklusjon.
+
+### Innholdsfortegnelse oppdatert
+
+Alle faktiske kapitler og underavsnitt er nå listet med korrekt nummerering og titler.
+
+### Gjenstår
+
+- Fyll inn fulltekstreferanse for Ibrahim & Abdul-Kader (2025) og Turkolmez et al. (2024)
+- Forside (navn, veileder, dato, studiepoeng)
+- Rette kap. 7.1-tekst og «Modellsammmenligning» under felles gjennomlesning
+- ML-pipeline-verifisering
 - Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer

@@ -47,10 +47,10 @@ Innleveringsfrist: **2026-05-31**.
 | BETA-10 Kap. 6 Modellering | ✅ Ferdig | |
 | BETA-11 Kap. 7 Analyse | ✅ Ferdig | |
 | BETA-12 Kap. 8 Resultat | ✅ Ferdig | |
-| BETA-13 Kap. 9 Diskusjon | ⬜ Ikke startet | Inkl. geografisk begrensning og class C-imbalanse |
-| BETA-14 Kap. 1 Innledning | ⬜ Sist | Overfladisk til å begynne med |
-| BETA-15 Kap. 10 Konklusjon | ⬜ Sist | Overfladisk til å begynne med |
-| BETA-16 Bibliografi, sammendrag, abstract, forside | ⬜ Ikke startet | |
+| BETA-13 Kap. 9 Diskusjon | ✅ Ferdig | Inkl. geografisk begrensning, A/B-forvirring, litteratursammenligning, forretningsmessig betydning, 5 begrensninger, 5 videre-forskning |
+| BETA-14 Kap. 1 Innledning | ✅ Ferdig | |
+| BETA-15 Kap. 10 Konklusjon | ✅ Ferdig | |
+| BETA-16 Bibliografi, sammendrag, abstract, forside | ✅ Ferdig (forside gjenstår) | Bibliografi: 27 kilder, 2 plassholdere. Sammendrag + abstract: begge på norsk. Forside fylles ut av Birgitte/Vera. |
 
 ---
 
@@ -276,7 +276,7 @@ Innleveringsfrist: **2026-05-31**.
 
 | Kapittel | Status | Kommentar |
 |---|---|---|
-| 1 Innledning | ⬜ Placeholder | Skrives sist |
+| 1 Innledning | ✅ Ferdig | |
 | 2 Litteratur | ✅ Ferdig | Empiriske bidrag, posisjonering av prosjektet |
 | 3 Teori | ✅ Ferdig | 9R oppdatert, CellDe-features, ingen target leakage |
 | 4 Casebeskrivelse | ✅ Ferdig | Ny — CellDe/SAP to-kilde-arkitektur, tre kanaler |
@@ -284,12 +284,12 @@ Innleveringsfrist: **2026-05-31**.
 | 6 Modellering | ✅ Ferdig | |
 | 7 Analyse | ✅ Ferdig | |
 | 8 Resultat | ✅ Ferdig | Inkl. figurer fra `005 report/` |
-| 9 Diskusjon | ⬜ Ikke startet | Inkl. geografisk begrensning og class C-imbalanse |
-| 10 Konklusjon | ⬜ Placeholder | Skrives sist |
-| Bibliografi | ⬜ Ikke startet | Referanser ligger i kap. 2 og 3 |
+| 9 Diskusjon | ✅ Ferdig | |
+| 10 Konklusjon | ✅ Ferdig | |
+| Bibliografi | ✅ Ferdig (2 plassholdere) | Ibrahim & Abdul-Kader (2025) og Turkolmez et al. (2024) mangler fulltekstreferanse — fyll inn under gjennomlesning |
 | Vedlegg | ⬜ Ikke startet | |
-| Sammendrag | ⬜ Ikke startet | Skrives etter alle kapitler |
-| Abstract | ⬜ Ikke startet | Skrives etter sammendrag |
+| Sammendrag | ✅ Ferdig | |
+| Abstract | ✅ Ferdig (norsk) | |
 | Forside | ⬜ Ikke startet | Tittel, forfatternavn, dato, veileder, studiepoeng |
 
 ---
@@ -332,6 +332,6 @@ Innleveringsfrist: **2026-05-31**.
 
 ---
 
-## Vurdering – per 2026-05-22 (oppdatert)
+## Vurdering – per 2026-05-24 (oppdatert)
 
-Kapittel 4–8 er skrevet inn i BETA-rapporten. Figurene figur_prosessflyt.png og figur_klassefordeling.png er generert og satt inn. Lønnsomhetseffekten er re-beregnet mot BETA-konfusjonsmatrisen: +235 912 NOK på testsettet / ~590 000 NOK/år (øvre estimat). Gjenstående: kap. 9 (Diskusjon), ML-pipeline-verifisering, kap. 1 og 10, bibliografi, sammendrag og forside. Innlevering 2026-05-31 — åtte dager igjen.
+Alle ti kapitler er skrevet inn i BETA-rapporten. Bibliografi (27 kilder, 2 plassholdere), sammendrag og abstract (begge på norsk) og innholdsfortegnelse er ferdigstilt. Gjenstående: forside (fylles ut av Birgitte/Vera), to fulltekstreferanser i bibliografien, to småfeil rettes under felles gjennomlesning, ML-pipeline-verifisering og konvertering av ASCII-figurer 3.1 og 3.2. Innlevering 2026-05-31 — sju dager igjen.
