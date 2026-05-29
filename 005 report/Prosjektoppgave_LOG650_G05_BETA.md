@@ -786,7 +786,7 @@ Rekdal, P. K., & Pettersen, B.-I. (2026). *Kvantitative metoder i logistikk*. H�
 
 ### 6.4 Evalueringsrammeverk
 
-Modellenes ytelse vurderes på testsettet (18 713 rader) med fire komplementære metrikker (Sokolova & Lapalme, 2009):
+Modellenes ytelse vurderes på testsettet (18 739 rader) med fire komplementære metrikker (Sokolova & Lapalme, 2009):
 
 **Accuracy** angir andelen korrekte prediksjoner totalt:
 
@@ -1058,11 +1058,11 @@ Videre bør modellen oppdateres jevnlig ettersom markedsforholdene for brukte mo
 
 #### 9.4.1 Den geografiske konfunden — det bindende elementet
 
-Den mest sentrale metodiske begrensningen i dette prosjektet er fraværet av geografisk informasjon på beslutningstidspunktet. Analysen viser at destinasjonsland (`ship_country` fra SAP) er en tilnærmet perfekt prediktor for klasse A versus klasse B: enheter som sendes til Norge havner i 98,5 % av tilfellene i klasse A, mens enheter som sendes til andre land — primært Estland — i nærmere 100 % av tilfellene ender i klasse B. Denne segregeringen er ikke drevet av enhetenes tilstand eller verdi, men av Modinos geografiske salgsstruktur: norske sluttkunder kjøper via Teleoutlet (klasse A), mens estlandske og øvrige europeiske B2B-aktører kjøper direkte (klasse B).
+Den mest sentrale metodiske begrensningen i dette prosjektet er at `ship_country` fra SAP — som korrelerer nær-deterministisk med kanalklassen — er utilgjengelig på beslutningstidspunktet. Korrelasjonen er sterk: enheter i klasse A sendes i 98,5 % av tilfellene til Norge, mens enheter i klasse B i nærmere 100 % av tilfellene sendes til andre land — primært Estland. Denne samvariasjonen reflekterer imidlertid ikke at geografi forklarer kanalvalget, men at kanalen bestemmer destinasjonen: klasse A er Modinos norske sluttkunder via Teleoutlet, klasse B er europeiske B2B-kjøpere. Norge og Estland er navn på disse kjøpergruppene — ikke årsaker til kanalvalget.
 
-Fordi `ship_country` kun eksisterer etter at salget er gjennomført, er variabelen utilgjengelig som feature — å inkludere den ville innebære target leakage. CellDe-systemet registrerer ingen geografisk informasjon om enhetens destinasjon; de samme innleveringsbutikkene leverer enheter som ender opp i begge kanaler. Konsekvensen er at modellen må klassifisere A mot B uten tilgang til den faktoren som i virkeligheten avgjør utfallet. Dette setter et strukturelt tak på oppnåelig nøyaktighet for A/B-skillet, og forklarer hvorfor i basisversjonen (8 features) konvergerte Decision Tree og Random Forest mot identisk 80 % accuracy. Med det utvidede feature-settet (15 features) løftet Random Forest ytelsen til 83,6 %, mens Decision Tree kun nådde 79,9 %. Dette viser at øvrig CellDe-informasjon — sesongmønster, leverandørhistorikk, feilantall — faktisk inneholder prediktiv kraft for A/B-skillet, og at den geografiske begrensningen ikke er absolutt. Det bindende elementet forblir likevel fraværet av destinasjonsinformasjon.
+Fordi `ship_country` kun registreres etter at salget er gjennomført, er variabelen utilgjengelig som feature — å inkludere den ville innebære target leakage. CellDe-systemet registrerer ingen informasjon om hvem enheten skal selges til; de samme innleveringsbutikkene leverer enheter som ender opp i begge kanaler. Begrensningen er dermed ikke at modellen mangler tilgang til «den faktoren som avgjør utfallet» — graderingen er det som styrer kanalvalget. Begrensningen er at den observerte kjøperidentiteten, og dermed destinasjonen, først er kjent etter at beslutningen er tatt. I basisversjonen (8 features) konvergerte Decision Tree og Random Forest mot identisk 80 % accuracy. Med det utvidede feature-settet (15 features) løftet Random Forest ytelsen til 83,6 %, mens Decision Tree kun nådde 79,9 %. Dette viser at øvrig CellDe-informasjon — sesongmønster, leverandørhistorikk, feilantall — faktisk inneholder prediktiv kraft for A/B-skillet, og at begrensningen ikke er absolutt.
 
-En mulig vei videre er å undersøke om geografisk informasjon kan innhentes *på eller nær mottakstidspunktet* — for eksempel om leverandørens kontraktstype (norsk vs. europeisk B2B-kjøper) er tilgjengelig i CellDe eller i Modinos innkjøpssystem. Dersom en slik proxy eksisterer, vil den trolig løfte A/B-nøyaktigheten ytterligere.
+En mulig vei videre er å undersøke om informasjon om hvem Modino selger til kan gjøres tilgjengelig *på eller nær mottakstidspunktet* — for eksempel om leverandørens kontraktstype (norsk vs. europeisk B2B-kjøper) er tilgjengelig i CellDe eller i Modinos innkjøpssystem. Dersom en slik proxy eksisterer, vil den trolig løfte A/B-nøyaktigheten ytterligere.
 
 #### 9.4.2 Label encoding for uordnede kategorier
 
