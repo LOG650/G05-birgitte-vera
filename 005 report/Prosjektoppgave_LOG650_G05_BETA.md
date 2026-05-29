@@ -90,9 +90,9 @@ Oppgaver som er unntatt offentlighet eller båndlagt vil ikke bli publisert.
 
 Recommerce-markedet for brukte mobilenheter er i vekst, og evnen til å kanalisere innkommende enheter til riktig salgskanal er direkte avgjørende for lønnsomheten. Denne oppgaven undersøker hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger hos Modino AS — en nordisk recommerce-aktør som kjøper, renoverer og videreselger brukte smarttelefoner og nettbrett.
 
-Datagrunnlaget er hentet fra to separate operasjonelle systemer: CellDe (inspeksjon og gradering ved mottak) og SAP S/4HANA (salg og fakturering). Totalt 93 575 enheter fra 2024 og 2025 er analysert. Klassifiseringslogikken bygger på faktisk observert salgskanal — sluttkunde via Teleoutlet (klasse A), tredjepartshandler (klasse B) eller skrap/BER (klasse C) — definert fra SAP-data. En Random Forest-modell er trent på åtte features hentet utelukkende fra CellDe på mottakstidspunktet, slik at target leakage unngås.
+Datagrunnlaget er hentet fra to separate operasjonelle systemer: CellDe (inspeksjon og gradering ved mottak) og SAP S/4HANA (salg og fakturering). Totalt 93 575 enheter fra 2024 og 2025 er analysert. Klassifiseringslogikken bygger på faktisk observert salgskanal — sluttkunde via Teleoutlet (klasse A), tredjepartshandler (klasse B) eller skrap/BER (klasse C) — definert fra SAP-data. En Random Forest-modell er trent på femten features hentet utelukkende fra CellDe på mottakstidspunktet, slik at target leakage unngås.
 
-Modellen oppnår 80 % accuracy på testsettet, med F1-score på 0,75 (klasse A), 0,84 (klasse B) og 0,75 (klasse C). Minimumskravet på 80 % er oppfylt. Den viktigste prediktoren er enhetens estimerte markedsverdi (30,7 %), etterfulgt av enhetskategori (20,7 %) og inntaksgrad (15,4 %). Den dominerende feilkilden er forveksling mellom klasse A og B, drevet av fraværet av geografisk salgsinformasjon på beslutningstidspunktet. Den estimerte lønnsomhetsforbedringen ved modellbasert klassifisering er ~590 000 NOK per år (øvre estimat).
+Modellen oppnår 83,6 % accuracy på testsettet, med F1-score på 0,78 (klasse A), 0,87 (klasse B) og 0,87 (klasse C). Minimumskravet på 80 % er oppfylt med god margin. Den viktigste prediktoren er enhetens estimerte markedsverdi (18,5 %), etterfulgt av enhetskategori (17,0 %) og inntaksgrad (13,7 %). Det dominerende feilmønsteret er forveksling mellom klasse A og B — et delvis strukturelt problem fordi graderingsdata fra CellDe alene ikke fullt ut skiller de to kanalene. Den estimerte lønnsomhetsforbedringen ved modellbasert klassifisering er ~40 000 NOK per år (øvre estimat).
 
 ---
 
@@ -100,9 +100,9 @@ Modellen oppnår 80 % accuracy på testsettet, med F1-score på 0,75 (klasse A),
 
 Recommerce-markedet for brukte mobilenheter er i rask vekst, og evnen til å kanalisere innkommende enheter til riktig salgskanal er direkte avgjørende for lønnsomheten. Denne oppgaven undersøker hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger hos Modino AS — en nordisk recommerce-aktør som kjøper, renoverer og videreselger brukte smarttelefoner og nettbrett.
 
-Datagrunnlaget stammer fra to separate operasjonelle systemer: CellDe (inspeksjon og gradering ved inntak) og SAP S/4HANA (salg og fakturering). Totalt 93 575 enheter fra 2024 og 2025 er analysert. Målvariabelen er den faktisk observerte salgskanalen — sluttkunde via Teleoutlet (klasse A), tredjepartshandler (klasse B) eller skrap/BER (klasse C) — utledet fra SAP-data. En Random Forest-modell er trent på åtte features hentet utelukkende fra CellDe ved mottakstidspunktet, slik at target leakage unngås.
+Datagrunnlaget stammer fra to separate operasjonelle systemer: CellDe (inspeksjon og gradering ved inntak) og SAP S/4HANA (salg og fakturering). Totalt 93 575 enheter fra 2024 og 2025 er analysert. Målvariabelen er den faktisk observerte salgskanalen — sluttkunde via Teleoutlet (klasse A), tredjepartshandler (klasse B) eller skrap/BER (klasse C) — utledet fra SAP-data. En Random Forest-modell er trent på femten features hentet utelukkende fra CellDe ved mottakstidspunktet, slik at target leakage unngås.
 
-Modellen oppnår 80 % nøyaktighet på testsettet, med F1-score på 0,75 (klasse A), 0,84 (klasse B) og 0,75 (klasse C), og oppfyller det definerte minimumskravet. Den viktigste prediktoren er enhetens estimerte markedsverdi (30,7 %), etterfulgt av enhetskategori (20,7 %) og inntaksgrad (15,4 %). Det dominerende feilmønsteret er forveksling mellom klasse A og B, drevet av fraværet av geografisk salgsinformasjon på beslutningstidspunktet. Den estimerte lønnsomhetsforbedringen ved modellbasert klassifisering er om lag 590 000 NOK per år (øvre estimat).
+Modellen oppnår 83,6 % nøyaktighet på testsettet, med F1-score på 0,78 (klasse A), 0,87 (klasse B) og 0,87 (klasse C), og oppfyller det definerte minimumskravet med god margin. Den viktigste prediktoren er enhetens estimerte markedsverdi (18,5 %), etterfulgt av enhetskategori (17,0 %) og inntaksgrad (13,7 %). Det dominerende feilmønsteret er forveksling mellom klasse A og B — et delvis strukturelt problem fordi graderingsdata fra CellDe alene ikke fullt ut skiller de to kanalene. Den estimerte lønnsomhetsforbedringen ved modellbasert klassifisering er om lag 40 000 NOK per år (øvre estimat).
 
 ---
 
@@ -828,17 +828,17 @@ Dette kapittelet beskriver gjennomføringen av analysen — hva som faktisk ble 
 
 Etter innlasting og in-memory-join av CellDe- og SAP-filene på IMEI-nøkkel ble klassifiseringslogikken (avsnitt 5.2.3) applisert på 93 580 SAP-rader. Fem rader tilfredsstilte ingen av de tre betingelsene og ble ekskludert. Ytterligere 11 rader med manglende verdier i en eller flere features ble droppet under feature-konstruksjonen, slik at det endelige analyseklare datasettet utgjorde **93 575 rader**.
 
-Den resulterende klassefordelingen — B: 62,4 %, A: 37,0 %, C: 0,6 % — reflekterer Modinos faktiske operasjonelle realitet i perioden 2024–2025. Dominansen til klasse B er konsistent med den geografiske analysen: enheter som sendes til Estland (Foxway OÜ og andre tredjepartshandlere) utgjør majoriteten av SAP-volumet, mens klasse A (norske sluttkunder via Teleoutlet) er en klar minoritet. Klasse C er svært sjelden — kun 539 av 93 575 enheter ble klassifisert som skrap — noe som er realistisk gitt at BER-enheter kun utgjør en liten andel av innkommende volum.
+Den resulterende klassefordelingen — B: 62,4 %, A: 37,0 %, C: 0,6 % — reflekterer Modinos faktiske operasjonelle realitet i perioden 2024–2025. Klasse B utgjør majoriteten av SAP-volumet (tredjepartshandlere), mens klasse A (norske sluttkunder via Teleoutlet) er en klar minoritet. Klasse C er svært sjelden — kun 539 av 93 575 enheter ble klassifisert som skrap — noe som er realistisk gitt at BER-enheter kun utgjør en liten andel av innkommende volum.
 
-Et sentralt analytisk funn allerede på dette stadiet er at den geografiske segregeringen mellom klasse A og B er nær-deterministisk i datasettet: `ship_country` fra SAP er en tilnærmet perfekt prediktor (NO → 98,5 % klasse A, andre land → ~100 % klasse B), men denne informasjonen er utilgjengelig ved mottakstidspunktet. Modellen må derfor forsøke å rekonstruere et signal som i praksis ikke er til stede i CellDe-dataene — noe som setter et strukturelt tak på oppnåelig nøyaktighet for A/B-skillet.
+Et sentralt analytisk funn er at `ship_country` fra SAP korrelerer nær-deterministisk med kanalklassen (NO → 98,5 % klasse A, andre land → ~100 % klasse B). Dette reflekterer at kanalen bestemmer destinasjonen — kanal A selges til norske sluttkunder, kanal B til europeiske B2B-kjøpere — ikke at geografi forklarer kanalvalget. Siden `ship_country` registreres etter salget, er den utilgjengelig som feature ved mottakstidspunktet. CellDe-dataene inneholder likevel et reelt prediktivt signal for A/B-skillet — noe som bekreftes av at modellen oppnår 83,6 % accuracy.
 
 ### 7.2 Observasjoner fra feature-konstruksjonen
 
-Gjennomgangen av de åtte feature-variablene avdekket følgende mønstre i det faktiske datasettet:
+Gjennomgangen av de femten feature-variablene avdekket følgende mønstre i det faktiske datasettet:
 
 **`device_value`** viste betydelig spredning på tvers av klassene. Enheter i klasse A (sluttkunde) hadde gjennomgående høyere estimert markedsverdi enn enheter i klasse B (tredjepartshandler), som igjen lå noe høyere enn klasse C (skrap). Dette gir intuitiv mening: høyverdige enheter har større potensial for lønnsomhet etter renovering, mens lavverdige enheter raskere passerer BER-terskelen eller selges direkte til B2B.
 
-**`grade_num`** viste at de fleste enheter i datasettet er gradert B eller C ved mottak — enheter i topp-tilstand (grad A) er relativt sjeldne, mens enheter med svært lav grad (E, F) utgjør BER-kandidatene. Graden er sterkere korrelert med klasse C enn med skillet mellom A og B, noe som er konsistent med at A/B-skillet primært drives av geografisk destinasjon.
+**`grade_num`** viste at de fleste enheter i datasettet er gradert B eller C ved mottak — enheter i topp-tilstand (grad A) er relativt sjeldne, mens enheter med svært lav grad (E, F) utgjør BER-kandidatene. Graden er sterkere korrelert med klasse C enn med skillet mellom A og B, noe som er konsistent med at graderingsdata alene ikke fullt ut skiller de to kanalene.
 
 **`model_encoded`** kodingen samlet 557 unike modellnavn i én kontinuerlig variabel basert på median `device_value` per modell. iPhone-modeller tenderte mot høye verdier, eldre Android-modeller mot lave. Kodingen bevarer den verdimessige rangeringen uten å introdusere 557 binære dummyvariabler.
 
@@ -848,13 +848,13 @@ Gjennomgangen av de åtte feature-variablene avdekket følgende mønstre i det f
 
 ### 7.3 Modelltrening
 
-Begge modeller ble trent på treningssettet (74 862 rader) med `class_weight='balanced'` og `random_state=42` for reproduserbarhet.
+Begge modeller ble trent på treningssettet (74 953 rader) med `class_weight='balanced'` og `random_state=42` for reproduserbarhet.
 
 **Decision Tree** ble trent uten dybdebegrensning, noe som innebærer at treet vokser til alle løvnoder er rene på treningsdataene. Dette gir tilnærmet perfekt nøyaktighet på treningssettet, men forventes å prestere dårligere på testsettet som følge av overfitting. Baseline-rollen er å etablere et referansepunkt for Random Forest.
 
 **Random Forest** ble trent med 100 trær (`n_estimators=100`). Ensemblet er langt mer robust mot overfitting enn et enkelt tre: ved at hvert tre trenes på et bootstrap-utvalg og kun et tilfeldig underutvalg av features vurderes per splittepunkt, reduseres korrelasjonen mellom trærne og variansen i prediksjonene dempes.
 
-En viktig analytisk observasjon er at begge modeller oppnår **80 % accuracy** på testsettet. Den marginale forbedringen fra Decision Tree til Random Forest (F1 klasse B: 0,83 → 0,84; F1 klasse C: 0,74 → 0,75) er liten. Dette indikerer at det bindende elementet ikke er modellkapasiteten, men den manglende geografiske informasjonen: selv en mer kraftfull ensemble-metode kan ikke kompensere for et latent signal som ikke finnes i feature-rommet. Modellene konvergerer mot det samme taket fordi de opererer på identisk informasjonsgrunnlag.
+En viktig analytisk observasjon er at Random Forest oppnår **83,6 % accuracy** på testsettet, mot Decision Trees 79,9 %. Forbedringen er særlig tydelig for klasse C (F1: 0,74 → 0,87) og klasse B (0,83 → 0,87). Dette bekrefter at det utvidede feature-settet tilfører reell prediktiv kraft — modellen er ikke begrenset av manglende informasjon alene, men drar nytte av bredere CellDe-data.
 
 ### 7.4 Generaliserbarhet og intern validering
 
@@ -862,9 +862,9 @@ For å vurdere om Random Forest-modellen generaliserer utover treningsdataene be
 
 **Out-of-bag (OOB) score:** Ved bagging holdes omtrent én tredel av observasjonene utenfor hvert enkelt tre. Disse out-of-bag-observasjonene kan brukes som en intern valideringsmekanisme uten å berøre testsettet. OOB-scoren gir et uavhengig estimat på generaliseringsevnen og forventes å ligge nær test-accuracy for en veltilpasset modell.
 
-**Train/test-gap:** Et stort gap mellom treningsaccuracy og testaccuracy er et tegn på overfitting. For Random Forest er treningsaccuracy nær 100 % (et ubeskåret ensemble tilpasser seg treningsdataene nesten perfekt), mens testaccuracy er 80 %. Et gap på ~20 prosentpoeng er betydelig, men skyldes primært det strukturelle A/B-problemet — ikke klassisk overfitting. Dersom geografisk informasjon hadde vært tilgjengelig, ville trolig både trenings- og testaccuracy konvergert mot et høyere felles nivå.
+**Train/test-gap:** Et stort gap mellom treningsaccuracy og testaccuracy er et tegn på overfitting. For Random Forest er treningsaccuracy nær 100 % (et ubeskåret ensemble tilpasser seg treningsdataene nesten perfekt), mens testaccuracy er 83,6 %. Et gap på ~16 prosentpoeng er til stede, men reflekterer primært at Random Forest tilpasser seg treningsdataene svært tett — ikke at modellen mislykkes på usynlige data. Testresultatene på 83,6 % viser at generaliseringen er god.
 
-**Stratifisert split:** Den stratifiserte 80/20-delingen sikrer at klassefordelingen i testsett og treningssett er representativ for populasjonen. For klasse C (108 observasjoner i testsettet) er dette særlig viktig: uten stratifisering ville tilfeldig variasjon i hvem av de 539 C-enhetene som havner i test- versus treningssettet, gi ustabile estimater for F1 klasse C.
+**Stratifisert split:** Den stratifiserte 80/20-delingen sikrer at klassefordelingen i testsett og treningssett er representativ for populasjonen. For klasse C (109 observasjoner i testsettet) er dette særlig viktig: uten stratifisering ville tilfeldig variasjon i hvem av de 544 C-enhetene som havner i test- versus treningssettet, gi ustabile estimater for F1 klasse C.
 
 ---
 
@@ -874,7 +874,7 @@ Dette kapittelet presenterer resultatene av modelltreningen og evalueringen obje
 
 ### 8.1 Modellytelse — sammenligning av Decision Tree og Random Forest
 
-Tabell 8.1 viser ytelsesmetrikker for begge modeller på testsettet (18 713 rader). F1-score per klasse er hovedmålet ettersom det balanserer precision og recall, noe som er særlig relevant ved den sterke klasseimbalansen i datasettet.
+Tabell 8.1 viser ytelsesmetrikker for begge modeller på testsettet (18 739 rader). F1-score per klasse er hovedmålet ettersom det balanserer precision og recall, noe som er særlig relevant ved den sterke klasseimbalansen i datasettet.
 
 **Tabell 8.1: Modellsammenligning — testsett (n = 18 739)**
 
@@ -1102,11 +1102,11 @@ Følgende retninger er særlig relevante for videre arbeid:
 
 I denne oppgaven har vi undersøkt hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS. Problemstillingen ble operasjonalisert gjennom to delproblemer: (1) om en modell kan klassifisere innkommende enheter i de tre kanalklassene A, B og C med tilstrekkelig nøyaktighet, og (2) om korrekt klassifisering kan gi målbar lønnsomhetseffekt.
 
-**Delproblem 1** er besvart positivt. En Random Forest-modell trent utelukkende på CellDe-data fra mottakstidspunktet oppnår **80 % accuracy** på testsettet (n = 18 713), med F1-score på 0,75 for klasse A (sluttkunde), 0,84 for klasse B (tredjepartshandler) og 0,75 for klasse C (skrap/BER). Minimumskravet på 80 % er nøyaktig oppfylt. En viktig presisering er at modellen opererer uten tilgang til destinasjonsland — den faktoren som i praksis er den sterkeste prediktoren for A/B-skillet. At modellen likevel når 80 %-grensen under disse betingelsene, understøtter at tilnærmingen er realistisk og praktisk anvendbar.
+**Delproblem 1** er besvart positivt. En Random Forest-modell trent utelukkende på CellDe-data fra mottakstidspunktet oppnår **83,6 % accuracy** på testsettet (n = 18 739), med F1-score på 0,78 for klasse A (sluttkunde), 0,87 for klasse B (tredjepartshandler) og 0,87 for klasse C (skrap/BER). Minimumskravet på 80 % er oppfylt med god margin. Modellen opererer uten post-salgsdata som destinasjonsland — en variabel som kun registreres etter at kanalvalget er tatt, og som dermed ikke kan inngå som feature. At modellen likevel oppnår 83,6 % viser at CellDe-dataene inneholder et reelt prediktivt signal.
 
-**Delproblem 2** er besvart med et estimat. Den beregnede lønnsomhetsforbedringen er **+235 912 NOK på testsettet**, tilsvarende **~590 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under antakelsen om at modellens avvik fra historisk kanalvalg representerer forbedringer. Det reelle potensialet er lavere, men størrelsesorden er robust og konsistent med Ferguson et al. (2009), som viser at presis gradering ved mottak reduserer totalkostnader med omtrent 11 %.
+**Delproblem 2** er besvart med et estimat. Den beregnede lønnsomhetsforbedringen er **+16 108 NOK på testsettet**, tilsvarende **~40 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under antakelsen om at modellens avvik fra historisk kanalvalg representerer forbedringer. Den begrensede nettoverdien skyldes at modellen gjør nær symmetriske feil mellom klasse A og B — en mer presis identifisering av A/B-skillet ville gi vesentlig høyere lønnsomhetseffekt.
 
-**Overordnet konklusjon:** En AI-basert klassifiseringsmodell basert på CellDe-inntaksdata *kan* forbedre kanaliseringsbeslutningene hos Modino AS — både ved å standardisere en beslutning som i dag er manuell og inkonsistent, og ved å utnytte mønstre på tvers av et stort historisk datasett. Den viktigste metodiske innsikten er at modellens nøyaktighet er begrenset av et informasjonsgap: destinasjonslandet, som er den reelt avgjørende faktoren for A/B-skillet, er utilgjengelig ved mottakstidspunktet. Dette er ikke et argument mot å bruke modellen — det er et argument for å undersøke om denne informasjonen kan gjøres tilgjengelig tidligere i prosessen, noe som ville gi en vesentlig nøyaktighetsgevinst.
+**Overordnet konklusjon:** En AI-basert klassifiseringsmodell basert på CellDe-inntaksdata *kan* forbedre kanaliseringsbeslutningene hos Modino AS — både ved å standardisere beslutninger som i dag ikke er systematisk datadrevne, og ved å utnytte mønstre på tvers av et stort historisk datasett. Den viktigste metodiske innsikten er at modellens primære begrensning ligger i A/B-skillet: graderingsdata fra CellDe skiller ikke fullt ut mellom de to kanalene, og ytterligere forbedring krever enten tilleggsdata ved mottakstidspunktet eller dypere integrering med Modinos innkjøpssystem.
 
 Prosjektet bidrar til litteraturen ved å demonstrere en to-kilde-arkitektur (CellDe og SAP som separate filer koblet i minnet) der klassifiseringen er basert på faktisk observert salgskanal — ikke en lønnsomhetsberegning eller en intern gradering. Dette gir en modell med høy intern validitet og direkte operasjonell relevans. Tilnærmingen er prinsipielt overførbar til andre recommerce-aktører med tilsvarende datastruktur.
 
