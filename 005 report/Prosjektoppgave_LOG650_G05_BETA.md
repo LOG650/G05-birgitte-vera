@@ -613,7 +613,7 @@ Den sterke dominansen til klasse B og den svært lave andelen til klasse C er ty
 
 Et gjennomgående designprinsipp er at kun informasjon som er tilgjengelig i CellDe *ved mottakstidspunktet* kan benyttes som feature. SAP-data (pris, kostnad, artikkelnummer, destinasjonsland) tilhører salgstidspunktet og er utilgjengelig på beslutningstidspunktet — bruk av slike variabler ville innebære target leakage og gi en modell uten praktisk anvendbarhet.
 
-Åtte features er konstruert fra CellDe-data:
+Femten features er konstruert fra CellDe-data:
 
 **`grade_num`** — Inntaksgraden konverteres til en ordinal numerisk variabel: A=6, B=5, C=4, D=3, E=2, F=1. Ordinal koding bevarer den rangmessige relasjonen mellom graderingstrinnene.
 
@@ -639,9 +639,23 @@ def parse_no_number(s):
 
 **`har_feil`** — Binær variabel: 1 dersom `InspectedFaults` inneholder registrerte feil, 0 ellers.
 
+**`fault_count`** — Antall individuelle feil registrert i `InspectedFaults`, telt som antall kommaseparerte elementer. Erstatter den binære `har_feil` med en mer granulær representasjon av skadeomfanget.
+
+**`storage_gb`** — Lagringskapasitet i GB, ekstrahert fra modellnavnet med regulært uttrykk (`\d+ GB`). Enheter med høy lagringskapasitet er gjennomgående mer verdifulle og har høyere sannsynlighet for klasse A.
+
+**`inspect_month`** — Måneden innleveringen ble gjennomført (1–12), avledet fra `Inspected Date`. Fanger opp sesongmessige variasjoner i enhetsmiks og markedsverdi.
+
+**`inspect_year`** — Innleveringsår (2024 eller 2025). Reflekterer generelt verdiskift over tid ettersom nye modellgenerasjoner introduseres.
+
+**`brand_enc`** — Merkevarenavn (Apple, Samsung, Google m.fl.) ekstrahert fra første ord i `Device Model` og label-kodet. Fanger opp merkespesifikke verdiprofiler som ikke fullt ut er ivaretatt av `model_encoded`.
+
+**`dealer_A_rate`** — Historisk andel klasse A-enheter per leverandør (`DealerId`), beregnet utelukkende på treningssettet og deretter anvendt på testsettet (target encoding). Fanger opp at ulike leverandørkanaler systematisk leverer enheter av ulik kvalitet.
+
+**`dealer_B_rate`** — Tilsvarende historisk andel klasse B-enheter per leverandør.
+
 Det bemerkes at label encoding for `Transaction Type`, `Channel` og `Device Category` teknisk sett impliserer en ordinal relasjon mellom kategorier som ikke nødvendigvis eksisterer. For trebaserte metoder (Decision Tree og Random Forest) har dette i praksis begrenset betydning, ettersom splittepunktvalget ikke forutsetter noen lineær avstandsrelasjon mellom koder. Bruken av label encoding for uordnede kategorier i trebaserte modeller er et kjent og akseptert forenklingsvalg i litteraturen (Zheng & Casari, 2018), men begrensningen dokumenteres i diskusjonskapittelet.
 
-Alle 8 features er oppsummert i tabell 5.2.
+Alle 15 features er oppsummert i tabell 5.2.
 
 **Tabell 5.2: Feature-oversikt**
 
@@ -655,13 +669,20 @@ Alle 8 features er oppsummert i tabell 5.2.
 | `Channel_enc` | `Channel` | 20 kategorier → label encoding |
 | `Device Category_enc` | `Device Category` | 3 kategorier → label encoding |
 | `har_feil` | `InspectedFaults` | Binær (1 = feil registrert) |
+| `fault_count` | `InspectedFaults` | Antall kommaseparerte feil (0–N) |
+| `storage_gb` | `Device Model` | GB-verdi ekstrahert med regex |
+| `inspect_month` | `Inspected Date` | Måned (1–12) |
+| `inspect_year` | `Inspected Date` | År (2024/2025) |
+| `brand_enc` | `Device Model` | Merke label-kodet |
+| `dealer_A_rate` | `DealerId` | Historisk A-andel per leverandør (target encoding, treningssett) |
+| `dealer_B_rate` | `DealerId` | Historisk B-andel per leverandør (target encoding, treningssett) |
 
 #### 5.2.5 Train/test-split og håndtering av klasseimbalanse
 
 Datasettet deles i et treningssett (80 %) og et testsett (20 %) med stratifisert sampling (`stratify=y`). Stratifisering sikrer at klassenes relative fordeling er lik i begge sett — særlig viktig for klasse C som kun utgjør 0,6 % av dataene. Det stratifiserte splittet gir:
 
-- Treningssett: 74 862 rader (A: 27 720 / B: 46 711 / C: 431)
-- Testsett: 18 713 rader (A: 6 928 / B: 11 677 / C: 108)
+- Treningssett: 74 953 rader (A: 27 744 / B: 46 776 / C: 436)
+- Testsett: 18 739 rader (A: 6 936 / B: 11 694 / C: 109)
 
 Klasseimbalansen (C utgjør 0,6 %) håndteres ved `class_weight='balanced'` i scikit-learn. Dette justerer hver enkelt observasjons vekt omvendt proporsjonalt med klassens frekvens under trening, uten å generere syntetiske datapunkter. SMOTE (Chawla et al., 2002) ble vurdert som alternativ men forkastet da `class_weight='balanced'` er enklere å implementere, ikke introduserer risiko for overfitting på syntetiske punkter, og gir sammenlignbare resultater i litteraturen.
 
@@ -671,10 +692,10 @@ Klasseimbalansen (C utgjør 0,6 %) håndteres ved `class_weight='balanced'` i sc
 
 ### 6.1 Formalisering av klassifiseringsproblemet
 
-La hver enhet *i* representeres ved en feature-vektor **x**_i ∈ ℝ⁸, der de åtte elementene tilsvarer de CellDe-baserte variablene beskrevet i avsnitt 5.2.4. Målvariabelen *y*_i ∈ {A, B, C} angir den observerte salgskanalen. Klassifiseringsproblemet er å lære en funksjon
+La hver enhet *i* representeres ved en feature-vektor **x**_i ∈ ℝ¹⁵, der de femten elementene tilsvarer de CellDe-baserte variablene beskrevet i avsnitt 5.2.4. Målvariabelen *y*_i ∈ {A, B, C} angir den observerte salgskanalen. Klassifiseringsproblemet er å lære en funksjon
 
 ```
-f : ℝ⁸ → {A, B, C}
+f : ℝ¹⁵ → {A, B, C}
 ```
 
 slik at *f*(**x**_i) ≈ *y*_i for treningsdataene, og at *f* generaliserer til nye, ukjente enheter. Problemet er et multiclass classification-problem (tre klasser) innen supervised learning (James et al., 2021).
@@ -855,14 +876,14 @@ Dette kapittelet presenterer resultatene av modelltreningen og evalueringen obje
 
 Tabell 8.1 viser ytelsesmetrikker for begge modeller på testsettet (18 713 rader). F1-score per klasse er hovedmålet ettersom det balanserer precision og recall, noe som er særlig relevant ved den sterke klasseimbalansen i datasettet.
 
-**Tabell 8.1: Modellsammmenligning — testsett (n = 18 713)**
+**Tabell 8.1: Modellsammenligning — testsett (n = 18 739)**
 
 | Modell | Accuracy | F1 klasse A | F1 klasse B | F1 klasse C |
 |---|---|---|---|---|
-| Decision Tree (baseline) | 80 % | 0,75 | 0,83 | 0,74 |
-| **Random Forest (primær)** | **80 %** | **0,75** | **0,84** | **0,75** |
+| Decision Tree (baseline) | 79,9 % | 0,73 | 0,84 | 0,81 |
+| **Random Forest (primær)** | **83,6 %** | **0,78** | **0,87** | **0,87** |
 
-Begge modeller oppnår 80 % accuracy. Random Forest er marginalt bedre enn Decision Tree for klasse B og C, mens ytelsen for klasse A er identisk. 80 %-kravet definert i prosjektplanen er oppfylt.
+Random Forest oppnår 83,6 % accuracy mot Decision Trees 79,9 %. Random Forest overgår Decision Tree på alle tre klasser, med særlig stor forbedring for klasse C (F1: 0,87 vs. 0,81). 80 %-kravet definert i prosjektplanen er oppfylt.
 
 Tabell 8.2 viser precision og recall separat for Random Forest, beregnet fra konfusjonsmatrisen i avsnitt 8.2.
 
@@ -870,11 +891,11 @@ Tabell 8.2 viser precision og recall separat for Random Forest, beregnet fra kon
 
 | Klasse | Precision | Recall | F1 |
 |---|---|---|---|
-| A — Sluttkunde | 0,71 | 0,80 | 0,75 |
-| B — Tredjepartshandler | 0,87 | 0,81 | 0,84 |
-| C — Skrap/BER | 0,74 | 0,75 | 0,75 |
+| A — Sluttkunde | 0,78 | 0,78 | 0,78 |
+| B — Tredjepartshandler | 0,87 | 0,87 | 0,87 |
+| C — Skrap/BER | 0,96 | 0,80 | 0,87 |
 
-Klasse B har den høyeste precision (0,87): av alle enheter modellen sender til tredjepartshandler, er 87 % korrekte. Klasse A har den høyeste recall (0,80): 80 % av de faktiske sluttkunde-enhetene identifiseres korrekt.
+Klasse C har den høyeste precision (0,96): av alle enheter modellen klassifiserer som skrap, er 96 % korrekte. Klasse B oppnår den beste balansen mellom precision og recall (begge 0,87). Klasse A og B har identisk recall (0,78 og 0,87), mens skrap-klassen viser høy precision men lavere recall (0,80).
 
 Figur 8.1 viser konfusjonsmatrisene for begge modeller side ved side.
 
@@ -886,15 +907,15 @@ Figur 8.1 viser konfusjonsmatrisene for begge modeller side ved side.
 
 Tabell 8.3 viser den fullstendige konfusjonsmatrisen for Random Forest på testsettet. Rader angir faktisk klasse, kolonner angir predikert klasse.
 
-**Tabell 8.3: Konfusjonsmatrise — Random Forest (testsett, n = 18 713)**
+**Tabell 8.3: Konfusjonsmatrise — Random Forest (testsett, n = 18 739)**
 
 | Faktisk \ Predikert | A | B | C |
 |---|---|---|---|
-| **A** (n = 6 928) | 5 507 | 1 412 | 9 |
-| **B** (n = 11 677) | 2 234 | 9 424 | 19 |
-| **C** (n = 108) | 9 | 18 | 81 |
+| **A** (n = 6 936) | 5 436 | 1 498 | 2 |
+| **B** (n = 11 694) | 1 547 | 10 145 | 2 |
+| **C** (n = 109) | 9 | 13 | 87 |
 
-Det dominerende feilmønsteret er forvekslingen mellom klasse A og klasse B: 1 412 faktiske A-enheter predikeres som B, og 2 234 faktiske B-enheter predikeres som A. Til sammenligning er klasse C godt identifisert: 81 av 108 skrap-enheter (75 %) klassifiseres korrekt, og kun 18 ekstra enheter feilklassifiseres inn i klasse C.
+Det dominerende feilmønsteret er fremdeles forvekslingen mellom klasse A og klasse B: 1 498 faktiske A-enheter predikeres som B, og 1 547 faktiske B-enheter predikeres som A. Antall A/B-forvekslinger er nå nær symmetrisk. Klasse C er godt identifisert: 87 av 109 skrap-enheter (80 %) klassifiseres korrekt, og kun 13 ekstra enheter feilklassifiseres inn i klasse C.
 
 ### 8.3 Feature importance — Random Forest
 
@@ -904,20 +925,27 @@ Tabell 8.4 viser feature importance for Random Forest, normalisert slik at verdi
 
 | Rang | Feature | Viktighet |
 |---|---|---|
-| 1 | `device_value` (estimert markedsverdi) | 30,7 % |
-| 2 | `Device Category` (enhetskategori) | 20,7 % |
-| 3 | `grade_num` (inntaksgrad) | 15,4 % |
-| 4 | `model_encoded` (modellverdi) | 14,0 % |
-| 5 | `color_group_enc` (fargegruppe) | 7,1 % |
-| 6 | `Transaction Type_enc` | 6,5 % |
-| 7 | `Channel_enc` | 3,5 % |
-| 8 | `har_feil` (registrerte feil) | 2,1 % |
+| 1 | `device_value` (estimert markedsverdi) | 18,5 % |
+| 2 | `Device Category` (enhetskategori) | 17,0 % |
+| 3 | `grade_num` (inntaksgrad) | 13,7 % |
+| 4 | `model_encoded` (modellverdi) | 8,8 % |
+| 5 | `inspect_month` (innleveringsmåned) | 6,9 % |
+| 6 | `Transaction Type_enc` | 6,0 % |
+| 7 | `color_group_enc` (fargegruppe) | 5,5 % |
+| 8 | `dealer_B_rate` (historisk B-andel per leverandør) | 5,5 % |
+| 9 | `dealer_A_rate` (historisk A-andel per leverandør) | 5,5 % |
+| 10 | `fault_count` (antall registrerte feil) | 3,5 % |
+| 11 | `storage_gb` (lagringskapasitet) | 2,2 % |
+| 12 | `Channel_enc` | 1,9 % |
+| 13 | `brand_enc` (merke) | 1,9 % |
+| 14 | `inspect_year` (innleveringsår) | 1,7 % |
+| 15 | `har_feil` (binær feil-indikator) | 1,4 % |
 
-De fire øverste features (`device_value`, `Device Category`, `grade_num`, `model_encoded`) forklarer til sammen 80,8 % av total Gini-reduksjon. `device_value` alene er den klart viktigste enkeltprediktoren med 30,7 %. Figur 8.2 illustrerer fordelingen.
+De fire øverste features (`device_value`, `Device Category`, `grade_num`, `model_encoded`) forklarer til sammen 58,0 % av total Gini-reduksjon. `device_value` er fremdeles den viktigste enkeltprediktoren (18,5 %), men det nye feature-settet distribuerer forklaringskraften bredere — de nye featuresene `inspect_month` (6,9 %) og leverandørrater (5,5 % hver) bidrar betydelig. Figur 8.2 illustrerer fordelingen.
 
 ![Figur 8.2: Feature importance — Random Forest](figur_feature_importance.png)
 
-*Figur 8.2: Feature importance for Random Forest. `device_value` og `Device Category` er de to viktigste prediktorene med til sammen 51,4 % av forklaringskraften. Egenprodusert.*
+*Figur 8.2: Feature importance for Random Forest. `device_value` og `Device Category` er de to viktigste prediktorene med til sammen 35,5 % av forklaringskraften. Egenprodusert.*
 
 ### 8.4 Estimert lønnsomhetseffekt (delproblem 2)
 
@@ -948,25 +976,25 @@ Metoden forutsetter at modellens avvik fra historisk kanalvalg representerer kor
 
 #### 8.4.3 Resultater
 
-**Tabell 8.6: Estimert lønnsomhetseffekt på testsettet (n = 18 713)**
+**Tabell 8.6: Estimert lønnsomhetseffekt på testsettet (n = 18 739)**
 
 | Scenario | Totalmargin |
 |---|---|
-| Historisk kanalvalg | 5 674 581 NOK |
-| Modellens kanalvalg (estimert) | 5 910 493 NOK |
-| **Netto forbedring** | **+235 912 NOK** |
+| Historisk kanalvalg | 5 681 997 NOK |
+| Modellens kanalvalg (estimert) | 5 698 105 NOK |
+| **Netto forbedring** | **+16 108 NOK** |
 
-Den estimerte lønnsomhetsforbedringen på testsettet er **+235 912 NOK**, drevet primært av at modellen reklassifiserer 2 234 faktiske B-enheter som A (gevinst: 2 234 × 287 NOK = +641 158 NOK), delvis motvirket av at 1 412 faktiske A-enheter feilklassifiseres som B (tap: 1 412 × 287 NOK = −405 244 NOK).
+Den estimerte lønnsomhetsforbedringen på testsettet er **+16 108 NOK**, drevet av at modellen reklassifiserer 1 547 faktiske B-enheter som A (gevinst: 1 547 × 287 NOK = +444 000 NOK), nesten fullt oppveid av at 1 498 faktiske A-enheter feilklassifiseres som B (tap: 1 498 × 287 NOK = −430 000 NOK). Den lave nettoverdien reflekterer at det nye feature-settet gir en mer balansert feilfordeling: modellen gjør nær like mange A→B- og B→A-feil, slik at feilkostnadene delvis kansellerer hverandre.
 
 #### 8.4.4 Oppskalert estimat
 
-Med et årlig volum på omtrent 46 800 enheter (basert på 93 575 enheter over to år) gir testsettet et representativt utsnitt på 18 713 / 93 575 ≈ 20 %. Oppskalert til fullt årlig volum:
+Med et årlig volum på omtrent 46 846 enheter (basert på 93 692 enheter over to år) gir testsettet et representativt utsnitt på 18 739 / 93 692 ≈ 20 %. Oppskalert til fullt årlig volum:
 
 ```
-235 912 × (46 800 / 18 713) ≈ 590 000 NOK per år
+16 108 × (46 846 / 18 739) ≈ 40 000 NOK per år
 ```
 
-Det oppskalerte estimatet er **~590 000 NOK per år** under den optimistiske antakelsen om at alle modellens avvik fra historisk praksis er korrekte. Dette representerer en øvre størrelsesorden, ikke et forventet faktisk utfall.
+Det oppskalerte estimatet er **~40 000 NOK per år** under den optimistiske antakelsen om at alle modellens avvik fra historisk praksis er korrekte. Dette representerer en øvre størrelsesorden, ikke et forventet faktisk utfall.
 
 ---
 
@@ -976,19 +1004,19 @@ Dette kapittelet drøfter funnene fra analysen og resultatene opp mot prosjektet
 
 ### 9.1 Svar på problemstillingen
 
-Prosjektets problemstilling spør hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS. Analysen viser at Random Forest-modellen klassifiserer innkommende enheter i de tre kanalklassene A, B og C med **80 % accuracy** på et testsett på 18 713 enheter — nøyaktig på grensen til det definerte minimumskravet på 80 %. Modellen er dermed i stand til å automatisere og standardisere en beslutning som i dag er manuell, og den gjør det med tilstrekkelig nøyaktighet til at prosjektets formål er faglig begrunnet.
+Prosjektets problemstilling spør hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS. Analysen viser at Random Forest-modellen klassifiserer innkommende enheter i de tre kanalklassene A, B og C med **83,6 % accuracy** på et testsett på 18 739 enheter — godt over det definerte minimumskravet på 80 %. Modellen er dermed i stand til å automatisere og standardisere en beslutning som i dag ikke er datadrevet, og den gjør det med tilstrekkelig nøyaktighet til at prosjektets formål er faglig begrunnet.
 
-Resultatet må tolkes i lys av hvilken informasjon modellen faktisk har tilgang til. Modellen opererer utelukkende på CellDe-data fra mottakstidspunktet — det er nettopp dette som gjør den praktisk anvendbar. Tidligere analyseforsøk oppnådde 92,4 % accuracy, men brukte SAP-data som features. SAP-data eksisterer kun etter at salget er gjennomført, og en modell basert på slike data kan ikke benyttes til å ta beslutningen *ved mottak*. Reduksjonen fra 92,4 % til 80 % er dermed ikke et tegn på en dårligere modell — det er et tegn på en *ærlig* modell som opererer under de rammebetingelsene som faktisk gjelder i en driftssetting.
+Resultatet må tolkes i lys av hvilken informasjon modellen faktisk har tilgang til. Modellen opererer utelukkende på CellDe-data fra mottakstidspunktet — det er nettopp dette som gjør den praktisk anvendbar. Tidligere analyseforsøk oppnådde 92,4 % accuracy, men brukte SAP-data som features. SAP-data eksisterer kun etter at salget er gjennomført, og en modell basert på slike data kan ikke benyttes til å ta beslutningen *ved mottak*. Reduksjonen fra 92,4 % til 83,6 % er dermed ikke et tegn på en dårligere modell — det er et tegn på en *ærlig* modell som opererer under de rammebetingelsene som faktisk gjelder i en driftssetting.
 
 #### 9.1.1 Delproblem 1 — Klassifiseringsnøyaktighet
 
-Det definerte minimumskravet på 80 % accuracy er oppfylt. F1-score for de tre klassene er 0,75 (A), 0,84 (B) og 0,75 (C). Klasse B oppnår den høyeste F1-scoren, noe som er konsistent med at klasse B er den dominerende klassen (62,4 % av datasettet) og at modellen dermed har flest treningseksempler for denne gruppen. At klasse C oppnår F1 på 0,75 til tross for at den utgjør kun 0,6 % av datasettet, er et positivt funn — `class_weight='balanced'` fungerer etter hensikten.
+Det definerte minimumskravet på 80 % accuracy er oppfylt med 83,6 %. F1-score for de tre klassene er 0,78 (A), 0,87 (B) og 0,87 (C). Klasse B oppnår fremdeles den høyeste F1-scoren, men klasse C er nå på linje med klasse B — et markant forbedret resultat. At klasse C oppnår F1 på 0,87 til tross for at den utgjør kun 0,6 % av datasettet, er et sterkt positivt funn — `class_weight='balanced'` og det utvidede feature-settet fungerer etter hensikten.
 
-Det dominerende feilmønsteret er forvekslingen mellom klasse A og klasse B: 1 412 faktiske A-enheter predikeres som B, og 2 234 faktiske B-enheter predikeres som A. Dette er ikke tilfeldig støy — det er et strukturelt problem som diskuteres nærmere i avsnitt 9.4.
+Det dominerende feilmønsteret er fremdeles forvekslingen mellom klasse A og klasse B: 1 498 faktiske A-enheter predikeres som B, og 1 547 faktiske B-enheter predikeres som A. Feilfordelingen er nå nær symmetrisk — i kontrast til den asymmetriske fordelingen i den opprinnelige modellen. Dette er ikke tilfeldig støy — det er et strukturelt problem som diskuteres nærmere i avsnitt 9.4.
 
 #### 9.1.2 Delproblem 2 — Lønnsomhetseffekt
 
-Den estimerte lønnsomhetsforbedringen er **+235 912 NOK på testsettet**, tilsvarende **~590 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under den eksplisitte antakelsen om at alle modellens avvik fra historisk kanalvalg er korrekte forbedringer — i praksis vil noen av avvikene være modellens egne feil. Det reelle forbedringspotensialet er lavere, men retningen er robust: modellen omdirigerer et netto antall enheter fra klasse B til klasse A (høyere margin), og gevinsten av dette overstiger tapet fra motsatt feilklassifisering. Lønnsomhetsanalysen støttes av Ferguson et al. (2009), som empirisk viser at presis gradering ved mottak reduserer totalkostnader med omtrent 11 % — en størrelsesorden som er konsistent med funnene i dette prosjektet.
+Den estimerte lønnsomhetsforbedringen er **+16 108 NOK på testsettet**, tilsvarende **~40 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under den eksplisitte antakelsen om at alle modellens avvik fra historisk kanalvalg er korrekte forbedringer. Den lave nettoverdien skyldes at modellen gjør nær symmetriske feil mellom klasse A og klasse B — gevinstene fra B→A-omruting (~444 000 NOK) oppveies nesten fullt av tapene fra A→B-feilklassifisering (~430 000 NOK). En mer presis modell som klarer å bryte symmetrien i A/B-feiltypene vil gi et vesentlig høyere lønnsomhetsestimat. Lønnsomhetsanalysen støttes av Ferguson et al. (2009), som empirisk viser at presis gradering ved mottak reduserer totalkostnader med omtrent 11 %.
 
 ---
 
@@ -1002,9 +1030,11 @@ Turkolmez et al. (2024) finner tilsvarende at Random Forest gir høy nøyaktighe
 
 #### 9.2.2 Feature importance og praktisk innsikt
 
-Det sterkeste enkeltfunnet fra feature importance-analysen er at **enhetens estimerte markedsverdi** (`device_value`, 30,7 %) og **enhetskategori** (`Device Category`, 20,7 %) til sammen forklarer over halvparten av klassifiseringskraften. Inntaksgraden (`grade_num`, 15,4 %) er viktig, men ikke dominerende. Dette er konsistent med Galbreth og Blackburn (2006), som viser at optimal sorteringspolitikk er drevet av enhetens realiserte verdi snarere enn av tilstandsgrad alene. Markedsverdien er en mer direkte indikator på hvilket kanalutfall som er lønnsomt — og modellen «oppdager» dette empirisk fra dataene uten at det er hardkodet inn.
+Det sterkeste enkeltfunnet fra feature importance-analysen er at **enhetens estimerte markedsverdi** (`device_value`, 18,5 %) og **enhetskategori** (`Device Category`, 17,0 %) fremdeles er de to viktigste prediktorene, men med et utvidet feature-sett distribueres forklaringskraften bredere. Inntaksgraden (`grade_num`, 13,7 %) er fremdeles viktig. Dette er konsistent med Galbreth og Blackburn (2006), som viser at optimal sorteringspolitikk er drevet av enhetens realiserte verdi snarere enn av tilstandsgrad alene.
 
-Det er bemerkelsesverdig at `har_feil` (binær feil-indikator) bidrar med kun 2,1 % av forklaringskraften, til tross for at registrerte feil intuitivt er en åpenbar prediktor for klasse C (BER). En mulig forklaring er at `device_value` og `grade_num` allerede fanger opp mye av den samme informasjonen — enheter med alvorlige feil er gradert lavt og har lav markedsverdi, slik at den binære feil-indikatoren ikke tilfører vesentlig ny informasjon utover det disse to variablene allerede gir.
+Et nytt og interessant funn er at **innleveringsmåneden** (`inspect_month`, 6,9 %) er den femte viktigste prediktoren. Dette indikerer at enhetsmiksen varierer sesongmessig — noe som er operasjonelt plausibelt gitt at nye modellgenerasjoner typisk lanseres om høsten og driver innbytte-topper. **Leverandørrater** (`dealer_A_rate` og `dealer_B_rate`, 5,5 % hver) bekrefter at hvem som leverer inn enheter er informativt for kanalutfallet — ulike leverandørkanaler har ulik kvalitetsprofil.
+
+Det er fortsatt bemerkelsesverdig at `har_feil` (binær feil-indikator) nå bidrar med kun 1,4 %, da `fault_count` (3,5 %) tar over mye av signalet og gir mer granulær informasjon om skadeomfanget. `device_value` og `grade_num` fanger uansett opp det meste av felinformasjonen implisitt.
 
 ---
 
@@ -1012,9 +1042,9 @@ Det er bemerkelsesverdig at `har_feil` (binær feil-indikator) bidrar med kun 2,
 
 #### 9.3.1 Fra manuell til modellbasert klassifisering
 
-I Modinos nåværende prosess tas kanaliseringsbeslutningen manuelt, basert på CellDe-graden og operatørens erfaring. En klassifiseringsmodell som systematisk benytter alle åtte CellDe-features har to klare fordeler: den er konsistent (samme input gir alltid samme output, uavhengig av hvem som tar beslutningen og når), og den utnytter mønstre på tvers av 93 575 historiske enheter som ingen enkeltperson kan ha internalisert.
+I Modinos nåværende prosess inspiseres og graderes enheter ved mottak av CellDe — et robotbasert testesystem som automatisk tester enhetens funksjoner (skjerm, batteri, kamera, tilkobling m.m.) uten menneskelig operatørvurdering. Selve kanaliseringsbeslutningen — A, B eller C — er i dag ikke systematisk datadrevet. En klassifiseringsmodell som systematisk benytter alle femten CellDe-features har to klare fordeler: den er konsistent (samme input gir alltid samme output), og den utnytter mønstre på tvers av 93 692 historiske enheter.
 
-Hübner et al. (2020) viser at integrert automatisert beslutningsstøtte for innkjøp, gradering og disponering gir vesentlig bedre lønnsomhet enn sekvensielle manuelle beslutninger. Modino-prosjektet er et steg i denne retningen: klassifiseringsmodellen integrerer inntaksdata direkte i en kanalanbefaling, uten at operatøren trenger å gjøre en separat skjønnsmessig vurdering.
+Hübner et al. (2020) viser at integrert automatisert beslutningsstøtte for innkjøp, gradering og disponering gir vesentlig bedre lønnsomhet enn sekvensielle manuelle beslutninger. Modino-prosjektet er et steg i denne retningen: klassifiseringsmodellen integrerer inntaksdata direkte i en kanalanbefaling, uten manuell skjønnsmessig vurdering.
 
 #### 9.3.2 Praktisk implementering
 
@@ -1030,9 +1060,9 @@ Videre bør modellen oppdateres jevnlig ettersom markedsforholdene for brukte mo
 
 Den mest sentrale metodiske begrensningen i dette prosjektet er fraværet av geografisk informasjon på beslutningstidspunktet. Analysen viser at destinasjonsland (`ship_country` fra SAP) er en tilnærmet perfekt prediktor for klasse A versus klasse B: enheter som sendes til Norge havner i 98,5 % av tilfellene i klasse A, mens enheter som sendes til andre land — primært Estland — i nærmere 100 % av tilfellene ender i klasse B. Denne segregeringen er ikke drevet av enhetenes tilstand eller verdi, men av Modinos geografiske salgsstruktur: norske sluttkunder kjøper via Teleoutlet (klasse A), mens estlandske og øvrige europeiske B2B-aktører kjøper direkte (klasse B).
 
-Fordi `ship_country` kun eksisterer etter at salget er gjennomført, er variabelen utilgjengelig som feature — å inkludere den ville innebære target leakage. CellDe-systemet registrerer ingen geografisk informasjon om enhetens destinasjon; de samme innleveringsbutikkene leverer enheter som ender opp i begge kanaler. Konsekvensen er at modellen må klassifisere A mot B uten tilgang til den faktoren som i virkeligheten avgjør utfallet. Dette setter et strukturelt tak på oppnåelig nøyaktighet for A/B-skillet, og forklarer hvorfor to svært ulike modeller (Decision Tree og Random Forest) konvergerer mot identisk accuracy på 80 %. Det bindende elementet er ikke modellkapasiteten, men informasjonsgrunnlaget.
+Fordi `ship_country` kun eksisterer etter at salget er gjennomført, er variabelen utilgjengelig som feature — å inkludere den ville innebære target leakage. CellDe-systemet registrerer ingen geografisk informasjon om enhetens destinasjon; de samme innleveringsbutikkene leverer enheter som ender opp i begge kanaler. Konsekvensen er at modellen må klassifisere A mot B uten tilgang til den faktoren som i virkeligheten avgjør utfallet. Dette setter et strukturelt tak på oppnåelig nøyaktighet for A/B-skillet, og forklarer hvorfor i basisversjonen (8 features) konvergerte Decision Tree og Random Forest mot identisk 80 % accuracy. Med det utvidede feature-settet (15 features) løftet Random Forest ytelsen til 83,6 %, mens Decision Tree kun nådde 79,9 %. Dette viser at øvrig CellDe-informasjon — sesongmønster, leverandørhistorikk, feilantall — faktisk inneholder prediktiv kraft for A/B-skillet, og at den geografiske begrensningen ikke er absolutt. Det bindende elementet forblir likevel fraværet av destinasjonsinformasjon.
 
-En mulig vei videre er å undersøke om geografisk informasjon kan innhentes *på eller nær mottakstidspunktet* — for eksempel om leverandørens kontraktstype (norsk vs. estlandsk operatør) er tilgjengelig i CellDe eller i Modinos innkjøpssystem. Dersom en slik proxy eksisterer, vil den trolig løfte A/B-nøyaktigheten betydelig.
+En mulig vei videre er å undersøke om geografisk informasjon kan innhentes *på eller nær mottakstidspunktet* — for eksempel om leverandørens kontraktstype (norsk vs. europeisk B2B-kjøper) er tilgjengelig i CellDe eller i Modinos innkjøpssystem. Dersom en slik proxy eksisterer, vil den trolig løfte A/B-nøyaktigheten ytterligere.
 
 #### 9.4.2 Label encoding for uordnede kategorier
 
