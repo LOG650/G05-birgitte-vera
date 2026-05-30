@@ -412,7 +412,7 @@ Modino har to komplementære datakilder som til sammen dekker klassifiseringspro
 
 **Modino-inspeksjonsdata** inneholder enhetsspesifikke inspeksjonsresultater: tilstandsgrad, registrerte feil (QuotedFaults og InspectedFaults), inspeksjonsdato, forhandler og butikk, samt inspeksjonsverdi satt av systemet. Disse dataene representerer informasjonen som er tilgjengelig på beslutningstidspunktet – det vil si inputvariablene modellen skal bruke for å predikere klasse.
 
-De to datasettene er koblet på enhetsnivå og danner til sammen et historisk datasett for perioden 2024–2025 med om lag 10 000–15 000 transaksjoner.
+De to datasettene er koblet på enhetsnivå og danner til sammen et historisk datasett for perioden 2024–2025 med 94 096 transaksjoner.
 
 ## 3.6 Problemets antatte årsak
 
@@ -435,7 +435,7 @@ Prosjektet er videre forankret i en beslutningsstøtte-ramme slik Turban et al. 
 Det overordnede designvalget kan oppsummeres i fire steg som følger prosjektets røde tråd:
 
 ```
-[FIGUR 3.1 – Egenprodusert]
+[FIGUR 4.1 – Egenprodusert]
 Prosjektets forskningsdesign – fire steg
 
   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
@@ -445,7 +445,7 @@ Prosjektets forskningsdesign – fire steg
   └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
       Data                Data           Prediksjon          Lønnsomhet
 
-Figur 3.1: Prosjektets fire designsteg fra datauttrekk til lønnsomhetsevaluering.
+Figur 4.1: Prosjektets fire designsteg fra datauttrekk til lønnsomhetsevaluering.
 Egenprodusert.
 ```
 
@@ -457,7 +457,7 @@ I tråd med kompendiet (Rekdal & Pettersen, 2025, kap. 7.8) refereres Claude Cod
 
 ### 4.1.3 Tidshorisont og avgrensning
 
-Prosjektet analyserer historiske transaksjonsdata fra Modinos interne SAP-system for perioden **2024–2025**, geografisk avgrenset til **Norge**. Prosjektet bygger en klassifiseringsmodell for beslutningsstøtte – ressursallokering, kapasitetsplanlegging og optimering av reparasjonskø ligger utenfor omfanget.
+Prosjektet analyserer historiske transaksjonsdata fra Modinos interne SAP-system for perioden **2024–2025**, geografisk avgrenset til **Estland, Norge, Finland, Sverige og Romania** (de fem landene med ≥ 1 000 transaksjoner i datasettet). Prosjektet bygger en klassifiseringsmodell for beslutningsstøtte – ressursallokering, kapasitetsplanlegging og optimering av reparasjonskø ligger utenfor omfanget.
 
 ---
 
@@ -471,7 +471,7 @@ Datagrunnlaget er historiske transaksjonsdata fra Modino AS sitt interne **SAP-s
 
 Basert på prosjektets klassifiseringsproblem forventes følgende variabelkategorier å inngå i datasettet. Tabellen er foreløpig og oppdateres i sin helhet etter gjennomgang av Modinos SAP-uttrekk i fase 3 – metodekapittelet ferdigstilles da:
 
-**Tabell 3.1: Forventede variabler i datasettet**
+**Tabell 4.1: Forventede variabler i datasettet**
 
 | Variabelkategori | Eksempler | Type |
 |---|---|---|
@@ -481,7 +481,7 @@ Basert på prosjektets klassifiseringsproblem forventes følgende variabelkatego
 | Markedsverdi | Estimert salgspris ved reparasjon | Numerisk |
 | Historisk utfall | Faktisk kanal (nettbutikk, B2B, avhend) | Kategorisk (målvariabel) |
 
-*Tabell 3.1: Forventede variabler i datasettet. Endelig variabelliste fastsettes etter
+*Tabell 4.1: Forventede variabler i datasettet. Endelig variabelliste fastsettes etter
 gjennomgang av Modinos SAP-uttrekk. Egenprodusert.*
 
 **Målvariabelen** konstrueres fra historiske utfall og defineres som:
@@ -540,7 +540,7 @@ Valget avgjøres etter analyse av klassefordelingen i det rensede datasettet.
 Analysen gjennomføres som en **supervised learning klassifiseringsanalyse** i Python med scikit-learn som primært bibliotek (Géron, 2022).
 
 ```
-[FIGUR 3.2 – Egenprodusert]
+[FIGUR 4.2 – Egenprodusert]
 Analyseopplegg – fra data til evaluert modell
 
   Renset datasett
@@ -564,7 +564,7 @@ Analyseopplegg – fra data til evaluert modell
         ▼
   Valgt modell
 
-Figur 3.2: Analyseopplegg fra renset datasett til endelig evaluert modell. Egenprodusert.
+Figur 4.2: Analyseopplegg fra renset datasett til endelig evaluert modell. Egenprodusert.
 ```
 
 ### 4.4.2 Train/test-split og håndtering av lite datasett
@@ -587,7 +587,7 @@ Tre klassifiseringsalgoritmer vurderes:
 
 For Random Forest gjennomføres hyperparameteroptimering ved hjelp av **5-fold kryssvalidering** på treningssettet (`GridSearchCV` i scikit-learn):
 
-**Tabell 3.2: Hyperparametere for Random Forest**
+**Tabell 4.2: Hyperparametere for Random Forest**
 
 | Parameter | Beskrivelse | Søkerom |
 |---|---|---|
@@ -596,11 +596,11 @@ For Random Forest gjennomføres hyperparameteroptimering ved hjelp av **5-fold k
 | `min_samples_split` | Min. observasjoner for splitting | 2, 5, 10 |
 | `class_weight` | Håndtering av klasseimbalanse | balanced, None |
 
-*Tabell 3.2: Søkerom for hyperparameteroptimering via GridSearchCV. Egenprodusert.*
+*Tabell 4.2: Søkerom for hyperparameteroptimering via GridSearchCV. Egenprodusert.*
 
 ### 4.4.5 Verktøy og reproduserbarhet
 
-**Tabell 3.3: Verktøy benyttet i analysen**
+**Tabell 4.3: Verktøy benyttet i analysen**
 
 | Verktøy | Bruksområde | Referanse |
 |---|---|---|
@@ -611,7 +611,7 @@ For Random Forest gjennomføres hyperparameteroptimering ved hjelp av **5-fold k
 | Claude Code CLI | Kodegenerering og analytisk støtte | Anthropic (2025) |
 | GitHub | Versjonskontroll og dokumentasjon | – |
 
-*Tabell 3.3: Verktøy benyttet i analysen. Egenprodusert.*
+*Tabell 4.3: Verktøy benyttet i analysen. Egenprodusert.*
 
 All kode lagres i prosjektets GitHub-repositorium med tydelig mappestruktur og kommentarer. Tilfeldig frø settes til `random_state=42` i alle steg som involverer tilfeldighet, for å sikre reproduserbarhet.
 
@@ -623,7 +623,7 @@ All kode lagres i prosjektets GitHub-repositorium med tydelig mappestruktur og k
 
 Modellens ytelse evalueres med følgende metrikker på testsettet (Sokolova & Lapalme, 2009):
 
-**Tabell 3.4: Evalueringsmetrikker og forretningsmessig tolkning**
+**Tabell 4.4: Evalueringsmetrikker og forretningsmessig tolkning**
 
 | Metrikk | Minimumskrav | Forretningsmessig tolkning |
 |---|---|---|
@@ -632,7 +632,7 @@ Modellens ytelse evalueres med følgende metrikker på testsettet (Sokolova & La
 | Recall (klasse C) | Fastsettes etter datagjennomgang | Fang opp BER-enheter tidlig |
 | Confusion matrix | Visualisering | Identifiser systematiske feilklassifiseringer |
 
-*Tabell 3.4: Evalueringsmetrikker og forretningsmessig tolkning. Egenprodusert.*
+*Tabell 4.4: Evalueringsmetrikker og forretningsmessig tolkning. Egenprodusert.*
 
 Feilkostnadene er asymmetriske: en A→C-feil (enhet som burde vært solgt, avhendes) gir tapt salgsinntekt, mens en C→A-feil (BER-enhet repareres unødvendig) gir direkte reparasjonskostnad uten inntekt. De konkrete ytelseskravene for precision og recall per klasse fastsettes i samarbeid med Modino etter gjennomgang av kostnadsstrukturen, slik at kravene reflekterer den faktiske kostnaden per feiltype.
 
@@ -655,7 +655,7 @@ Tre sentrale begrensninger erkjennes eksplisitt:
 
 **Ekstern validitet:** Modellen er trent på Modinos data for 2024–2025 og er ikke nødvendigvis generaliserbar til andre aktører, markeder eller tidsperioder. Ibrahim og Abdul-Kader (2025) finner at alder er en sterk prediktor for disponeringskategori, noe som indikerer at modellen kan bli utdatert relativt raskt i takt med teknologiskifter i smarttelefonmarkedet.
 
-**Datamengde:** Dersom datasettet er lite (< 500 observasjoner), øker risikoen for overfitting og ustabile estimater. I så fall vurderes enklere modeller eller forsterket regularisering, og 80/20-splitt erstattes med k-fold kryssvalidering som beskrevet i avsnitt 3.4.2.
+**Datamengde:** Dersom datasettet er lite (< 500 observasjoner), øker risikoen for overfitting og ustabile estimater. I så fall vurderes enklere modeller eller forsterket regularisering, og 80/20-splitt erstattes med k-fold kryssvalidering som beskrevet i avsnitt 4.4.2.
 
 ---
 
@@ -694,7 +694,7 @@ Zheng, A., & Casari, A. (2018). *Feature engineering for machine learning*. O'Re
 Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). SAGE Publications. [Brukes kun som kontrast i avsnitt 3.1.1 – ikke primærkilden for designvalget]
 # 5. Modellering
 
-Dette kapittelet beskriver den matematiske formuleringen av klassifiseringsproblemet og modellstrukturen som benyttes. Evalueringsmetrikker er beskrevet i avsnitt 3.5.
+Dette kapittelet beskriver den matematiske formuleringen av klassifiseringsproblemet og modellstrukturen som benyttes. Evalueringsmetrikker er beskrevet i avsnitt 4.5.
 
 ## 5.1 Problemformulering
 
@@ -726,7 +726,7 @@ Random Forest (Breiman, 2001) er et ensemble av B beslutningstrær der hvert tre
 
 der Tᵢ(x) er prediksjonen fra tre i. Denne randomiseringen reduserer variansen sammenlignet med et enkelt beslutningstre og gjør modellen robust mot overfitting (Hastie et al., 2009).
 
-Antall trær (B), trédybde og øvrige hyperparametere optimeres via GridSearchCV med 5-fold kryssvalidering på treningssettet (søkerom beskrevet i avsnitt 3.4.4). Ved klasseimbalanse kan `class_weight='balanced'` benyttes, som vekter hver klasse omvendt proporsjonalt med dens frekvens:
+Antall trær (B), trédybde og øvrige hyperparametere optimeres via GridSearchCV med 5-fold kryssvalidering på treningssettet (søkerom beskrevet i avsnitt 4.4.4). Ved klasseimbalanse kan `class_weight='balanced'` benyttes, som vekter hver klasse omvendt proporsjonalt med dens frekvens:
 
 ```
 wₖ = n / (K × nₖ)
@@ -738,7 +738,7 @@ Random Forest produserer i tillegg feature importance-verdier basert på gjennom
 
 ## 5.4 Gradient Boosting (reservemodell)
 
-Dersom Random Forest ikke oppnår minimumskravet på 80 % accuracy (jf. avsnitt 3.5.1), benyttes Gradient Boosting (XGBoost/LightGBM) som alternativ. Gradient Boosting bygger trær sekvensielt der hvert nytt tre korrigerer feilene fra de foregående, noe som kan gi høyere nøyaktighet på bekostning av tolkbarhet. Metoden inkluderes som reservemodell, ikke primærmodell, av to grunner: (1) Random Forests direkte feature importance-verdier er viktige for kommunikasjon av resultater til Modinos ledelse, og (2) sekvensiell trening gjør Gradient Boosting mer utsatt for overfitting på datasett med begrenset variasjon, og krever mer omfattende hyperparametertuning (learning rate, antall trær, trédybde) for å unngå dette.
+Dersom Random Forest ikke oppnår minimumskravet på 80 % accuracy (jf. avsnitt 4.5.1), benyttes Gradient Boosting (XGBoost/LightGBM) som alternativ. Gradient Boosting bygger trær sekvensielt der hvert nytt tre korrigerer feilene fra de foregående, noe som kan gi høyere nøyaktighet på bekostning av tolkbarhet. Metoden inkluderes som reservemodell, ikke primærmodell, av to grunner: (1) Random Forests direkte feature importance-verdier er viktige for kommunikasjon av resultater til Modinos ledelse, og (2) sekvensiell trening gjør Gradient Boosting mer utsatt for overfitting på datasett med begrenset variasjon, og krever mer omfattende hyperparametertuning (learning rate, antall trær, trédybde) for å unngå dette.
 
 ---
 
@@ -897,6 +897,75 @@ De to viktigste prediktorene – Inspected Device Value (estimert markedsverdi) 
 
 Prosjektet definerte et minimumskrav på 80 % accuracy. Den optimerte Random Forest-modellen oppnådde **92,4 % accuracy** på testsettet, som overstiger minimumskravet med 12,4 prosentpoeng. Gradient Boosting ble derfor ikke nødvendig som alternativ.
 
+## 7.7 Estimert lønnsomhetseffekt (delproblem 2)
+
+Dette avsnittet besvarer delproblem 2: *Hva er den estimerte lønnsomhetseffekten av modellens klassifisering sammenlignet med Modinos historiske kanalvalg, målt som differanse i netto dekningsbidrag?*
+
+### 7.7.1 Gjennomsnittlig margin per lønnsomhetsklasse
+
+Tabell 7.4 viser gjennomsnittlig revenue, cost og margin per lønnsomhetsklasse beregnet fra hele datasettet (n = 92 119 observasjoner). Marginen er definert som netto dekningsbidrag: revenue minus cost per enhet.
+
+**Tabell 7.4: Gjennomsnittlig økonomi per lønnsomhetsklasse**
+
+| Klasse | Kanal | Antall enheter | Gj.snitt revenue | Gj.snitt cost | Gj.snitt margin |
+|---|---|---|---|---|---|
+| A | Reparasjon + nettbutikk | 40 385 | 2 222 NOK | 1 738 NOK | **484 NOK** |
+| B | B2B / reservedeler | 38 227 | 946 NOK | 749 NOK | **197 NOK** |
+| C | BER / avhending | 13 507 | 899 NOK | 705 NOK | **195 NOK** |
+
+*Tabell 7.4: Gjennomsnittlig økonomi per lønnsomhetsklasse basert på SAP-registrerte transaksjoner. Egenprodusert.*
+
+Et viktig funn er at klasse B og klasse C har nær identiske gjennomsnittsmarginer (197 vs. 195 NOK per enhet). Dette reflekterer at BER-enheter (klasse C) i praksis selges som reservedeler eller til B2B-kjøpere og dermed oppnår lignende realisert verdi som klasse B-enheter. Den primære lønnsomhetsforskjellen i datasettet er mellom klasse A og klassene B/C: klasse A genererer 2,5 ganger høyere margin enn de øvrige kanalene.
+
+### 7.7.2 Estimeringsmetodikk
+
+For å estimere lønnsomhetseffekten sammenlignes modellens prediksjoner med historiske kanalvalg på testsettet (n = 18 820). Fremgangsmåten er:
+
+1. For enheter der modellen er enig med historisk kanalvalg (92,4 % av testsettet): ingen endring i margin.
+2. For enheter der modellen avviker fra historisk kanalvalg (7,6 % av testsettet): estimeres marginen for den predikerte kanalen ved bruk av gjennomsnittsverdier fra tabell 7.4.
+3. Differansen mellom modellens estimerte totalmargin og historisk totalmargin utgjør lønnsomhetseffekten.
+
+**Viktig antakelse:** Beregningen forutsetter at modellens prediksjoner er korrekte der de avviker fra historisk kanalvalg – det vil si at de historiske valgene var suboptimale i disse tilfellene. Dette er en optimistisk antakelse som ikke kan verifiseres uten ekstern validering av grade-til-klasse-mappingen mot Modinos faktiske kanaldata. Estimatet representerer dermed en øvre grense for lønnsomhetseffekten, ikke et forventet gjennomsnittlig utfall. Metodens øvrige begrensninger diskuteres i avsnitt 8.4.
+
+### 7.7.3 Resultater
+
+**Tabell 7.5: Estimert lønnsomhetseffekt på testsettet (n = 18 820)**
+
+| | Totalmargin (NOK) |
+|---|---|
+| Historisk kanalvalg (faktisk) | 6 050 080 |
+| Modellens estimerte kanalvalg | 6 206 151 |
+| **Netto forbedring** | **+156 072** |
+
+*Tabell 7.5: Samlet estimert margin på testsettet under historisk kanalvalg vs. modellens prediksjoner. Egenprodusert.*
+
+Tabell 7.6 viser bidraget fra de ulike klassifiseringsfeilene. Den dominerende gevinsten (+262 214 NOK) stammer fra 911 enheter som historisk ble kanalisert til klasse B, men der modellen predikerer klasse A. Dersom disse enhetene kan behandles som klasse A (reparasjon + nettbutikk), realiseres klasse A-marginen. Det største tapet (−109 088 NOK) stammer fra 379 enheter som historisk er klasse A, men modellen sender til klasse B-kanalen.
+
+**Tabell 7.6: Misklassifiseringer og estimert margindifferanse**
+
+| Faktisk klasse | Predikert klasse | Antall | Margin-diff (NOK/enhet) | Total effekt (NOK) |
+|---|---|---|---|---|
+| A | A | 7 794 | 0 | 0 *(korrekt)* |
+| A | B | 379 | −288 | −109 088 |
+| A | C | 13 | −290 | −3 764 |
+| B | A | 911 | +288 | +262 214 |
+| B | B | 6 904 | 0 | 0 *(korrekt)* |
+| B | C | 40 | −2 | −69 |
+| C | A | 23 | +290 | +6 660 |
+| C | B | 69 | +2 | +119 |
+| C | C | 2 687 | 0 | 0 *(korrekt)* |
+| | **Sum** | **18 820** | | **+156 072** |
+
+*Tabell 7.6: Estimert margindifferanse per klassifiseringsutfall på testsettet under antakelsen om at modellens prediksjoner er korrekte. Merk at radene C→A og C→B representerer modellens feilklassifiseringer av BER-enheter; de viser positiv margindifferanse fordi gjennomsnittsmarginen for klasse A/B er høyere enn for klasse C i SAP-dataene, men dersom disse enhetene i virkeligheten ikke kan oppnå klasse A- eller B-marginer, representerer de en kostnad. Egenprodusert.*
+
+### 7.7.4 Oppskalert estimat
+
+Testsettet utgjør 20 % av datasettet. Oppskalert til hele datasettet (94 096 obs. over to år, tilsvarende ~47 000 enheter per år) gir et estimert netto lønnsomhetsbidrag på:
+
+> **Estimert netto forbedring per år: ~390 000 NOK**
+
+Dette er et estimat under den optimistiske antakelsen om at modellen er riktig i alle avvik fra historisk kanalvalg. Reell effekt kan være lavere dersom noen av avvikene er modellens feil snarere enn forbedringer. Estimatet bør tolkes som en øvre størrelsesorden, ikke et forventet gjennomsnittlig utfall. Metodiske usikkerheter diskuteres i avsnitt 8.4.
+
 ---
 
 # 8. Diskusjon
@@ -943,11 +1012,13 @@ For Modino innebærer resultatene flere konkrete muligheter:
 
 I denne oppgaven har vi utviklet og evaluert en AI-basert klassifiseringsmodell for kanalisering av brukte mobilenheter hos Modino AS. Modellen klassifiserer innkommende enheter i tre lønnsomhetsklasser: nettbutikk (A), B2B/reservedeler (B) og BER/avhend (C).
 
-Hovedfunnene viser at en Random Forest-modell med optimerte hyperparametere oppnår **92,4 % accuracy** på et holdout-testsett med 18 820 enheter – godt over minimumskravet på 80 %. Modellen identifiserer 96,7 % av alle BER-enheter korrekt (recall klasse C), noe som betyr at svært få ulønnsomme enheter sendes til unødvendig reparasjon. Precision for klasse C er 98,1 %, som innebærer at nesten alle enheter modellen klassifiserer som BER, faktisk er BER.
+**Delproblem 1 – Klassifiseringsnøyaktighet:** En Random Forest-modell med optimerte hyperparametere oppnår **92,4 % accuracy** på et holdout-testsett med 18 820 enheter – godt over minimumskravet på 80 %. Modellen identifiserer 96,7 % av alle BER-enheter korrekt (recall klasse C), noe som betyr at svært få ulønnsomme enheter sendes til unødvendig reparasjon. Precision for klasse C er 98,1 %, som innebærer at nesten alle enheter modellen klassifiserer som BER, faktisk er BER.
+
+**Delproblem 2 – Lønnsomhetseffekt:** Gjennomsnittlig margin per lønnsomhetsklasse er 484 NOK for klasse A (nettbutikk), 197 NOK for klasse B (B2B/reservedeler) og 195 NOK for klasse C (BER/avhending). Den estimerte netto lønnsomhetseffekten av modellens klassifisering sammenlignet med historiske kanalvalg er **+156 072 NOK på testsettet** (18 820 enheter), tilsvarende **~390 000 NOK per år** oppskalert til fullt volum. Dette er en øvre grense under antakelsen om at modellen er riktig der den avviker fra historisk kanalvalg; reell effekt kan være lavere dersom noen avvik er modellens feil snarere enn forbedringer. Estimatet er videre beheftet med usikkerhet knyttet til target leakage og grade-til-klasse-mappingens gyldighet.
 
 De tre viktigste prediktorene er estimert markedsverdi (Inspected Device Value), kostnadsforhold (cost / markedsverdi) og enhetskategori (Device Category). Disse variablene står for 44,8 % av modellens prediktive kraft og bekrefter den teoretiske forventningen fra Ferguson et al. (2009) om at forholdet mellom reparasjonskostnad og markedsverdi er den sentrale driveren for lønnsomhetsklassifisering.
 
-På tross av de svakhetene som oppgaven har – særlig usikkerhet rundt grade-til-klasse-mappingen og risiko for target leakage fra revenue- og cost-variabler – er det sterke indikasjoner om at datadrevet klassifisering kan forbedre Modinos kanaliseringsbeslutninger sammenlignet med manuell praksis.
+Samlet svarer prosjektet bekreften på forskningsspørsmålet: en AI-basert klassifiseringsmodell kan forbedre Modinos kanaliseringsbeslutninger, redusere feilklassifisering og gi et estimert positivt lønnsomhetsbidrag sammenlignet med historisk manuell praksis.
 
 ### Videre forskning
 
@@ -955,9 +1026,68 @@ Følgende områder anbefales for videre arbeid:
 
 1. **Validere grade-mappingen** mot Modinos faktiske kanalvalg for å sikre at lønnsomhetsklassene reflekterer reell lønnsomhet.
 2. **Fjerne post-beslutningsvariabler** (revenue, cost) og evaluere modellens ytelse kun med variabler tilgjengelige ved inspeksjonstidspunktet.
-3. **Beregne estimert kostnadsbesparelse** ved å sammenligne modellens prediksjoner med historisk kanalvalg, som beskrevet i metodekapittelet.
+3. **Innhente faktiske kanalmarginer fra Modino** for å erstatte SAP-baserte estimater med reelle tall i lønnsomhetsberegningen.
 4. **Teste modellen på nye data** (2025 Q3+) for å vurdere prediktiv stabilitet over tid.
 5. **Inkludere Device Model** som feature gjennom gruppering eller embeddings, da 518 unike modeller potensielt inneholder verdifull informasjon som brand alene ikke fanger.
 
 # Bibliografi
+
+Anthropic. (2025). *Claude Code CLI* [KI-verktøy]. Anthropic. https://claude.ai/code
+
+Breiman, L. (2001). Random forests. *Machine Learning*, *45*(1), 5–32. https://doi.org/10.1023/A:1010933404324
+
+Chawla, N. V., Bowyer, K. W., Hall, L. O., & Kegelmeyer, W. P. (2002). SMOTE: Synthetic minority over-sampling technique. *Journal of Artificial Intelligence Research*, *16*, 321–357. https://doi.org/10.1613/jair.953
+
+Fawcett, T. (2006). An introduction to ROC analysis. *Pattern Recognition Letters*, *27*(8), 861–874. https://doi.org/10.1016/j.patrec.2005.10.010
+
+Ferguson, M., Guide, V. D. R., Koca, E., & Souza, G. C. (2009). The value of quality grading in remanufacturing. *Production and Operations Management*, *18*(3), 300–314. https://doi.org/10.1111/j.1937-5956.2009.01033.x
+
+Fleischmann, M., Bloemhof-Ruwaard, J. M., Dekker, R., van der Laan, E., van Nunen, J. A. E. E., & Van Wassenhove, L. N. (1997). Quantitative models for reverse logistics: A review. *European Journal of Operational Research*, *103*(1), 1–17. https://doi.org/10.1016/S0377-2217(97)00230-0
+
+Galbreth, M. R., & Blackburn, J. D. (2006). Optimal acquisition and sorting policies for remanufacturing. *Production and Operations Management*, *15*(3), 384–392. https://doi.org/10.1111/j.1937-5956.2006.tb00252.x
+
+Geissdoerfer, M., Savaget, P., Bocken, N. M. P., & Hultink, E. J. (2017). The circular economy – a new sustainability paradigm? *Journal of Cleaner Production*, *143*, 757–768. https://doi.org/10.1016/j.jclepro.2016.12.048
+
+Géron, A. (2022). *Hands-on machine learning with Scikit-Learn, Keras, and TensorFlow* (3. utg.). O'Reilly Media.
+
+Geyer, R., Van Wassenhove, L. N., & Atasu, A. (2007). The economics of remanufacturing under limited component durability and finite product life cycles. *Management Science*, *53*(1), 88–100. https://doi.org/10.1287/mnsc.1060.0600
+
+Govindan, K., Soleimani, H., & Kannan, D. (2015). Reverse logistics and closed-loop supply chain: A comprehensive review to explore the future. *European Journal of Operational Research*, *240*(3), 603–626. https://doi.org/10.1016/j.ejor.2014.07.012
+
+Guide, V. D. R., & Van Wassenhove, L. N. (2009). The evolution of closed-loop supply chain research. *Operations Research*, *57*(1), 10–18. https://doi.org/10.1287/opre.1080.0628
+
+Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The elements of statistical learning: Data mining, inference, and prediction* (2. utg.). Springer. https://doi.org/10.1007/978-0-387-84858-7
+
+Hübner, A., Kuhn, H., & Wollenburg, J. (2020). Integrated decision-making in reverse logistics: An optimisation of interacting acquisition, grading and disposition processes. *International Journal of Production Research*, *58*(19), 5786–5805. https://doi.org/10.1080/00207543.2019.1659518
+
+Ibrahim, A. A., & Abdul-Kader, W. (2025). A predictive and prescriptive analytics approach for sustainable cellphone return management. *Cleaner and Responsible Consumption*. https://doi.org/10.1016/j.clrc.2025.100100
+
+James, G., Witten, D., Hastie, T., & Tibshirani, R. (2021). *An introduction to statistical learning with applications in R* (2. utg.). Springer. https://doi.org/10.1007/978-1-0716-1418-1
+
+Kirchherr, J., Reike, D., & Hekkert, M. (2017). Conceptualizing the circular economy: An analysis of 114 definitions. *Resources, Conservation and Recycling*, *127*, 221–232. https://doi.org/10.1016/j.resconrec.2017.09.005
+
+Potting, J., Hekkert, M. P., Worrell, E., & Hanemaaijer, A. (2017). *Circular economy: Measuring innovation in the product chain* (PBL-rapport nr. 2544). PBL Netherlands Environmental Assessment Agency. https://www.pbl.nl/sites/default/files/downloads/pbl-2016-circular-economy-measuring-innovation-in-product-chains-2544.pdf
+
+Proske, M., Clemm, C., & Scheidt, L. (2018). Does the circular economy grow the pie? The case of rebound effects from smartphone reuse. *Frontiers in Energy Research*, *6*, artikkel 39. https://doi.org/10.3389/fenrg.2018.00039
+
+Quinlan, J. R. (1986). Induction of decision trees. *Machine Learning*, *1*(1), 81–106. https://doi.org/10.1007/BF00116251
+
+Rekdal, P. K., & Pettersen, B.-I. (2025). *Vitenskapelig skriving – en praktisk innføring: Kompendium LOG650 Forskningsprosjekt: Logistikk og kunstig intelligens*. Høgskolen i Molde.
+
+Rogers, D. S., & Tibben-Lembke, R. S. (1999). *Going backwards: Reverse logistics trends and practices*. Reverse Logistics Executive Council.
+
+Sokolova, M., & Lapalme, G. (2009). A systematic analysis of performance measures for classification tasks. *Information Processing & Management*, *45*(4), 427–437. https://doi.org/10.1016/j.ipm.2009.03.002
+
+Stahel, W. R. (2016). The circular economy. *Nature*, *531*(7595), 435–438. https://doi.org/10.1038/531435a
+
+Teunter, R. H., & Flapper, S. D. P. (2011). Optimal core acquisition and remanufacturing policies under uncertain core quality fractions. *European Journal of Operational Research*, *210*(2), 241–248. https://doi.org/10.1016/j.ejor.2010.09.024
+
+Turban, E., Sharda, R., & Delen, D. (2011). *Decision support and business intelligence systems* (9. utg.). Pearson.
+
+Turkolmez, G. B., El Hathat, Z., Subramanian, N., Kuppusamy, S., & Sreedharan, V. R. (2024). Machine learning algorithms for pricing end-of-life remanufactured laptops. *Information Systems Frontiers*. https://doi.org/10.1007/s10796-024-10515-9
+
+Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). SAGE Publications.
+
+Zheng, A., & Casari, A. (2018). *Feature engineering for machine learning*. O'Reilly Media.
+
 # Vedlegg

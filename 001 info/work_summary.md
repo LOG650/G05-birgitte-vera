@@ -472,3 +472,490 @@ Alle confusion matrix-verdier verifisert mot modellkjøring – stemmer.
 ### ML-prompt lagret
 
 Prompten brukt til ML-analysen (`claude_code_prompt_modino.md`) kopiert fra Downloads til `005 report/` og endret "jeg/meg" til "vi/oss" (3 forekomster).
+
+---
+
+## Oppdatering – 2026-04-24
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### ACT-3.14 – Lønnsomhetsberegning / delproblem 2 fullført
+
+Gjennomførte lønnsomhetsberegningen som var høyest prioritert mot innlevering 27. april. Beregningen er basert på `004 data/modino_filtered.csv` (92 119 obs.) og confusion matrix fra den optimerte Random Forest-modellen.
+
+**Analyse-skript:** `004 data/lonnsomhet_analyse.py` (ikke versjonskontrollert – ligger i `.gitignore`-mappen)
+
+**Gjennomsnittlig margin per lønnsomhetsklasse:**
+
+| Klasse | Kanal | Revenue | Cost | Margin |
+|---|---|---|---|---|
+| A | Reparasjon + nettbutikk | 2 222 NOK | 1 738 NOK | **484 NOK** |
+| B | B2B / reservedeler | 946 NOK | 749 NOK | **197 NOK** |
+| C | BER / avhending | 899 NOK | 705 NOK | **195 NOK** |
+
+Viktig funn: klasse B og C har nær identiske marginer (197 vs. 195 NOK/enhet), fordi BER-enheter i praksis selges som reservedeler eller til B2B og dermed oppnår lignende realisert verdi. Den primære lønnsomhetsforskjellen er mellom klasse A og klassene B/C – klasse A genererer 2,5× høyere margin.
+
+**Estimert lønnsomhetseffekt (modell vs. historisk kanalvalg):**
+
+| | Totalmargin (NOK) |
+|---|---|
+| Historisk kanalvalg (testsett, n = 18 820) | 6 050 080 |
+| Modellens estimerte kanalvalg | 6 206 151 |
+| Netto forbedring | **+156 072** |
+
+Oppskalert til fullt volum (~47 000 enheter/år): **~390 000 NOK per år**.
+
+Beregningen forutsetter at SAP-registrert revenue og cost reflekterer faktisk kanalutfall. Target leakage-risiko er adressert som metodisk begrensning i kap. 8.4.
+
+### Rapportoppdateringer
+
+- **Kap. 7 Resultat** – ny seksjon 7.7 lagt til med fire underavsnitt:
+  - 7.7.1 Gjennomsnittlig margin per klasse (tabell 7.4)
+  - 7.7.2 Estimeringsmetodikk
+  - 7.7.3 Resultater (tabell 7.5 total, tabell 7.6 per misklassifisering)
+  - 7.7.4 Oppskalert estimat (~390 000 NOK/år)
+- **Kap. 9 Konklusjon** – oppdatert med eksplisitt svar på delproblem 2; punkt 3 i videre forskning endret fra "beregn kostnadsbesparelse" til "innhent faktiske kanalmarginer fra Modino"
+- **Prosjektstatus_G05.md** – ACT-3.14 markert ferdig (4 av 5 punkter avhuket)
+
+### Gjenstår i fase 3 (frist 27. april)
+
+- ACT-3.15 Sammenstille rapportutkast (tekniske rettinger, bibliografi, sammendrag, abstract, forside)
+- ACT-3.14 review og lukking
+
+---
+
+## Oppdatering – 2026-04-24 (del 2)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Kvalitetssikring av kap. 7.7 – metodisk svakhet identifisert og rettet
+
+Gjennomførte en kritisk gjennomgang av kap. 7 (Resultat) fra perspektivet til en tester og kvalitetssikrer.
+
+**Kap. 7.1–7.6 (delproblem 1):** Godkjent. Alle tall verifisert mot confusion matrix og feature importance – ingen feil funnet.
+
+**Kap. 7.7 (delproblem 2):** Fire problemer identifisert og rettet:
+
+1. **Logisk svikt (alvorlig):** Beregningen forutsatte implisitt at modellen er riktig der den avviker fra historisk kanalvalg, men disse avvikene er per definisjon modellens feil mot grunnlabelen (accuracy = 92,4 %). Antakelsen er nå gjort eksplisitt i seksjon 7.7.2 med advarsel om at estimatet er en øvre grense.
+
+2. **Misvisende tabelltekst:** Radene C→A (23 enheter) og C→B (69 enheter) i tabell 7.6 viste positive margindifferanser, men disse er modellens feilklassifiseringer av BER-enheter – ikke gevinster. Fotnoten er utvidet med forklaring.
+
+3. **Feil terminologi:** "Konservativt estimat" i 7.7.4 erstattet med "estimat under den optimistiske antakelsen ... øvre størrelsesorden."
+
+4. **Skrivefeil:** "Estimeringmetodikk" rettet til "Estimeringsmetodikk."
+
+Konklusjonen (kap. 9, delproblem 2) er oppdatert tilsvarende.
+
+Estimatet på ~390 000 NOK/år er beholdt, men presenteres nå som øvre grense betinget av en eksplisitt antakelse – ikke som et forventet faktisk utfall.
+
+---
+
+## Oppdatering – 2026-05-19
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Gjennomgang av ny data og prosessforståelse
+
+Gjennomgikk ny renset data i `004 data/data may 2026/` og prosessdiagrammet `BuyBack_Process_Flow_v2.pptx` for å bygge felles forståelse av Modinos fullstendige enhetssyklus.
+
+### Fullstendig prosessflyt dokumentert
+
+Den komplette flyten fra mottak til utgang ble kartlagt og er nå dokumentert i `HANDOVER_CONTEXT.md`:
+
+1. **Steg 1 – Mottak og første gradering (CellDe):** Enheter graderes A–F ved mottak. Output er `InspectedDeviceREport_cleaned.xlsx`.
+2. **Steg 2 – SAP-import → Innkjøpsordre med "buy-back"-artikkelnummer:** CellDe-filen importeres til SAP og skaper en PO med buy-back-artikkelnumre (format: `nummer_variant_grad`, eks. `16854_2_0`).
+3. **Steg 3 – Tre mulige utganger:**
+   - **Sti 1 – Salg til tredjepartshandler** (Foxway, Bridge Nine, Renewed AB m.fl.): Selges uten renovering med buy-back-artikkelnummer.
+   - **Sti 2 – Renovering → Teleoutlet (sluttkunde):** Går gjennom renovering via subcontracting PO. Buy-back-artikkelnummer endres til "2nd"-artikkelnummer (eks. `47731`). Selges via One2cel AS (Modinos bruktmarkedsbutikk, Teleoutlet) til sluttkunder.
+   - **Sti 3 – Skrap/BER:** Selges som skrap til kunde `1365865` ("Modino vareuttak") med **buy-back**-artikkelnummer (ikke 2nd).
+
+### Viktige avklaringer og korreksjoner
+
+**Korrektur 1 – Andre gradering er kodet i artikkelbeskrivelsen:**
+Bokstaven rett etter `2nd-` i `maktx`-kolonnen (eks. `2nd-C iPhone 13 128GB Midnight`) er selve andre graderingen etter renovering. Det finnes ikke et separat graderingssteg – graden er innbakt i artikkelnummerbeskrivelsen.
+
+**Korrektur 2 – Skrap bruker buy-back-artikkelnumre:**
+Skrap/BER-enheter selges med buy-back-artikkelnumre, ikke 2nd-artikkelnumre. Kun Teleoutlet-salg (sluttkunder) bruker 2nd-artikkelnumre.
+
+**Korrektur 3 – Graderingsforbedring er mulig men ikke garantert:**
+En enhet kjøpt inn som grad A trenger ingen forbedring. For slike enheter vil 2nd-graden være identisk med CellDe-inntaksgraden.
+
+### Ny analysemulighet identifisert – Graderingsforbedring
+
+Siden begge graderinger er tilgjengelige og kan kobles på IMEI, er det mulig å beregne **gradendringen per enhet** for alle renoverte enheter (2nd-artikkelbefolkning):
+
+- Inntaksgrad: fra `InspectedDeviceREport_cleaned.xlsx` (CellDe-grad A–F)
+- Utgangsgrad: fra `maktx` i `Z_BBTI_IMEI_TRACK_cleaned.xlsx` (bokstav etter `2nd-`)
+- Koblingsnøkkel: IMEI
+
+Foreslåtte analyser:
+1. Gradendring per enhet (forbedret, uendret eller forverret?)
+2. Gjennomsnittlig antall graderingstrinn forbedret
+3. Korrelasjon mellom inntaksgrad og utgangsgrad – finnes det et tak på forbedring?
+4. Kombinert med margindata: gir større graderingsforbedring faktisk høyere margin etter renovering?
+
+### Oppdatert fil
+
+`004 data/data may 2026/HANDOVER_CONTEXT.md` er oppdatert med fullstendig prosessflyt, artikkelnummerlogikk, korreksjonene over og den foreslåtte graderingsanalysen – klar til bruk for Vera i neste sesjon.
+
+---
+
+## Oppdatering – 2026-05-21
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Kontekst – ny BETA-rapport
+
+Den opprinnelige rapporten (`Prosjektoppgave_LOG650_G05.md`) er basert på feil datapipeline og feil klassifiseringslogikk. En ny BETA-rapport (`Prosjektoppgave_LOG650_G05_BETA.md`) skrives fra bunnen av med ny mai-data og korrekt metodikk. Ingen av filene slås sammen – CellDe og SAP behandles som separate datakilder og kobles kun i minnet ved analyse.
+
+### Geografisk analyse – StoreName som proxy
+
+Undersøkte om `StoreName` i CellDe-data kan brukes som geografisk proxy (for å unngå target leakage fra `ship_country` i SAP). Resultatet bekreftet at dette ikke er mulig: de samme butikknavnene (f.eks. Telenor-butikker) leverer enheter som ender opp i både Norge og Estland. StoreName beskriver *hvor enheten ble samlet inn fra kunden*, ikke *hvor den skal*. Konklusjon: ingen geografisk proxy er tilgjengelig i CellDe. Dette er en sentral metodisk begrensning som dokumenteres i rapporten.
+
+### Target leakage forklart og bekreftet
+
+`ship_country` fra SAP er near-perfekt prediktor (NO → 98,5 % klasse A, andre land → ~100 % klasse B), men kan ikke brukes som feature fordi den kun eksisterer *etter* salget. Denne begrensningen ble forklart og akseptert.
+
+### Klassifiseringslogikk bekreftet
+
+Endelig klassifiseringslogikk (alle identifikatorer er numeriske kundenummer fra SAP):
+
+| Klasse | Regel |
+|---|---|
+| C – Skrap | `kunnr == '1365865'` (sjekkes alltid først) |
+| A – Sluttkunde | `matnr` er rent numerisk (2nd-artikkel) |
+| B – Tredjepartshandler | `kunag` er i kjent trader-mengde |
+
+Kjente tradere (kunag): 544127, 707086, 995702, 498232, 1533558, 1536986, 1550704, 715038, 1530444, 1530472, 1602135, 1602088
+
+Klassifisering av totalt 93 580 SAP-rader:
+- B: 58 388 (62,4 %)
+- A: 34 648 (37,0 %)
+- C: 539 (0,6 %)
+- Uklassifisert (ekskludert): 5 rader
+
+### Feature engineering
+
+Utført på 93 564 rader (etter in-memory join og dropp av 11 nullrader):
+
+| Feature | Metode |
+|---|---|
+| `device_value` | Norsk tallformat (`'3 954,04'`) → float |
+| `grade_num` | Ordinal: A=6, B=5, C=4, D=3, E=2, F=1 |
+| `model_encoded` | Alle 557 modeller beholdt; kodet med median `device_value` per modell |
+| `color_group_enc` | 246 farger gruppert til 10 hovedgrupper (Black, White/Silver, Gray, Blue, Gold, Green, Purple/Violet, Red/Pink, Yellow, Other) → label encoding |
+| `Transaction Type_enc` | 21 kategorier → label encoding |
+| `Channel_enc` | 20 kategorier → label encoding |
+| `Device Category_enc` | 3 kategorier → label encoding |
+| `har_feil` | Binær (1 = InspectedFaults registrert, 0 = ikke registrert) |
+
+### Modelltrening – Decision Tree og Random Forest
+
+Stratifisert 80/20 train/test-split. Begge modeller trent med `class_weight='balanced'`.
+
+**Resultater (testsett, 18 713 rader):**
+
+| Modell | Accuracy | F1 klasse A | F1 klasse B | F1 klasse C |
+|---|---|---|---|---|
+| Decision Tree (baseline) | 80 % | 0.75 | 0.83 | 0.74 |
+| Random Forest (primær) | 80 % | 0.75 | **0.84** | **0.75** |
+
+Random Forest er marginalt bedre, spesielt for klasse B og C.
+
+**Confusion matrix – Random Forest:**
+
+| Faktisk \ Predikert | A | B | C |
+|---|---|---|---|
+| A (6 928) | 5 507 | 1 412 | 9 |
+| B (11 677) | 2 234 | 9 424 | 19 |
+| C (108) | 9 | 18 | 81 |
+
+Forvirring mellom A og B er det største problemet (som forventet uten geografisk signal). Klasse C håndteres overraskende godt (75 % recall) til tross for kun 0,6 % av dataene.
+
+**Feature importance (Random Forest):**
+
+| Feature | Viktighet |
+|---|---|
+| device_value | 30,7 % |
+| Device Category | 20,7 % |
+| grade_num | 15,4 % |
+| model_encoded | 14,0 % |
+| color_group | 7,1 % |
+| Transaction Type | 6,5 % |
+| Channel | 3,5 % |
+| har_feil | 2,1 % |
+
+Enhetens verdi og kategori (smartphone vs. tablet) er de klart viktigste prediktorene. Modell og grade bidrar betydelig.
+
+### Figurer lagret
+
+To figurer generert og lagret i `005 report/` (pushet til main):
+- `figur_konfusjonsmatriser.png` – Decision Tree og Random Forest side ved side med antall og prosent per celle
+- `figur_feature_importance.png` – feature importance for Random Forest
+
+### Kapittel 2 og 3 skrevet inn i BETA-rapporten
+
+**Kapittel 2 (Litteratur):** Gjennomgang av empiriske bidrag med posisjonering av prosjektet. Dekker Ibrahim & Abdul-Kader (2025), Turkolmez et al. (2024), Govindan et al. (2015), Hübner et al. (2020), Ferguson et al. (2009) og Proske et al. (2018). Avslutter med å skille prosjektet fra eksisterende litteratur på tre punkter: to-kilde-arkitektur, faktisk observert salgskanal som målvariabel, og fravær av geografisk informasjon som feature.
+
+**Kapittel 3 (Teori):** Adaptet fra den gamle rapporten med tre viktige oppdateringer:
+1. 9R-figuren er oppdatert: A = Sluttkunde/Teleoutlet (R5–R6 Refurbish), B = Tredjepartshandler (R3 Reuse), C = Skrap (R8–R9 Recycle/Recover)
+2. "Kostnadsforhold" fjernet fra feature engineering-seksjonen (target leakage)
+3. Feature-listen oppdatert til å reflektere faktiske CellDe-features
+
+Tre pilarer: sirkulærøkonomi og recommerce (3.1), beslutningsstøtte og verdifall (3.2), maskinlæring og klassifisering (3.3), med oppsummering (3.4).
+
+### Git
+
+Committet og pushet til main (`ac71860`): kapittel 2 + 3 i BETA-rapporten, `figur_konfusjonsmatriser.png` og `figur_feature_importance.png`.
+
+### Gjenstår
+
+- Kapittel 4 (Casebeskrivelse) – ny, basert på faktisk prosessforståelse (CellDe → SAP, tre kanaler)
+- Kapittel 5 (Metode og data) – ny pipeline, to separate filer, klassifiseringslogikk
+- Kapittel 6–9 (Modellering, Analyse, Resultat, Diskusjon)
+- Kapittel 1 (Innledning) og 10 (Konklusjon) – skrives sist, overfladisk til å begynne med
+- Bibliografi, sammendrag, abstract, forside
+
+---
+
+## Oppdatering – 2026-05-22
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Kapittel 4 – Casebeskrivelse skrevet inn
+
+Nytt kapittel 4 skrevet fra bunnen av, basert på faktisk prosessforståelse fra HANDOVER_CONTEXT.md:
+
+- 4.1 Modino AS og recommerce-markedet
+- 4.2 Enheter og graderingssystem (A–F, CellDe, tabell)
+- 4.3 Klassifiseringsprosessen — tre kanaler (A/B/C) med artikkelnummerlogikk og tabell
+- 4.4 Datagrunnlaget — to-kilde-arkitektur med koblingsnøkkel og radtall (tabell)
+- 4.5 Klassifiseringsutfordringen — geografisk konfund, target leakage forklart
+
+### Kapittel 5 – Metode og data skrevet inn
+
+Nytt kapittel 5 med full pipeline-beskrivelse:
+
+- 5.1.1 Forskningsdesign (kvantitativ casestudie, Yin 2018, positivistisk)
+- 5.1.2 Metodevalg (supervised learning, begrunnelse for RF over optimering)
+- 5.2.1 Datakilder og innlasting med kodeeksempler
+- 5.2.2 Datakvalitet og rensing (IMEI-validering, duplikatanalyse, anonymisering)
+- 5.2.3 Klassifiseringslogikk steg for steg med tabell (B: 62,4 %, A: 37,0 %, C: 0,6 %)
+- 5.2.4 Feature engineering — alle 8 features med transformasjoner og tabell
+- 5.2.5 Stratifisert 80/20-split og begrunnelse for class_weight='balanced' vs. SMOTE
+
+### Kapittel 6 – Modellering skrevet inn
+
+Kompendiet (Rekdal & Pettersen, 2026, kap. 9) lest og integrert som referanse:
+
+- 6.1 Formalisering av klassifiseringsproblemet (f: ℝ⁸ → {A,B,C})
+- 6.2 Decision Tree — Gini-formel, ΔGini-formel, baseline-rolle
+- 6.3 Random Forest — bagging, feature-underutvalg, majoritetsstemme-formel, feature importance-formel, class_weight-formel, hyperparametere
+- 6.4 Evalueringsrammeverk — accuracy, precision, recall, F1 med formler, confusion matrix
+
+### Sensor-gjennomgang av kap. 2–6 gjennomført
+
+Følgende rettinger lagt inn i rapporten:
+
+1. Skrivefeil "arbeidssminnet" → "arbeidsminnet" (kap. 5.2.1)
+2. Tabellnummer lagt til graderingstabellen: Tabell 4.1. Øvrige tabeller i kap. 4 renummerert til 4.2 og 4.3
+3. Korrigerte klassetall i treningssettet: A: 27 720, B: 46 711 (var 27 718, 46 710)
+4. Metodisk merknad om label encoding for uordnede kategorier lagt inn i kap. 5.2.4
+5. Hyperparametervalg begrunnet i kap. 6.3.3 (ingen GridSearchCV, bevisst valg)
+6. Kompendiet (Rekdal & Pettersen, 2026) lagt inn i kap. 3.3.3
+7. Kilde for Modinos markedsposisjon lagt inn i kap. 4.1
+
+### Gjenstår
+
+- Verifisere klassetall (train A/B/C) mot kjørt kode — utsatt til ML-testsesjonen
+- Kapittel 7 (Analyse), 8 (Resultat), 9 (Diskusjon)
+- Kjøre ML-pipeline på nytt for å verifisere confusion matrix og feature importance mot rapporten
+- Kapittel 1 (Innledning) og 10 (Konklusjon) — skrives sist
+- Bibliografi, sammendrag, abstract, forside
+- Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
+
+---
+
+## Oppdatering – 2026-05-22 (del 2)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Figurer generert og satt inn
+
+To nye figurer generert med Python (matplotlib) fra hardkodede kjente statistikker:
+
+- `figur_prosessflyt.png` — prosessflytdiagram fra CellDe-mottak til tre salgskanaler (kap. 4.3)
+- `figur_klassefordeling.png` — horisontalt søylediagram for A/B/C-fordeling med n per klasse (kap. 5.2.3)
+
+Eksisterende figurer referert på riktig sted i rapporten:
+- `figur_feature_importance.png` referert i kap. 6.3.1 (Figur 6.1)
+- `figur_konfusjonsmatriser.png` referert i kap. 8.1 (Figur 8.1)
+
+### Kapittel 7 – Analyse skrevet inn
+
+- 7.1 Datapreparering og målvariabel — 93 575 rader, klassefordeling og geografisk A/B-observasjon
+- 7.2 Observasjoner fra feature-konstruksjonen — mønstre i device_value, grade_num, model_encoded, color_group, har_feil
+- 7.3 Modelltrening — DT og RF begge 80 %; observasjon at bindende element er manglende geografisk signal, ikke modellkapasitet
+- 7.4 Generaliserbarhet — OOB-score, train/test-gap, stratifisert split
+
+### Kapittel 8 – Resultat skrevet inn
+
+- 8.1 Modellsammenligning — tabell 8.1 (accuracy/F1) og tabell 8.2 (precision/recall RF)
+- 8.2 Konfusjonsmatrise RF — tabell 8.3 med celleverdier; A/B-forveksling er dominerende feilmønster
+- 8.3 Feature importance — tabell 8.4; device_value + Device Category = 51,4 %
+- 8.4 Lønnsomhetseffekt (delproblem 2) — ny BETA-beregning fra BETA-konfusjonsmatrisen:
+  - Historisk margin (testsettet): 5 674 581 NOK
+  - Modellmargin (estimert): 5 910 493 NOK
+  - Netto forbedring: +235 912 NOK på testsettet
+  - Oppskalert: ~590 000 NOK/år (øvre estimat)
+  - Merk: høyere enn gammel rapport (156 072 / 390 000) fordi BETA-modellen har annet prediksjonsmønster
+
+### Gjenstår
+
+- ML-pipeline-verifisering (kjøre kode mot rådata for å bekrefte alle tall)
+- Kapittel 1 (Innledning) og 10 (Konklusjon) — skrives sist
+- Bibliografi, sammendrag, abstract, forside
+- Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
+
+---
+
+## Oppdatering – 2026-05-24
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Tester- og sensor-gjennomgang av kap. 2–8
+
+Gjennomførte full tallkontroll av analysen (konfusjonsmatrise, accuracy, precision/recall/F1, lønnsomhetseffekt, feature importance). Alle tall er internt konsistente og korrekte.
+
+To feil funnet og flagget:
+1. **Aritmetisk feil i kap. 7.1:** Teksten beskriver det endelige datasettet som 93 575 rader etter frafall av 5 + 11 rader, men 93 580 − 5 − 11 = 93 564, ikke 93 575. Alle ML-tall er konsistente med 93 575 (som er riktig). Teksten må rettes av Birgitte og Vera under felles gjennomlesning.
+2. **Skrivefeil i tabell 8.1:** «Modellsammmenligning» → «Modellsammenligning».
+
+Sensor-gjennomgang avdekket at rapporten er faglig sterk på de skrevne kapitlene. Viktigste gjenstående: kap. 9 (Diskusjon) — nå skrevet, se under.
+
+### Kapittel 9 – Diskusjon skrevet inn
+
+Kapittel 9 er skrevet fra bunnen av og satt inn i rapporten. Struktur:
+
+- 9.1 Svar på problemstillingen (delproblem 1: 80 % accuracy oppfylt; delproblem 2: ~590 000 NOK/år øvre estimat)
+- 9.2 Sammenligning med litteraturen (Ibrahim & Abdul-Kader, Turkolmez, Ferguson, Galbreth & Blackburn)
+- 9.3 Forretningsmessig betydning for Modino (konsistens, integrasjon i CellDe-arbeidsflyt, modellvedlikehold)
+- 9.4 Metodiske begrensninger (5 avsnitt: geografisk konfund, label encoding, historiske etiketter, manglende tuning, generaliserbarhet)
+- 9.5 Videre forskning (5 punkter)
+
+### Gjenstår etter 2026-05-24
+
+- Rette aritmetisk feil i kap. 7.1 (93 575 vs. 93 564-beskrivelsen) — under felles gjennomlesning
+- Rette skrivefeil «Modellsammmenligning» i tabell 8.1 — under felles gjennomlesning
+- Fyll inn fulltekstreferanse for Ibrahim & Abdul-Kader (2025) og Turkolmez et al. (2024) i bibliografien
+- ML-pipeline-verifisering (kjøre kode mot rådata)
+- Forside (tittel, forfatternavn, dato, veileder, studiepoeng) — fylles ut av Birgitte og Vera
+- Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
+
+---
+
+## Oppdatering – 2026-05-24 (del 2)
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Tester- og sensor-gjennomgang av kap. 2–8 — se over
+
+### Kapittel 9 – Diskusjon skrevet inn (se oppdatering del 1 over)
+
+### Kapittel 10 – Konklusjon skrevet inn
+
+Kompakt konklusjon (~1 side) som besvarer begge delproblemer eksplisitt:
+- Delproblem 1: 80 % accuracy oppfylt (nøyaktig på grensen)
+- Delproblem 2: ~590 000 NOK/år øvre estimat
+- Overordnet: modellen kan forbedre kanaliseringsbeslutninger, men geografisk konfund setter strukturelt tak på A/B-nøyaktigheten
+
+### Kapittel 1 – Innledning skrevet inn
+
+Innledning (~1,5 side) som leder fra sirkulærøkonomi og recommerce-vekst til Modinos konkrete problem. Inkluderer problemstilling, to delproblemer, fem avgrensinger og to antagelser. Refererer til Ibrahim & Abdul-Kader (2025), Turkolmez et al. (2024), Govindan et al. (2015), Ferguson et al. (2009) og Guide & Van Wassenhove (2009).
+
+### Bibliografi kompilert
+
+27 unike APA7-referanser samlet fra kap. 1–9 og sortert alfabetisk. To plassholdere gjenstår:
+- Ibrahim & Abdul-Kader (2025) — full tittel, tidsskrift og DOI mangler
+- Turkolmez et al. (2024) — full tittel, tidsskrift og DOI mangler
+
+### Sammendrag og abstract skrevet inn (begge på norsk)
+
+~230 ord hver. Dekker bakgrunn, metode, resultater og konklusjon.
+
+### Innholdsfortegnelse oppdatert
+
+Alle faktiske kapitler og underavsnitt er nå listet med korrekt nummerering og titler.
+
+### Gjenstår
+
+- Fyll inn fulltekstreferanse for Ibrahim & Abdul-Kader (2025) og Turkolmez et al. (2024)
+- Forside (navn, veileder, dato, studiepoeng)
+- Rette kap. 7.1-tekst og «Modellsammmenligning» under felles gjennomlesning
+- ML-pipeline-verifisering
+- Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
+
+---
+
+## Oppdatering – 2026-05-30
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Utvidet modell – 15 features
+
+Ny retrening-pipeline (`004 data/retrain_utvidet.py`) utarbeidet. Modellen er utvidet fra 8 til 15 features med syv nye CellDe-variabler:
+
+| Ny feature | Beskrivelse |
+|---|---|
+| `fault_count` | Antall registrerte feil (erstatter binær `har_feil`) |
+| `storage_gb` | Lagringskapasitet i GB (ekstrahert fra modellnavn med regex) |
+| `inspect_month` | Innleveringsmåned (sesongmønster) |
+| `inspect_year` | Innleveringsår |
+| `brand_enc` | Merkevare (første ord i modellnavn) |
+| `dealer_A_rate` | Historisk andel klasse A per forhandler (dealer target encoding) |
+| `dealer_B_rate` | Historisk andel klasse B per forhandler (dealer target encoding) |
+
+**Viktig:** Dealer target encoding er beregnet kun på treningssett og slått opp i testsettet via `rate_map`. Ingen target leakage.
+
+### Modellresultater – utvidet modell (testsett, 18 739 rader)
+
+| Modell | Accuracy | F1 klasse A | F1 klasse B | F1 klasse C |
+|---|---|---|---|---|
+| Decision Tree (baseline) | 79,9 % | 0,73 | 0,84 | 0,81 |
+| **Random Forest (primær)** | **83,6 %** | **0,78** | **0,87** | **0,87** |
+
+Random Forest løftes fra 80 % (basismodell) til 83,6 % med det utvidede feature-settet. Decision Tree faller litt (80 % → 79,9 %). Klasse C forbedres kraftig (F1: 0,75 → 0,87).
+
+### Lønnsomhetseffekt – utvidet modell
+
+| Scenario | Totalmargin (NOK) |
+|---|---|
+| Historisk kanalvalg (testsett) | 5 681 997 |
+| Modellens kanalvalg (estimert) | 5 698 105 |
+| **Netto forbedring** | **+16 108** |
+
+Oppskalert: **~40 000 NOK/år** (øvre estimat). Lavere enn basismodellens ~590 000 NOK/år fordi det utvidede feature-settet gir en mer balansert feilfordeling (1 547 B→A vs. 1 498 A→B), som gjør at feilkostnadene nesten kansellerer hverandre. Basismodellens høye estimat skyldtes asymmetriske feil (2 234 B→A vs. 1 412 A→B) som ga kunstig høy gevinst under den optimistiske antakelsen.
+
+Modellen er lagret som `004 data/rf_model_utvidet.pkl` (i `.gitignore`, ikke versjonskontrollert).
+
+### Rapport fullstendig oppdatert
+
+Hele BETA-rapporten ble gjennomgått og oppdatert konsekvent:
+
+1. **Modellnumre:** 8 features → 15 features, 80 % → 83,6 %, alle F1-verdier og confusion matrix-tall oppdatert.
+2. **Årsaksretning for `ship_country`** (kap. 4.5, 9.4.1 og alle forekomster gjennomgående): Feil framstilling fjernet. Korrekt framstilling: kanalen bestemmer destinasjonen, ikke omvendt. `ship_country` korrelerer nær-deterministisk med klassen fordi A-enheter selges til norske sluttkunder og B-enheter til europeiske B2B-kjøpere — Norge/Estland er navn på kjøpergruppene, ikke årsaker.
+3. **CellDe-beskrivelse:** «operatører» → robotbasert automatisk system gjennomgående i rapporten.
+4. **Lønnsomhetseffekt:** ~590 000 NOK/år → ~40 000 NOK/år (oppdatert med ny confusion matrix).
+5. **Teststørrelse:** (18 713 rader) → (18 739 rader) i kap. 6.4.
+6. **Avsnitt 9.4.1** («Den geografiske konfunden») fullstendig omskrevet: fjernet «den faktoren som i virkeligheten avgjør utfallet» og «Denne segregeringen er ikke drevet av enhetenes tilstand eller verdi, men av Modinos geografiske salgsstruktur».
+
+### Git
+
+Alle endringer committet og pushet til main. Siste commit: `f3a54f8` — rett teststørrelse og årsaksretning i kap. 6.4 og 9.4.1.
+
+### Gjenstår
+
+- Forside (tittel, forfatternavn, dato, veileder, studiepoeng) — fylles ut av Birgitte/Vera
+- To fulltekstreferanser: Ibrahim & Abdul-Kader (2025) og Turkolmez et al. (2024)
+- ML-pipeline-verifisering (kjøre kode mot rådata for å bekrefte klassetall i treningssettet)
+- Konvertere ASCII-figurer 3.1 og 3.2 til ekte figurer (lavest prioritet)
