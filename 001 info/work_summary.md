@@ -894,3 +894,68 @@ Alle faktiske kapitler og underavsnitt er nå listet med korrekt nummerering og 
 - Rette kap. 7.1-tekst og «Modellsammmenligning» under felles gjennomlesning
 - ML-pipeline-verifisering
 - Konvertere ASCII-figurer (3.1, 3.2) til ekte figurer
+
+---
+
+## Oppdatering – 2026-05-30
+
+**Utarbeidet av:** Birgitte (med Claude Code CLI)
+
+### Utvidet modell – 15 features
+
+Ny retrening-pipeline (`004 data/retrain_utvidet.py`) utarbeidet. Modellen er utvidet fra 8 til 15 features med syv nye CellDe-variabler:
+
+| Ny feature | Beskrivelse |
+|---|---|
+| `fault_count` | Antall registrerte feil (erstatter binær `har_feil`) |
+| `storage_gb` | Lagringskapasitet i GB (ekstrahert fra modellnavn med regex) |
+| `inspect_month` | Innleveringsmåned (sesongmønster) |
+| `inspect_year` | Innleveringsår |
+| `brand_enc` | Merkevare (første ord i modellnavn) |
+| `dealer_A_rate` | Historisk andel klasse A per forhandler (dealer target encoding) |
+| `dealer_B_rate` | Historisk andel klasse B per forhandler (dealer target encoding) |
+
+**Viktig:** Dealer target encoding er beregnet kun på treningssett og slått opp i testsettet via `rate_map`. Ingen target leakage.
+
+### Modellresultater – utvidet modell (testsett, 18 739 rader)
+
+| Modell | Accuracy | F1 klasse A | F1 klasse B | F1 klasse C |
+|---|---|---|---|---|
+| Decision Tree (baseline) | 79,9 % | 0,73 | 0,84 | 0,81 |
+| **Random Forest (primær)** | **83,6 %** | **0,78** | **0,87** | **0,87** |
+
+Random Forest løftes fra 80 % (basismodell) til 83,6 % med det utvidede feature-settet. Decision Tree faller litt (80 % → 79,9 %). Klasse C forbedres kraftig (F1: 0,75 → 0,87).
+
+### Lønnsomhetseffekt – utvidet modell
+
+| Scenario | Totalmargin (NOK) |
+|---|---|
+| Historisk kanalvalg (testsett) | 5 681 997 |
+| Modellens kanalvalg (estimert) | 5 698 105 |
+| **Netto forbedring** | **+16 108** |
+
+Oppskalert: **~40 000 NOK/år** (øvre estimat). Lavere enn basismodellens ~590 000 NOK/år fordi det utvidede feature-settet gir en mer balansert feilfordeling (1 547 B→A vs. 1 498 A→B), som gjør at feilkostnadene nesten kansellerer hverandre. Basismodellens høye estimat skyldtes asymmetriske feil (2 234 B→A vs. 1 412 A→B) som ga kunstig høy gevinst under den optimistiske antakelsen.
+
+Modellen er lagret som `004 data/rf_model_utvidet.pkl` (i `.gitignore`, ikke versjonskontrollert).
+
+### Rapport fullstendig oppdatert
+
+Hele BETA-rapporten ble gjennomgått og oppdatert konsekvent:
+
+1. **Modellnumre:** 8 features → 15 features, 80 % → 83,6 %, alle F1-verdier og confusion matrix-tall oppdatert.
+2. **Årsaksretning for `ship_country`** (kap. 4.5, 9.4.1 og alle forekomster gjennomgående): Feil framstilling fjernet. Korrekt framstilling: kanalen bestemmer destinasjonen, ikke omvendt. `ship_country` korrelerer nær-deterministisk med klassen fordi A-enheter selges til norske sluttkunder og B-enheter til europeiske B2B-kjøpere — Norge/Estland er navn på kjøpergruppene, ikke årsaker.
+3. **CellDe-beskrivelse:** «operatører» → robotbasert automatisk system gjennomgående i rapporten.
+4. **Lønnsomhetseffekt:** ~590 000 NOK/år → ~40 000 NOK/år (oppdatert med ny confusion matrix).
+5. **Teststørrelse:** (18 713 rader) → (18 739 rader) i kap. 6.4.
+6. **Avsnitt 9.4.1** («Den geografiske konfunden») fullstendig omskrevet: fjernet «den faktoren som i virkeligheten avgjør utfallet» og «Denne segregeringen er ikke drevet av enhetenes tilstand eller verdi, men av Modinos geografiske salgsstruktur».
+
+### Git
+
+Alle endringer committet og pushet til main. Siste commit: `f3a54f8` — rett teststørrelse og årsaksretning i kap. 6.4 og 9.4.1.
+
+### Gjenstår
+
+- Forside (tittel, forfatternavn, dato, veileder, studiepoeng) — fylles ut av Birgitte/Vera
+- To fulltekstreferanser: Ibrahim & Abdul-Kader (2025) og Turkolmez et al. (2024)
+- ML-pipeline-verifisering (kjøre kode mot rådata for å bekrefte klassetall i treningssettet)
+- Konvertere ASCII-figurer 3.1 og 3.2 til ekte figurer (lavest prioritet)

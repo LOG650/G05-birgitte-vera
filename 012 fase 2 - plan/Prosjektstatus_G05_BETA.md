@@ -1,5 +1,5 @@
 # Status for G05 – Modino-prosjektet
-**Statusdato:** 2026-05-21
+**Statusdato:** 2026-05-30
 **Gruppe:** G05 – Birgitte & Vera
 **Fag:** LOG650
 
@@ -19,13 +19,14 @@ Den opprinnelige analysen brukte en feil tilnærming:
 - CellDe (`InspectedDeviceREport_cleaned_anon.xlsx`) og SAP (`Z_BBTI_IMEI_TRACK_cleaned_anon.xlsx`) behandles som separate filer og kobles kun i minnet
 - Klassifiseringen er basert på faktisk observert salgskanal via artikkelnummertype og kunnr
 - Kun features tilgjengelig ved mottak (CellDe-data) brukes — ingen target leakage
-- Ny accuracy: 80 % (Decision Tree og Random Forest er tilnærmet like)
+- Basismodell (8 features): 80 % accuracy (Decision Tree og Random Forest tilnærmet like)
+- **Utvidet modell (15 features): 83,6 % accuracy (Random Forest); Decision Tree: 79,9 %**
 
 ---
 
 ## Kort status
 
-BETA-rapporten er påbegynt. Data er analysert, klassifiseringslogikk er fastlagt, feature engineering er gjennomført og modeller er trent. Kapittel 2 (Litteratur) og kapittel 3 (Teori) er skrevet inn. Gjenstående kapitler: Casebeskrivelse (4), Metode og data (5), Modellering (6), Analyse (7), Resultat (8), Diskusjon (9). Innledning (1) og Konklusjon (10) skrives sist.
+Alle ti kapitler, bibliografi, sammendrag og abstract er skrevet og i rapporten. Rapporten er revidert med utvidet modell (15 features, 83,6 % accuracy), korrekt årsaksretning for `ship_country` og korrekt CellDe-beskrivelse (robotbasert system). Gjenstår: forside, to fulltekstreferanser i bibliografien, ML-pipeline-verifisering og konvertering av ASCII-figurer.
 
 Innleveringsfrist: **2026-05-31**.
 
@@ -51,6 +52,8 @@ Innleveringsfrist: **2026-05-31**.
 | BETA-14 Kap. 1 Innledning | ✅ Ferdig | |
 | BETA-15 Kap. 10 Konklusjon | ✅ Ferdig | |
 | BETA-16 Bibliografi, sammendrag, abstract, forside | ✅ Ferdig (forside gjenstår) | Bibliografi: 27 kilder, 2 plassholdere. Sammendrag + abstract: begge på norsk. Forside fylles ut av Birgitte/Vera. |
+| BETA-17 Utvidet modell (15 features) trent og evaluert | ✅ Ferdig | RF 83,6 % / F1 A=0,78 B=0,87 C=0,87; DT 79,9 %. 7 nye features: fault_count, storage_gb, inspect_month, inspect_year, brand_enc, dealer_A_rate, dealer_B_rate. Dealer target encoding beregnet kun på treningssett (ingen lekkasje). Lønnsomhetseffekt: +16 108 NOK/testsett ≈ ~40 000 NOK/år (øvre estimat). |
+| BETA-18 Rapport fullstendig oppdatert | ✅ Ferdig | Alle modellnumre (8→15 features, 80→83,6 %), årsaksretning for ship_country (kap. 4.5, 9.4.1 og gjennomgående), CellDe-beskrivelse (robot, ikke operatører), lønnsomhetseffekt, teststørrelse (18 739 rader). Pushet til main (f3a54f8). |
 
 ---
 
@@ -322,9 +325,9 @@ Innleveringsfrist: **2026-05-31**.
 
 **Class C ekstrem imbalanse.** Klasse C (skrap) utgjør kun 0,6 % av datasettet (539 obs.). `class_weight='balanced'` brukes som tiltak. Recall på 75 % er akseptabelt, men begrensningen dokumenteres.
 
-**Modellnøyaktighet lavere enn gammel rapport.** 80 % accuracy (ny BETA) vs. 92,4 % (gammel rapport). Forskjellen skyldes at target leakage er fjernet. 80 % er realistisk og ærlig — og fortsatt over 80 %-kravet.
+**Modellnøyaktighet lavere enn gammel rapport.** 83,6 % accuracy (utvidet modell, 15 features) vs. 92,4 % (gammel rapport med target leakage). Forskjellen skyldes at target leakage er fjernet. 83,6 % er realistisk og ærlig — og over 80 %-kravet.
 
-**Tid.** Innlevering 2026-05-31. Ni dager gjenstår. Fem kapitler gjenstår (7–9 + 1 + 10). Realistisk men stramt.
+**Tid.** Innlevering 2026-05-31. Én dag gjenstår. Rapporten er i praksis ferdig; kun forside, to fulltekstreferanser, figurkonvertering og ML-verifisering gjenstår.
 
 **Label encoding for uordnede kategorier.** `Transaction Type`, `Channel` og `Device Category` er label-kodet. For trebaserte metoder er dette akseptabelt i praksis, men begrensningen er dokumentert i kap. 5.2.4 og skal diskuteres i kap. 9.
 
@@ -332,6 +335,12 @@ Innleveringsfrist: **2026-05-31**.
 
 ---
 
-## Vurdering – per 2026-05-24 (oppdatert)
+## Vurdering – per 2026-05-30 (oppdatert)
 
-Alle ti kapitler er skrevet inn i BETA-rapporten. Bibliografi (27 kilder, 2 plassholdere), sammendrag og abstract (begge på norsk) og innholdsfortegnelse er ferdigstilt. Gjenstående: forside (fylles ut av Birgitte/Vera), to fulltekstreferanser i bibliografien, to småfeil rettes under felles gjennomlesning, ML-pipeline-verifisering og konvertering av ASCII-figurer 3.1 og 3.2. Innlevering 2026-05-31 — sju dager igjen.
+Rapporten er ferdig skrevet. Modellen er utvidet fra 8 til 15 features og retrent; ny Random Forest oppnår 83,6 % accuracy (Decision Tree: 79,9 %). Alle modellnumre, årsaksretning for `ship_country` og CellDe-beskrivelse er korrekt i hele rapporten. Ny lønnsomhetseffekt: ~40 000 NOK/år (øvre estimat). Alt er pushet til main.
+
+Gjenstående før innlevering 2026-05-31:
+- Forside (tittel, forfatternavn, dato, veileder, studiepoeng) — fylles ut av Birgitte/Vera
+- To fulltekstreferanser (Ibrahim & Abdul-Kader (2025) og Turkolmez et al. (2024)) i bibliografien
+- ML-pipeline-verifisering (kjøre kode for å bekrefte klassetall i treningssettet)
+- Konvertere ASCII-figurer 3.1 og 3.2 til ekte figurer (lavest prioritet)
