@@ -1018,6 +1018,8 @@ Det dominerende feilmønsteret er fremdeles forvekslingen mellom klasse A og kla
 
 Den estimerte lønnsomhetsforbedringen er **+16 108 NOK på testsettet**, tilsvarende **~40 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under den eksplisitte antakelsen om at alle modellens avvik fra historisk kanalvalg er korrekte forbedringer. Den lave nettoverdien skyldes at modellen gjør nær symmetriske feil mellom klasse A og klasse B — gevinstene fra B→A-omruting (~444 000 NOK) oppveies nesten fullt av tapene fra A→B-feilklassifisering (~430 000 NOK). En mer presis modell som klarer å bryte symmetrien i A/B-feiltypene vil gi et vesentlig høyere lønnsomhetsestimat. Lønnsomhetsanalysen støttes av Ferguson et al. (2009), som empirisk viser at presis gradering ved mottak reduserer totalkostnader med omtrent 11 %.
 
+Det er illustrerende å merke seg at en tidligere analyseversjon — der SAP-data inkludert salgsinntekt og kostnad ble brukt som features — estimerte en gevinst på rundt 390 000 NOK per år. Da disse post-salgsvariablene ble identifisert som target leakage og fjernet (kun CellDe-data tilgjengelig ved mottakstidspunktet er gyldige features), falt estimatet til ~40 000 NOK per år. Denne nedgangen er i seg selv et diagnostisk funn: den viser at den tilsynelatende gevinsten i den tidligere analysen var drevet av informasjon modellen ikke kan ha tilgang til i en faktisk driftssetting. Det ærlige estimatet på ~40 000 NOK reflekterer dermed hva modellen genuint kan bidra med — og understreker at den primære verdien av modellen er standardisering av beslutninger, ikke en direkte profittforbedring av vesentlig størrelsesorden.
+
 ---
 
 ### 9.2 Sammenligning med litteraturen
@@ -1080,6 +1082,18 @@ Det er ikke gjennomført systematisk hyperparametertuning (GridSearchCV) i dette
 
 Analysen er gjennomført på data fra én bedrift (Modino AS) i én bransje (brukte mobilenheter) over en bestemt tidsperiode (2024–2025). Funnene er direkte generaliserbare til Modinos egen operasjon, men må tolkes med forsiktighet ved overføring til andre recommerce-aktører med annen salgsstruktur, annet produktmix eller andre geografiske markeder. Den metodiske tilnærmingen — å bruke to-kilde-arkitektur, faktisk observert salgskanal som målvariabel og kun inntaksdata som features — er imidlertid prinsipielt overførbar til andre recommerce-virksomheter med tilsvarende data.
 
+#### 9.4.6 Target leakage som metodisk funn
+
+En gjennomgående metodisk utfordring i dette prosjektet er skillet mellom hva SAP-data brukes til og hva det ikke kan brukes til. SAP fyller to distinkte roller i analysen: som *etikettkilde* og som *potensiell feature-kilde*. Disse rollene er ikke symmetriske.
+
+**Som etikettkilde er SAP uunnværlig.** Målvariabelen — hvilken salgskanal en enhet faktisk gikk til — kan kun observeres i SAP, gjennom artikkelnummertype (2nd-artikkel vs. buy-back), sende-til-kunde (`kunnr`) og selge-til-kunde (`kunag`). Uten SAP finnes det ingen fasit for kanalvalget, og ingen modell kan trenes.
+
+**Som feature-kilde er SAP ubrukbar.** SAP-variabler som salgsinntekt, kostnad og destinasjonsland eksisterer kun etter at salget er gjennomført — etter at kanaliseringsbeslutningen allerede er tatt. Å bruke dem som input til en modell som skal predikere kanalvalget er prinsipielt feil: en ny enhet ved mottakstidspunktet har ingen salgsinntekt, ingen kostnad, og ingen kjent destinasjon ennå. En modell som benytter slike variabler, oppnår kunstig høy nøyaktighet fordi den i praksis leser svaret fra fasiten. Det er nettopp dette som betegnes som target leakage.
+
+I prosjektets tidlige analysefase ble SAP-variabler inkludert som features, noe som ga 92,4 % accuracy. Da lekkasjen ble identifisert og korrigert — og alle features ble begrenset til CellDe-inntaksdata tilgjengelig på mottakstidspunktet — falt accuracy til 83,6 %. Den korrigerte modellen er den eneste som er operasjonelt brukbar.
+
+Denne oppdagelsen styrker metodens troverdighet fremfor å svekke den. At prosjektet identifiserte, dokumenterte og korrigerte lekkasjen — og valgte å rapportere 83,6 % fremfor 92,4 % — er en bevisst metodisk beslutning. Det er 83,6 % som representerer modellens reelle prediktive kraft under betingelsene som faktisk gjelder i drift. Et tilsvarende skille mellom ytelse på historiske data og ytelse på beslutningstidspunktet gjøres ikke alltid eksplisitt i sammenlignbar litteratur (jf. Ibrahim & Abdul-Kader, 2025; Turkolmez et al., 2024), og prosjektets eksplisitte håndtering av dette skillet er dermed et metodisk bidrag i seg selv.
+
 ---
 
 ### 9.5 Videre forskning
@@ -1104,7 +1118,7 @@ I denne oppgaven har vi undersøkt hvordan en AI-basert klassifiseringsmodell ka
 
 **Delproblem 1** er besvart positivt. En Random Forest-modell trent utelukkende på CellDe-data fra mottakstidspunktet oppnår **83,6 % accuracy** på testsettet (n = 18 739), med F1-score på 0,78 for klasse A (sluttkunde), 0,87 for klasse B (tredjepartshandler) og 0,87 for klasse C (skrap/BER). Minimumskravet på 80 % er oppfylt med god margin. Modellen opererer uten post-salgsdata som destinasjonsland — en variabel som kun registreres etter at kanalvalget er tatt, og som dermed ikke kan inngå som feature. At modellen likevel oppnår 83,6 % viser at CellDe-dataene inneholder et reelt prediktivt signal.
 
-**Delproblem 2** er besvart med et estimat. Den beregnede lønnsomhetsforbedringen er **+16 108 NOK på testsettet**, tilsvarende **~40 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under antakelsen om at modellens avvik fra historisk kanalvalg representerer forbedringer. Den begrensede nettoverdien skyldes at modellen gjør nær symmetriske feil mellom klasse A og B — en mer presis identifisering av A/B-skillet ville gi vesentlig høyere lønnsomhetseffekt.
+**Delproblem 2** er besvart med et estimat. Den beregnede lønnsomhetsforbedringen er **+16 108 NOK på testsettet**, tilsvarende **~40 000 NOK per år** ved oppskalering til fullt volum. Dette er et øvre estimat under antakelsen om at modellens avvik fra historisk kanalvalg representerer forbedringer. Den begrensede nettoverdien skyldes at modellen gjør nær symmetriske feil mellom klasse A og B — en mer presis identifisering av A/B-skillet ville gi vesentlig høyere lønnsomhetseffekt. Estimatet på ~40 000 NOK per år bør tolkes som et referansepunkt snarere enn en forventet direktegevinst; den primære operative verdien av modellen er standardisering — konsistente, datadrevne kanalvalg basert på 93 692 historiske enheter.
 
 **Overordnet konklusjon:** En AI-basert klassifiseringsmodell basert på CellDe-inntaksdata *kan* forbedre kanaliseringsbeslutningene hos Modino AS — både ved å standardisere beslutninger som i dag ikke er systematisk datadrevne, og ved å utnytte mønstre på tvers av et stort historisk datasett. Den viktigste metodiske innsikten er at modellens primære begrensning ligger i A/B-skillet: graderingsdata fra CellDe skiller ikke fullt ut mellom de to kanalene, og ytterligere forbedring krever enten tilleggsdata ved mottakstidspunktet eller dypere integrering med Modinos innkjøpssystem.
 
@@ -1138,7 +1152,7 @@ Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The elements of statistical 
 
 Hübner, A., Kuhn, H., & Wollenburg, J. (2020). Integrated decision-making in reverse logistics: An optimisation of interacting acquisition, grading and disposition processes. *International Journal of Production Research*, *58*(19), 5786–5805. https://doi.org/10.1080/00207543.2019.1659518
 
-Ibrahim, [initialer]. & Abdul-Kader, [initialer]. (2025). [Tittel — fyll inn]. *[Tidsskrift — fyll inn]*, *[volum]*([nummer]), [sidetall]. [DOI — fyll inn]
+Ibrahim, A. A., & Abdul-Kader, W. (2025). A predictive and prescriptive analytics approach for sustainable cellphone return management. *Cleaner and Responsible Consumption*. https://doi.org/10.1016/j.clrc.2025.100100
 
 James, G., Witten, D., Hastie, T., & Tibshirani, R. (2021). *An introduction to statistical learning with applications in R* (2. utg.). Springer. https://doi.org/10.1007/978-1-0716-1418-1
 
@@ -1162,7 +1176,7 @@ Teunter, R. H., & Flapper, S. D. P. (2011). Optimal core acquisition and remanuf
 
 Turban, E., Sharda, R., & Delen, D. (2011). *Decision support and business intelligence systems* (9. utg.). Pearson.
 
-Turkolmez, [initialer], et al. (2024). [Tittel — fyll inn]. *[Tidsskrift — fyll inn]*, *[volum]*([nummer]), [sidetall]. [DOI — fyll inn]
+Turkolmez, G. B., El Hathat, Z., Subramanian, N., Kuppusamy, S., & Sreedharan, V. R. (2024). Machine learning algorithms for pricing end-of-life remanufactured laptops. *Information Systems Frontiers*. https://doi.org/10.1007/s10796-024-10515-9
 
 Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). Sage.
 
