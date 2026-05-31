@@ -1,0 +1,58 @@
+Kontrolleksperimenter — kjørt 2026-05-31
+Datafiler: 004 data/ny data/
+
+=== EKSPERIMENT 1: RF uten dealer-features ===
+Hypotese: Permutation importance avdekket at dealer_A_rate og dealer_B_rate
+har negativ importance (støy). Hvis sant, bør modellen uten disse to features
+oppnå minst like god accuracy.
+
+Resultat:
+  15-feature RF:           accuracy 0,8376   F1 A: 0,784   F1 B: 0,869   F1 C: 0,882
+  13-feature RF:           accuracy 0,8442   F1 A: 0,796   F1 B: 0,874   F1 C: 0,867
+  DIFF:                            +0,66 pp        +0,012        +0,005        -0,015
+
+KONKLUSJON: Hypotesen er bekreftet og forsterket. Modellen er BEDRE uten
+dealer-features. F1 klasse C faller marginalt (-0,015) men dette er innenfor
+støy gitt klasse C-størrelsen (108 enheter). Anbefaling: bruk 13-feature
+modell i produksjon.
+
+Konfusjonsmatrise (13-feature):
+                  Pred A   Pred B   Pred C
+  Faktisk A       5 667    1 253    8
+  Faktisk B       1 634    10 040   3
+  Faktisk C       5        12       91
+
+
+=== EKSPERIMENT 2: Temporal uten inspect_year ===
+Hypotese: Driften på 13 pp i temporal split kan delvis være en artefakt av
+inspect_year som er konstant i treningssettet (2024) men ulik verdi (2025) i
+testsettet. Modellen kan ha lært å bruke denne featuren på en måte som ikke
+generaliserer.
+
+Resultat:
+  Temporal MED inspect_year:        accuracy 0,7043
+  Temporal UTEN inspect_year:       accuracy 0,7058
+  DIFF:                                     +0,15 pp
+
+KONKLUSJON: Hypotesen er FORKASTET. Å fjerne inspect_year gir kun marginal
+forbedring (+0,15 pp). Driften er strukturell — den reflekterer reelle
+endringer i datasettet mellom 2024 og 2025 (enhetsmiks, klassefordeling,
+markedsverdi). Den anbefalte kvartalsvise retreningen står fast.
+
+Ekstra: temporal UTEN inspect_year OG UTEN dealer-rates (rensere 11-feature
+modell): 0,6992 — marginalt verre, så feature pruning gjelder ikke for det
+temporale tilfellet.
+
+
+=== HOVEDFUNN FRA BEGGE EKSPERIMENTER ===
+
+1. Dealer-features bør fjernes fra produksjonsmodellen
+   - +0,66 pp accuracy (84,42 % vs 83,76 %)
+   - Enklere modell, mindre sårbar for nye leverandører
+   - Bekrefter permutation importance-analysen
+
+2. Temporal drift er reell og strukturell
+   - 13 pp drift uavhengig av inspect_year-featuren
+   - Krever kvartalsvis retrening i drift (ikke årlig)
+   - Modellen som settes i drift bør valideres mot ferskeste tilgjengelige
+     data ved hver retrening

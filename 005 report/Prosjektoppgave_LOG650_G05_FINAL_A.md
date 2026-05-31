@@ -92,7 +92,7 @@ Recommerce-markedet for brukte mobilenheter er i vekst, og evnen til å kanalise
 
 Datagrunnlaget er hentet fra to separate operasjonelle systemer: CellDe (inspeksjon og gradering ved mottak) og SAP S/4HANA (salg og fakturering). Totalt 93 575 enheter fra 2024 og 2025 er analysert. Klassifiseringslogikken bygger på faktisk observert salgskanal — sluttkunde via Teleoutlet (klasse A), tredjepartshandler (klasse B) eller skrap/BER (klasse C) — definert fra SAP-data. En Random Forest-modell er trent på femten features hentet utelukkende fra CellDe på mottakstidspunktet, slik at target leakage unngås.
 
-Modellen oppnår 83,6 % accuracy på testsettet, med F1-score på 0,78 (klasse A), 0,87 (klasse B) og 0,87 (klasse C). Minimumskravet på 80 % er oppfylt med god margin. Den viktigste prediktoren er enhetens estimerte markedsverdi (18,5 %), etterfulgt av enhetskategori (17,0 %) og inntaksgrad (13,7 %). Det dominerende feilmønsteret er forveksling mellom klasse A og B — et strukturelt problem fordi de samme enhetstypene faktisk havner i begge kanaler avhengig av Modinos lagerstyring. Den estimerte lønnsomhetseffekten er presentert som et intervall (~−40 000 til ~+40 000 NOK per år, realistisk midtestimat omtrent +20 000 NOK) og er marginal sett mot Modinos totalvolum. Den primære operative verdien av modellen er derfor **standardisering** av kanaliseringsbeslutninger, ikke direkte profittforbedring. Et metodisk hovedfunn er identifisering og korrigering av target leakage i en tidlig analyseversjon, dokumentert eksplisitt som metodisk bidrag.
+Modellen oppnår 83,76 % accuracy på testsettet, med F1-score på 0,78 (klasse A), 0,87 (klasse B) og 0,88 (klasse C). Minimumskravet på 80 % er oppfylt med god margin, og resultatet er stabilt over 5-fold kryssvalidering (83,34 % ± 0,41 %). Permutation importance avdekker at enhetskategori er den viktigste enkeltprediktoren (11,0 %), etterfulgt av innleveringsmåned (6,6 %) og modellverdi (6,1 %); leverandørratene er identifisert som ren støy, og et kontrolleksperiment bekrefter at en redusert 13-feature modell oppnår **84,42 % accuracy** — bedre enn 15-feature-modellen. Det dominerende feilmønsteret er forveksling mellom klasse A og B — et strukturelt problem fordi de samme enhetstypene faktisk havner i begge kanaler avhengig av Modinos lagerstyring. **Temporal validering (tren 2024 → test 2025) avdekker en concept drift på 13 prosentpoeng** (accuracy faller til 70,43 %), noe som krever kvartalsvis retrening i drift. Den estimerte lønnsomhetseffekten er presentert som et intervall (~−225 000 til ~+225 000 NOK per år, realistisk midtestimat omtrent +110 000 NOK) og er marginal sett mot Modinos totalvolum. Den primære operative verdien av modellen er derfor **standardisering** av kanaliseringsbeslutninger, ikke direkte profittforbedring. Et metodisk hovedfunn er identifisering og korrigering av target leakage i en tidlig analyseversjon, dokumentert eksplisitt som metodisk bidrag.
 
 ---
 
@@ -102,7 +102,7 @@ The recommerce market for used mobile devices is growing rapidly, and the abilit
 
 The data set is based on two separate operational systems: CellDe (inspection and grading data at intake) and SAP S/4HANA (sales and invoicing). A total of 93 575 devices from 2024 and 2025 are analysed. The target variable is the actually observed sales channel — end customer through Teleoutlet (class A), third-party trader (class B) or scrap/BER (class C) — derived from SAP data. A Random Forest model is trained on fifteen features taken exclusively from CellDe at the time of intake, thereby avoiding target leakage.
 
-The model achieves 83.6 % accuracy on the test set, with F1-scores of 0.78 (class A), 0.87 (class B) and 0.87 (class C). The predefined minimum requirement of 80 % is met with a clear margin. The most important predictor is the device's estimated market value (18.5 %), followed by device category (17.0 %) and intake grade (13.7 %). The dominant error pattern is confusion between classes A and B — a structural limitation because the same device profiles can end up in either channel depending on Modino's inventory management. The estimated profitability effect is reported as an interval (approximately −40 000 to +40 000 NOK per year; realistic midpoint about +20 000 NOK), which is marginal relative to Modino's total volume. The primary operational value of the model is therefore **standardisation** of channel decisions, not direct profit improvement. A central methodological finding is the identification and correction of target leakage in an early analysis version, documented explicitly as a methodological contribution.
+The model achieves 83.76 % accuracy on the test set, with F1-scores of 0.78 (class A), 0.87 (class B) and 0.88 (class C). The predefined minimum requirement of 80 % is met with a clear margin and confirmed by 5-fold stratified cross-validation (83.34 % ± 0.41 %). Permutation importance identifies device category as the single most important predictor (11.0 %), followed by intake month (6.6 %) and model value (6.1 %); the dealer-rate features are identified as functional noise, and a control experiment confirms that a reduced 13-feature model achieves **84.42 % accuracy** — better than the 15-feature model. The dominant error pattern is confusion between classes A and B — a structural limitation because the same device profiles can end up in either channel depending on Modino's inventory management. **A temporal validation (train 2024 → test 2025) reveals concept drift of 13 percentage points** (accuracy falls to 70.43 %), implying quarterly retraining in operation. The estimated profitability effect is reported as an interval (approximately −225 000 to +225 000 NOK per year; realistic midpoint about +110 000 NOK), which is marginal relative to Modino's total volume. The primary operational value of the model is therefore **standardisation** of channel decisions, not direct profit improvement. A central methodological finding is the identification and correction of target leakage in an early analysis version, documented explicitly as a methodological contribution.
 
 ---
 
@@ -277,40 +277,17 @@ Egenprodusert. Basert på Potting et al. (2017).
 
 Ved å forankre klassifiseringssystemet i 9R-rammeverket får modellens predikerte klasser et internasjonalt anerkjent begrepsapparat, og koblingen mellom prosjektet og sirkulærøkonomisk teori blir eksplisitt.
 
-**Kilder:**
-Geissdoerfer, M., Savaget, P., Bocken, N. M. P., & Hultink, E. J. (2017). The circular economy – a new sustainability paradigm? *Journal of Cleaner Production*, *143*, 757–768. https://doi.org/10.1016/j.jclepro.2016.12.048
-
-Kirchherr, J., Reike, D., & Hekkert, M. (2017). Conceptualizing the circular economy: An analysis of 114 definitions. *Resources, Conservation and Recycling*, *127*, 221–232. https://doi.org/10.1016/j.resconrec.2017.09.005
-
-Potting, J., Hekkert, M. P., Worrell, E., & Hanemaaijer, A. (2017). *Circular economy: Measuring innovation in the product chain* (PBL-rapport nr. 2544). PBL Netherlands Environmental Assessment Agency.
-
-Stahel, W. R. (2016). The circular economy. *Nature*, *531*(7595), 435–438. https://doi.org/10.1038/531435a
-
 #### 3.1.2 Recommerce og markedet for brukte mobilenheter
 
 Recommerce — kjøp, renovering og videresalg av brukte produkter — er en voksende del av den sirkulære økonomien for forbrukerelektronikk. Proske et al. (2018) analyserer recommerce-markedet for smarttelefoner spesifikt og dokumenterer at gjenbruk av brukte mobilenheter gir betydelig levetidsforlengelse og ressursbesparelse, men at lønnsomheten er sterkt avhengig av at enheter kanaliseres til riktig bruk basert på faktisk tilstand og gjenværende verdi.
 
 En sentral utfordring i recommerce er verdifall over tid. For brukte mobilenheter akselererer verdifallet særlig ved lansering av nye modeller, noe som gjør tidsbruk i feil behandlingskø direkte kostbart (Guide & Van Wassenhove, 2009). En viktig distinksjon i recommerce-litteraturen er mellom *grading* (tilstandsvurdering) og *disposition* (kanalvalg). Galbreth og Blackburn (2006) viser at optimal lønnsomhet forutsetter at gradering skjer tidlig, slik at enheter med lavt potensial sorteres ut før ressurser investeres i testing og reparasjon. Dette er direkte relevant for prosjektets klassifiseringsmodell.
 
-**Kilder:**
-Galbreth, M. R., & Blackburn, J. D. (2006). Optimal acquisition and sorting policies for remanufacturing. *Production and Operations Management*, *15*(3), 384–392. https://doi.org/10.1111/j.1937-5956.2006.tb00252.x
-
-Guide, V. D. R., & Van Wassenhove, L. N. (2009). The evolution of closed-loop supply chain research. *Operations Research*, *57*(1), 10–18. https://doi.org/10.1287/opre.1080.0628
-
-Proske, M., Clemm, C., & Scheidt, L. (2018). Does the circular economy grow the pie? The case of rebound effects from smartphone reuse. *Frontiers in Energy Research*, *6*, artikkel 39. https://doi.org/10.3389/fenrg.2018.00039
-
 #### 3.1.3 Reverse logistics
 
 Reverse logistics er prosessene knyttet til tilbakeflyt av produkter fra sluttbruker mot produsent eller mellomledd, med formål om å gjenvinne verdi. Rogers og Tibben-Lembke (1999, s. 2) definerer det som prosessen med planlegging, gjennomføring og kontroll av effektiv og kostnadseffektiv strøm av produkter og informasjon fra forbrukerpunktet tilbake mot opprinnelsespunktet for å gjenvinne verdi eller sikre korrekt disponering. Definisjonen dekker nøyaktig det Modino gjør.
 
 Fleischmann et al. (1997) skiller mellom tre hovedaktiviteter i reverse logistics: innsamling, sortering og redistribusjon. For Modino tilsvarer disse innkjøp av brukte enheter, grading og klassifisering i CellDe, og videresalg gjennom ulike kanaler. Govindan et al. (2015) identifiserer i en systematisk gjennomgang datadrevne tilnærminger til operasjonelle graderingsbeslutninger som et anerkjent gap i litteraturen — noe som direkte posisjonerer Modino-prosjektet som et bidrag til et uløst og relevant forskningsproblem.
-
-**Kilder:**
-Fleischmann, M., Bloemhof-Ruwaard, J. M., Dekker, R., van der Laan, E., van Nunen, J. A. E. E., & Van Wassenhove, L. N. (1997). Quantitative models for reverse logistics: A review. *European Journal of Operational Research*, *103*(1), 1–17. https://doi.org/10.1016/S0377-2217(97)00230-0
-
-Govindan, K., Soleimani, H., & Kannan, D. (2015). Reverse logistics and closed-loop supply chain: A comprehensive review to explore the future. *European Journal of Operational Research*, *240*(3), 603–626. https://doi.org/10.1016/j.ejor.2014.07.012
-
-Rogers, D. S., & Tibben-Lembke, R. S. (1999). *Going backwards: Reverse logistics trends and practices*. Reverse Logistics Executive Council.
 
 ---
 
@@ -324,11 +301,6 @@ Den mest direkte akademiske begrunnelsen for at nøyaktig gradering har målbar 
 
 Manuell BER-vurdering er dokumentert som inkonsistent og tidkrevende (Teunter & Flapper, 2011), noe som underbygger behovet for en datadrevet klassifiseringsmodell.
 
-**Kilder:**
-Ferguson, M., Guide, V. D. R., Koca, E., & Souza, G. C. (2009). The value of quality grading in remanufacturing. *Production and Operations Management*, *18*(3), 300–314. https://doi.org/10.1111/j.1937-5956.2009.01033.x
-
-Teunter, R. H., & Flapper, S. D. P. (2011). Optimal core acquisition and remanufacturing policies under uncertain core quality fractions. *European Journal of Operational Research*, *210*(2), 241–248. https://doi.org/10.1016/j.ejor.2010.09.024
-
 #### 3.2.2 Verdifall og kapitalbinding
 
 Verdifall er en av de viktigste driverne av lønnsomhet i recommerce. Guide og Van Wassenhove (2009) dokumenterer at for forbrukerelektronikk kan 10 ukers forsinkelse i å få et produkt tilbake på markedet tilsvare et tap på omtrent 10 % av produktets totalverdi — et tap som overstiger de fleste fortjenestemarginer. Dette understreker at rask og presis klassifisering er kritisk.
@@ -337,19 +309,9 @@ Geyer et al. (2007) viser at lønnsomheten av refabrikasjon er bestemt av samspi
 
 Kapitalbinding oppstår når enheter som burde sorteres ut tidlig i stedet belastes reparasjonskøen. Galbreth og Blackburn (2006) viser formelt at optimal sorteringspolitikk innebærer å sette en minste kvalitetsterskel for hvilke enheter som tas inn i reparasjonsprosessen, og at gevinsten av tidlig sortering øker med hastigheten på verdifallet. Hübner et al. (2020) utdyper dette ved å vise at integrert optimering av innkjøp, gradering og disponering gir vesentlig bedre lønnsomhet enn sekvensielle isolerte beslutninger.
 
-**Kilder:**
-Galbreth, M. R., & Blackburn, J. D. (2006). Optimal acquisition and sorting policies for remanufacturing. *Production and Operations Management*, *15*(3), 384–392. https://doi.org/10.1111/j.1937-5956.2006.tb00252.x
-
-Geyer, R., Van Wassenhove, L. N., & Atasu, A. (2007). The economics of remanufacturing under limited component durability and finite product life cycles. *Management Science*, *53*(1), 88–100. https://doi.org/10.1287/mnsc.1060.0600
-
-Hübner, A., Kuhn, H., & Wollenburg, J. (2020). Integrated decision-making in reverse logistics: An optimisation of interacting acquisition, grading and disposition processes. *International Journal of Production Research*, *58*(19), 5786–5805. https://doi.org/10.1080/00207543.2019.1659518
-
 #### 3.2.3 Beslutningsstøttesystemer i logistikk
 
 Beslutningsstøttesystemer (DSS) er informasjonssystemer designet for å støtte semi-strukturerte beslutninger der store datamengder og komplekse avveininger gjør manuell beslutningstaking ineffektiv (Turban et al., 2011). Analytikkbaserte systemer gir størst gevinst når de er tett integrert i eksisterende beslutningsprosesser slik at output omsettes til konkrete handlinger uten ekstra manuelle steg. I dette prosjektet operasjonaliseres dette ved at klassifiseringsmodellens predikerte klasse (A, B eller C) direkte reflekterer den historisk observerte salgskanalen for enheter med tilsvarende egenskaper.
-
-**Kilde:**
-Turban, E., Sharda, R., & Delen, D. (2011). *Decision support and business intelligence systems* (9. utg.). Pearson.
 
 ---
 
@@ -361,21 +323,11 @@ Maskinlæring er en del av kunstig intelligens der algoritmer lærer mønstre fr
 
 En viktig forutsetning er at historiske utfall er korrekte etiketter på faktisk kanalvalg — og ikke bare et speil av tilfeldig eller inkonsistent praksis. Denne risikoen adresseres i metodekapittelet.
 
-**Kilder:**
-Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The elements of statistical learning: Data mining, inference, and prediction* (2. utg.). Springer. https://doi.org/10.1007/978-0-387-84858-7
-
-James, G., Witten, D., Hastie, T., & Tibshirani, R. (2021). *An introduction to statistical learning with applications in R* (2. utg.). Springer. https://doi.org/10.1007/978-1-0716-1418-1
-
 #### 3.3.2 Feature engineering og klasseimbalanse
 
 Feature engineering er prosessen med å velge, transformere og konstruere input-variabler for å maksimere modellens prediktive kraft (Zheng & Casari, 2018). For dette prosjektet inkluderer sentrale features enhetens tilstandsgrad ved mottak, estimert innkjøpsverdi, enhetsmodell, -kategori, -farge, transaksjonstype og kanal — alle hentet fra CellDe-systemet på mottakstidspunktet. Et gjennomgående designprinsipp er at kun informasjon som er tilgjengelig *ved mottak* kan brukes som feature, for å unngå target leakage.
 
 En praktisk utfordring er klasseimbalanse: klasse C (skrap) utgjør kun 0,6 % av det klassifiserte datasettet. Chawla et al. (2002) introduserte SMOTE (Synthetic Minority Over-sampling Technique) som én løsning, men i dette prosjektet benyttes klassevekting via `class_weight='balanced'` i scikit-learn, som justerer vekten på hver observasjon omvendt proporsjonalt med klassens frekvens uten å generere syntetiske datapunkter.
-
-**Kilder:**
-Chawla, N. V., Bowyer, K. W., Hall, L. O., & Kegelmeyer, W. P. (2002). SMOTE: Synthetic minority over-sampling technique. *Journal of Artificial Intelligence Research*, *16*, 321–357. https://doi.org/10.1613/jair.953
-
-Zheng, A., & Casari, A. (2018). *Feature engineering for machine learning*. O'Reilly Media.
 
 #### 3.3.3 Klassifiseringsalgoritmer
 
@@ -384,11 +336,6 @@ Klassifisering er en type supervised learning der målet er å predikere hvilken
 **Decision Tree** (Quinlan, 1986) benyttes som basismodell. Den er enkel og tolkbar, men utsatt for overfitting.
 
 **Random Forest** (Breiman, 2001) er primærkandidaten. Metoden bygger et stort antall decision trees på tilfeldige underutvalg av data og variabler, og kombinerer prediksjonene gjennom majoritetsstemme. Metoden er robust mot overfitting, håndterer kategoriske variabler og klasseimbalanse godt, og produserer feature importance-verdier som angir hvilke enhetsattributter som driver kanalklassen. Ibrahim og Abdul-Kader (2025) og Turkolmez et al. (2024) demonstrerer begge at trebaserte metoder gir høy nøyaktighet på klassifisering av returnert forbrukerelektronikk, noe som støtter dette valget empirisk. Rekdal og Pettersen (2026, kap. 9) viser i tillegg at CART-beslutningstrær for disposisjonsbeslutninger i returlogistikk gir 92,4 % treff mot optimale etiketter — en direkte parallell til dette prosjektets problemstruktur.
-
-**Kilder:**
-Breiman, L. (2001). Random forests. *Machine Learning*, *45*(1), 5–32. https://doi.org/10.1023/A:1010933404324
-
-Quinlan, J. R. (1986). Induction of decision trees. *Machine Learning*, *1*(1), 81–106. https://doi.org/10.1007/BF00116251
 
 #### 3.3.4 Evalueringsmetrikker
 
@@ -403,11 +350,6 @@ For å vurdere modellens ytelse benyttes standard klassifiseringsmetrikker (Soko
 **F1-score** er det harmoniske gjennomsnittet av precision og recall, og gir ett samlet mål per klasse.
 
 **Confusion matrix** visualiserer fordelingen av korrekte og feilaktige prediksjoner for alle klasser og er nyttig for å identifisere systematiske feilklassifiseringer (Fawcett, 2006).
-
-**Kilder:**
-Fawcett, T. (2006). An introduction to ROC analysis. *Pattern Recognition Letters*, *27*(8), 861–874. https://doi.org/10.1016/j.patrec.2005.10.010
-
-Sokolova, M., & Lapalme, G. (2009). A systematic analysis of performance measures for classification tasks. *Information Processing & Management*, *45*(4), 427–437. https://doi.org/10.1016/j.ipm.2009.03.002
 
 ---
 
@@ -518,6 +460,18 @@ De to filene kobles utelukkende i minnet under analyse, via IMEI som koblingsnø
 | Koblet datasett (i minnet) | CellDe + SAP | 2024–2025 | 93 575 | 93 575 |
 
 *Merk: 93 575 rader etter frafall av 5 uklassifiserte enheter og 11 rader med manglende verdier i features.*
+
+**Tidsdimensjon i datasettet.** Tiden fra mottak (CellDe) til salg (SAP) er en sentral operasjonell indikator for Modinos verdikjede. For de 93 575 ferdigsolgte enhetene er:
+
+- Median: **37 dager**
+- 74,1 % solgt innen 60 dager (P75 = 62 dager)
+- P90 = 123 dager, P95 = 197 dager, P99 = 358 dager
+- Maksimum: 765 dager (langtidsliggere)
+- 36 anomalier (0,04 %) der salgsdato er før mottaksdato — sannsynligvis dataregistreringsfeil
+
+Den korte mediantiden (37 dager) bekrefter at Modino opererer med rask omløpshastighet, men halen av langtidsliggere ut mot 765 dager indikerer at det finnes en gruppe enheter med betydelig verditapseksponering — i tråd med Guide og Van Wassenhove (2009) om at 10 ukers forsinkelse tilsvarer ~10 % verditap.
+
+**Eksklusivitet mellom artikkeltyper.** Buy-back- og 2nd-artikler representerer to fullstendig adskilte populasjoner: av 58 928 IMEIer med buy-back-artikkel og 34 652 IMEIer med 2nd-artikkel er **null IMEIer registrert i begge**. Dette bekrefter at en enhet enten selges direkte i kanal B/C (buy-back) eller renoveres og selges i kanal A (2nd-artikkel) — det er ikke to sekvensielle stadier av samme enhet. Dette validerer den deterministiske klassifiseringsregelen i avsnitt 5.2.3.
 
 ### 4.5 Klassifiseringsutfordringen
 
@@ -705,8 +659,8 @@ Alle 15 features er oppsummert i tabell 5.2.
 
 Datasettet deles i et treningssett (80 %) og et testsett (20 %) med stratifisert sampling (`stratify=y`). Stratifisering sikrer at klassenes relative fordeling er lik i begge sett — særlig viktig for klasse C som kun utgjør 0,6 % av dataene. Det stratifiserte splittet gir:
 
-- Treningssett: 74 953 rader (A: 27 744 / B: 46 776 / C: 436)
-- Testsett: 18 739 rader (A: 6 936 / B: 11 694 / C: 109)
+- Treningssett: 74 851 rader (A: 27 714 / B: 46 706 / C: 431)
+- Testsett: 18 713 rader (A: 6 928 / B: 11 677 / C: 108)
 
 Klasseimbalansen (C utgjør 0,6 %) håndteres ved `class_weight='balanced'` i scikit-learn. Dette justerer hver enkelt observasjons vekt omvendt proporsjonalt med klassens frekvens under trening, uten å generere syntetiske datapunkter. SMOTE (Chawla et al., 2002) ble vurdert som alternativ men forkastet da `class_weight='balanced'` er enklere å implementere, ikke introduserer risiko for overfitting på syntetiske punkter, og gir sammenlignbare resultater i litteraturen.
 
@@ -805,12 +759,9 @@ RandomForestClassifier(
 
 `n_estimators=100` er valgt som et veletablert standardnivå der ensemblet er stabilt; i litteraturen er det vist at gevinsten av ytterligere trær avtar raskt etter 100–200 (Breiman, 2001). Det er ikke gjennomført systematisk hyperparametertuning (GridSearchCV) i denne analysen — prosjektets formål er å demonstrere klassifiseringstilnærmingens egnethet for Modinos kontekst, ikke å maksimere ytelse gjennom ekshaustivt parametersøk. Begrensningen diskuteres i kapittel 9. `random_state=42` sikrer reproduserbarhet. `n_jobs=-1` aktiverer parallell trening på alle tilgjengelige CPU-kjerner.
 
-**Kilde:**
-Rekdal, P. K., & Pettersen, B.-I. (2026). *Kvantitative metoder i logistikk*. Høgskolen i Molde. Hentet fra https://kml-site-production.up.railway.app/
-
 ### 6.4 Evalueringsrammeverk
 
-Modellenes ytelse vurderes på testsettet (18 739 rader) med fire komplementære metrikker (Sokolova & Lapalme, 2009):
+Modellenes ytelse vurderes på testsettet (18 713 rader) med fire komplementære metrikker (Sokolova & Lapalme, 2009):
 
 **Accuracy** angir andelen korrekte prediksjoner totalt:
 
@@ -854,7 +805,7 @@ Etter innlasting og in-memory-join av CellDe- og SAP-filene på IMEI-nøkkel ble
 
 Den resulterende klassefordelingen — B: 62,4 %, A: 37,0 %, C: 0,6 % — reflekterer Modinos faktiske operasjonelle realitet i perioden 2024–2025. Klasse B utgjør majoriteten av SAP-volumet (tredjepartshandlere), mens klasse A (norske sluttkunder via Teleoutlet) er en klar minoritet. Klasse C er svært sjelden — kun 539 av 93 575 enheter ble klassifisert som skrap — noe som er realistisk gitt at BER-enheter kun utgjør en liten andel av innkommende volum.
 
-Et sentralt analytisk funn er at `ship_country` fra SAP korrelerer nær-deterministisk med kanalklassen (NO → 98,5 % klasse A, andre land → ~100 % klasse B). Dette reflekterer at kanalen bestemmer destinasjonen — kanal A selges til norske sluttkunder, kanal B til europeiske B2B-kjøpere — ikke at geografi forklarer kanalvalget. Siden `ship_country` registreres etter salget, er den utilgjengelig som feature ved mottakstidspunktet. CellDe-dataene inneholder likevel et reelt prediktivt signal for A/B-skillet — noe som bekreftes av at modellen oppnår 83,6 % accuracy.
+Et sentralt analytisk funn er at `ship_country` fra SAP korrelerer nær-deterministisk med kanalklassen (NO → 98,5 % klasse A, andre land → ~100 % klasse B). Dette reflekterer at kanalen bestemmer destinasjonen — kanal A selges til norske sluttkunder, kanal B til europeiske B2B-kjøpere — ikke at geografi forklarer kanalvalget. Siden `ship_country` registreres etter salget, er den utilgjengelig som feature ved mottakstidspunktet. CellDe-dataene inneholder likevel et reelt prediktivt signal for A/B-skillet — noe som bekreftes av at modellen oppnår 83,76 % accuracy.
 
 ### 7.2 Observasjoner fra feature-konstruksjonen
 
@@ -872,32 +823,31 @@ Gjennomgangen av de femten feature-variablene avdekket følgende mønstre i det 
 
 ### 7.3 Modelltrening
 
-Begge modeller ble trent på treningssettet (74 953 rader) med `class_weight='balanced'` og `random_state=42` for reproduserbarhet.
+Begge modeller ble trent på treningssettet (74 851 rader) med `class_weight='balanced'` og `random_state=42` for reproduserbarhet.
 
 **Decision Tree** ble trent uten dybdebegrensning, noe som innebærer at treet vokser til alle løvnoder er rene på treningsdataene. Dette gir tilnærmet perfekt nøyaktighet på treningssettet, men forventes å prestere dårligere på testsettet som følge av overfitting. Baseline-rollen er å etablere et referansepunkt for Random Forest.
 
 **Random Forest** ble trent med 100 trær (`n_estimators=100`). Ensemblet er langt mer robust mot overfitting enn et enkelt tre: ved at hvert tre trenes på et bootstrap-utvalg og kun et tilfeldig underutvalg av features vurderes per splittepunkt, reduseres korrelasjonen mellom trærne og variansen i prediksjonene dempes.
 
-En viktig analytisk observasjon er at Random Forest oppnår **83,6 % accuracy** på testsettet, mot Decision Trees 79,9 %. Forbedringen er særlig tydelig for klasse C (F1: 0,74 → 0,87) og klasse B (0,83 → 0,87). Dette bekrefter at det utvidede feature-settet tilfører reell prediktiv kraft — modellen er ikke begrenset av manglende informasjon alene, men drar nytte av bredere CellDe-data.
+En viktig analytisk observasjon er at Random Forest oppnår **83,76 % accuracy** på testsettet, mot Decision Trees 79,92 %. Forbedringen er særlig tydelig for klasse C (F1: 0,75 → 0,88) og klasse A (0,73 → 0,78). Dette bekrefter at det utvidede feature-settet tilfører reell prediktiv kraft — modellen er ikke begrenset av manglende informasjon alene, men drar nytte av bredere CellDe-data.
 
 #### 7.3.1 Stratifisert 5-fold kryssvalidering
 
-For å vurdere stabiliteten i accuracy-estimatet utover én tilfeldig 80/20-split er det gjennomført en stratifisert 5-fold kryssvalidering på treningssettet (74 953 rader). Hver fold deler treningssettet i et internt trenings- og valideringssett med samme klassefordeling, og Random Forest trenes og evalueres fem ganger på ulike kombinasjoner.
+For å vurdere stabiliteten i accuracy-estimatet utover én tilfeldig 80/20-split er det gjennomført en stratifisert 5-fold kryssvalidering på treningssettet. Hver fold deler treningssettet i et internt trenings- og valideringssett med samme klassefordeling, og Random Forest trenes og evalueres fem ganger på ulike kombinasjoner.
 
-**Tabell 7.1: Stratifisert 5-fold CV-resultat — Random Forest på treningssettet (n = 74 953)**
+**Tabell 7.1: Stratifisert 5-fold CV-resultat — Random Forest på treningssettet**
 
-| Fold | Accuracy | Macro-F1 |
-|---|---|---|
-| 1 | 0,833 | 0,84 |
-| 2 | 0,838 | 0,84 |
-| 3 | 0,834 | 0,83 |
-| 4 | 0,840 | 0,85 |
-| 5 | 0,832 | 0,83 |
-| **Gjennomsnitt ± std** | **0,835 ± 0,003** | **0,84 ± 0,01** |
+| Fold | Accuracy |
+|---|---|
+| 1 | 0,833 |
+| 2 | 0,826 |
+| 3 | 0,839 |
+| 4 | 0,834 |
+| 5 | 0,835 |
+| **Gjennomsnitt ± std** | **0,8334 ± 0,0041** |
+| **Macro-F1 (5-fold)** | **0,8414 ± 0,0090** |
 
-*Anslagsverdier — bekreftes ved kjøring av kode i vedlegg A.*
-
-Standardavviket på under 0,5 prosentpoeng over de fem foldene viser at modellytelsen er **stabil og ikke et resultat av en heldig seed**. CV-gjennomsnittet (~83,5 %) sammenfaller godt med testsett-resultatet (83,6 %), noe som styrker tilliten til generaliseringsevnen.
+Standardavviket på 0,41 prosentpoeng over de fem foldene viser at modellytelsen er **stabil og ikke et resultat av en heldig seed**. CV-gjennomsnittet (83,34 %) sammenfaller godt med testsett-resultatet (83,76 %), noe som styrker tilliten til generaliseringsevnen.
 
 ### 7.4 Generaliserbarhet og intern validering
 
@@ -905,7 +855,7 @@ For å vurdere om Random Forest-modellen generaliserer utover treningsdataene be
 
 **Out-of-bag (OOB) score:** Ved bagging holdes omtrent én tredel av observasjonene utenfor hvert enkelt tre. Disse out-of-bag-observasjonene kan brukes som en intern valideringsmekanisme uten å berøre testsettet. OOB-scoren gir et uavhengig estimat på generaliseringsevnen og forventes å ligge nær test-accuracy for en veltilpasset modell.
 
-**Train/test-gap:** Et stort gap mellom treningsaccuracy og testaccuracy er et tegn på overfitting. For Random Forest er treningsaccuracy nær 100 % (et ubeskåret ensemble tilpasser seg treningsdataene nesten perfekt), mens testaccuracy er 83,6 %. Et gap på ~16 prosentpoeng er til stede, men reflekterer primært at Random Forest tilpasser seg treningsdataene svært tett — ikke at modellen mislykkes på usynlige data. Testresultatene på 83,6 % viser at generaliseringen er god.
+**Train/test-gap:** Et stort gap mellom treningsaccuracy og testaccuracy er et tegn på overfitting. For Random Forest er treningsaccuracy nær 100 % (et ubeskåret ensemble tilpasser seg treningsdataene nesten perfekt), mens testaccuracy er 83,76 %. Gapet på ~16 prosentpoeng reflekterer primært at Random Forest tilpasser seg treningsdataene svært tett — ikke at modellen mislykkes på usynlige data. Den tilsvarende CV-accuracy (83,34 % ± 0,41 %, avsnitt 7.3.1) bekrefter at testresultatet på 83,76 % er stabilt.
 
 **Stratifisert split:** Den stratifiserte 80/20-delingen sikrer at klassefordelingen i testsett og treningssett er representativ for populasjonen. For klasse C (109 observasjoner i testsettet, 436 i treningssettet) er dette særlig viktig: uten stratifisering ville tilfeldig variasjon i hvem av C-enhetene som havner i test- versus treningssettet, gi ustabile estimater for F1 klasse C.
 
@@ -913,23 +863,23 @@ For å vurdere om Random Forest-modellen generaliserer utover treningsdataene be
 
 Den primære evalueringen bruker en tilfeldig 80/20-split der trenings- og testsettet er blandet på tvers av 2024 og 2025. For en modell som skal brukes på fremtidige enheter er det imidlertid mer realistisk å teste **temporal generaliseringsevne**: kan modellen trent på 2024-data predikere kanalvalg for 2025-enheter?
 
-For å adressere dette er det gjennomført et supplerende eksperiment der Random Forest trenes utelukkende på enheter med `inspect_year == 2024` og testes på enheter med `inspect_year == 2025`. Resultatet er oppsummert i tabell 7.2.
+For å adressere dette er det gjennomført et supplerende eksperiment der Random Forest trenes utelukkende på enheter med `inspect_year == 2024` (41 312 rader) og testes på enheter med `inspect_year == 2025` (52 252 rader). Resultatet er oppsummert i tabell 7.2.
 
 **Tabell 7.2: Temporal validering — tren på 2024, test på 2025**
 
 | Modell | Accuracy | Macro-F1 | F1 klasse A | F1 klasse B | F1 klasse C |
 |---|---|---|---|---|---|
-| Random Forest (tilfeldig split, referanse) | 83,6 % | 0,84 | 0,78 | 0,87 | 0,87 |
-| Random Forest (temporal: 2024 → 2025) | ~80,2 % | ~0,80 | ~0,75 | ~0,84 | ~0,82 |
-| **Drift (prosentpoeng)** | **−3,4** | **−0,04** | **−0,03** | **−0,03** | **−0,05** |
+| Random Forest (tilfeldig split, referanse) | 83,76 % | 0,84 | 0,78 | 0,87 | 0,88 |
+| Random Forest (temporal: 2024 → 2025) | **70,43 %** | 0,69 | 0,60 | 0,77 | 0,70 |
+| **Drift (prosentpoeng)** | **−13,3** | **−0,15** | **−0,18** | **−0,10** | **−0,18** |
 
-*Anslagsverdier — bekreftes ved kjøring av kode i vedlegg A.*
+Nedgangen på **13 prosentpoeng accuracy** fra tilfeldig split til temporal split avdekker **betydelig concept drift** — markedsforhold, modellgenerasjoner og enhetsmiks har endret seg vesentlig mellom 2024 og 2025, og en modell trent utelukkende på fjorårets data har klart svakere prediktiv kraft for inneværende år.
 
-Nedgangen på ~3 prosentpoeng accuracy fra tilfeldig split til temporal split reflekterer **mild concept drift** — markedsforhold, modellgenerasjoner og enhetsmiks endrer seg over tid, og en modell trent på fjorårets data har svakere prediktiv kraft for inneværende år. Effekten er moderat og rettferdiggjør den anbefalte praksisen om årlig retrening (kap. 9.5).
+En naturlig kontrolltest er om driften skyldes at modellen bruker `inspect_year` som feature — i 2024-treningssettet er denne verdien konstant (alle observasjoner = 2024), så featuren har ingen prediktiv kraft i trening, men 2025-observasjoner får en aldri-sett verdi. For å utelukke at denne mekanismen forklarer driften er modellen retrenet uten `inspect_year`-featuren, med tilnærmet identisk resultat: 70,58 % accuracy (vs. 70,43 % med featuren). Driften er dermed **strukturell** — den reflekterer reelle endringer i datasettet mellom 2024 og 2025 (enhetsmiks, kanalfordeling, markedsverdi), ikke en featurespesifikk artefakt. Dette har sterke implikasjoner for hvordan modellen kan settes i drift:
 
-Den observerte temporale driften har to praktiske implikasjoner:
-1. **Rapportert 83,6 % er et noe optimistisk estimat** for modellens forventede ytelse i drift, der treningsdata vil være eldre enn testdata. Et mer realistisk forventet driftsnivå er ~80 % første år etter trening.
-2. **Modellens prediksjoner for nye enhetsmodeller** (lansert etter treningsdataenes slutt) vil ha enda lavere konfidens. En cold-start-strategi — der nye modellnavn håndteres via fallback-regler — bør utvikles før produktivsetting.
+1. **Rapportert 83,76 % er et optimistisk estimat** for modellens forventede ytelse i drift, der treningsdata per definisjon vil være eldre enn enhetene som klassifiseres. Et mer realistisk forventet driftsnivå første år etter trening — uten retrening — er **omkring 70 %**.
+2. **Modellens prediksjoner for nye enhetsmodeller** (iPhone 16, Samsung Galaxy S25 osv. lansert etter treningsdataenes slutt) vil ha enda lavere konfidens. En cold-start-strategi — der nye modellnavn håndteres via fallback-regler eller eksplisitt flagges for manuell vurdering — bør utvikles før produktivsetting.
+3. **Rask retreningssyklus er nødvendig**, ikke valgfri. Modellen bør retrenes minst kvartalsvis, ikke årlig som først foreslått, for å motvirke den observerte driften (kap. 9.5).
 
 ---
 
@@ -939,28 +889,30 @@ Dette kapittelet presenterer resultatene av modelltreningen og evalueringen obje
 
 ### 8.1 Modellytelse — sammenligning av Decision Tree og Random Forest
 
-Tabell 8.1 viser ytelsesmetrikker for begge modeller på testsettet (18 739 rader). F1-score per klasse er hovedmålet ettersom det balanserer precision og recall, noe som er særlig relevant ved den sterke klasseimbalansen i datasettet.
+Tabell 8.1 viser ytelsesmetrikker for begge modeller på testsettet (18 713 rader). F1-score per klasse er hovedmålet ettersom det balanserer precision og recall, noe som er særlig relevant ved den sterke klasseimbalansen i datasettet.
 
-**Tabell 8.1: Modellsammenligning — testsett (n = 18 739)**
+**Tabell 8.1: Modellsammenligning — testsett (n = 18 713)**
 
-| Modell | Accuracy | F1 klasse A | F1 klasse B | F1 klasse C |
-|---|---|---|---|---|
-| Decision Tree (baseline) | 79,9 % | 0,73 | 0,84 | 0,81 |
-| **Random Forest (primær)** | **83,6 %** | **0,78** | **0,87** | **0,87** |
+| Modell | Accuracy | Macro-F1 | F1 klasse A | F1 klasse B | F1 klasse C |
+|---|---|---|---|---|---|
+| Majority class baseline (alltid B) | 62,4 % | 0,26 | 0,00 | 0,77 | 0,00 |
+| Decision Tree (baseline) | 79,9 % | 0,77 | 0,73 | 0,84 | 0,75 |
+| **Random Forest (primær)** | **83,8 %** | **0,84** | **0,78** | **0,87** | **0,88** |
 
-Random Forest oppnår 83,6 % accuracy mot Decision Trees 79,9 %. Random Forest overgår Decision Tree på alle tre klasser, med særlig stor forbedring for klasse C (F1: 0,87 vs. 0,81). 80 %-kravet definert i prosjektplanen er oppfylt.
+Random Forest oppnår 83,8 % accuracy mot Decision Trees 79,9 % og majority-baseline 62,4 %. Random Forest overgår Decision Tree på alle tre klasser, med særlig stor forbedring for klasse C (F1: 0,88 vs. 0,75). 80 %-kravet definert i prosjektplanen er oppfylt, og løftet over majority-baseline (+21,4 prosentpoeng) viser at modellen tilfører reell prediktiv kraft.
 
 Tabell 8.2 viser precision og recall separat for Random Forest, beregnet fra konfusjonsmatrisen i avsnitt 8.2.
 
 **Tabell 8.2: Precision og recall per klasse — Random Forest**
 
-| Klasse | Precision | Recall | F1 |
-|---|---|---|---|
-| A — Sluttkunde | 0,78 | 0,78 | 0,78 |
-| B — Tredjepartshandler | 0,87 | 0,87 | 0,87 |
-| C — Skrap/BER | 0,96 | 0,80 | 0,87 |
+| Klasse | Precision | Recall | F1 | Support |
+|---|---|---|---|---|
+| A — Sluttkunde | 0,78 | 0,79 | 0,78 | 6 928 |
+| B — Tredjepartshandler | 0,88 | 0,86 | 0,87 | 11 677 |
+| C — Skrap/BER | 0,94 | 0,83 | 0,88 | 108 |
+| **Macro avg** | **0,86** | **0,83** | **0,84** | 18 713 |
 
-Klasse C har den høyeste precision (0,96): av alle enheter modellen klassifiserer som skrap, er 96 % korrekte. Klasse B oppnår den beste balansen mellom precision og recall (begge 0,87). Klasse A og B har identisk recall (0,78 og 0,87), mens skrap-klassen viser høy precision men lavere recall (0,80).
+Klasse C har den høyeste precision (0,94): av alle enheter modellen klassifiserer som skrap, er 94 % korrekte. Klasse B oppnår den beste balansen mellom precision og recall (0,88/0,86). Skrap-klassen viser høy precision men lavere recall (0,83) — operasjonell implikasjon drøftes i avsnitt 9.4.7.
 
 Figur 8.1 viser konfusjonsmatrisene for begge modeller side ved side.
 
@@ -972,45 +924,45 @@ Figur 8.1 viser konfusjonsmatrisene for begge modeller side ved side.
 
 Tabell 8.3 viser den fullstendige konfusjonsmatrisen for Random Forest på testsettet. Rader angir faktisk klasse, kolonner angir predikert klasse.
 
-**Tabell 8.3: Konfusjonsmatrise — Random Forest (testsett, n = 18 739)**
+**Tabell 8.3: Konfusjonsmatrise — Random Forest (testsett, n = 18 713)**
 
 | Faktisk \ Predikert | A | B | C |
 |---|---|---|---|
-| **A** (n = 6 936) | 5 436 | 1 498 | 2 |
-| **B** (n = 11 694) | 1 547 | 10 145 | 2 |
-| **C** (n = 109) | 9 | 13 | 87 |
+| **A** (n = 6 928) | 5 497 | 1 428 | 3 |
+| **B** (n = 11 677) | 1 587 | 10 087 | 3 |
+| **C** (n = 108) | 7 | 11 | 90 |
 
-Det dominerende feilmønsteret er fremdeles forvekslingen mellom klasse A og klasse B: 1 498 faktiske A-enheter predikeres som B, og 1 547 faktiske B-enheter predikeres som A. Antall A/B-forvekslinger er nå nær symmetrisk. Klasse C er godt identifisert: 87 av 109 skrap-enheter (80 %) klassifiseres korrekt, og kun 13 ekstra enheter feilklassifiseres inn i klasse C.
+Det dominerende feilmønsteret er forvekslingen mellom klasse A og klasse B: 1 428 faktiske A-enheter predikeres som B, og 1 587 faktiske B-enheter predikeres som A. Antall A/B-forvekslinger er nær symmetrisk (forholdstall 1,11). Klasse C er godt identifisert: 90 av 108 skrap-enheter (83 %) klassifiseres korrekt, og kun 6 ekstra enheter feilklassifiseres inn i klasse C — den lave falsk-positive-raten for C er operasjonelt verdifull (se 9.4.7).
 
 ### 8.3 Feature importance — Random Forest
 
 Tabell 8.4 viser feature importance for Random Forest, normalisert slik at verdiene summerer til 100 %.
 
-**Tabell 8.4: Feature importance — Random Forest**
+**Tabell 8.4: Feature importance — Random Forest (Gini)**
 
 | Rang | Feature | Viktighet |
 |---|---|---|
-| 1 | `device_value` (estimert markedsverdi) | 18,5 % |
-| 2 | `Device Category` (enhetskategori) | 17,0 % |
-| 3 | `grade_num` (inntaksgrad) | 13,7 % |
-| 4 | `model_encoded` (modellverdi) | 8,8 % |
+| 1 | `device_value` (estimert markedsverdi) | 18,9 % |
+| 2 | `Device Category` (enhetskategori) | 15,9 % |
+| 3 | `grade_num` (inntaksgrad) | 13,8 % |
+| 4 | `model_encoded` (modellverdi) | 9,2 % |
 | 5 | `inspect_month` (innleveringsmåned) | 6,9 % |
-| 6 | `Transaction Type_enc` | 6,0 % |
-| 7 | `color_group_enc` (fargegruppe) | 5,5 % |
-| 8 | `dealer_B_rate` (historisk B-andel per leverandør) | 5,5 % |
-| 9 | `dealer_A_rate` (historisk A-andel per leverandør) | 5,5 % |
-| 10 | `fault_count` (antall registrerte feil) | 3,5 % |
-| 11 | `storage_gb` (lagringskapasitet) | 2,2 % |
-| 12 | `Channel_enc` | 1,9 % |
+| 6 | `color_group_enc` (fargegruppe) | 6,7 % |
+| 7 | `dealer_B_rate` (historisk B-andel per leverandør) | 5,7 % |
+| 8 | `dealer_A_rate` (historisk A-andel per leverandør) | 5,6 % |
+| 9 | `Transaction Type_enc` | 3,8 % |
+| 10 | `fault_count` (antall registrerte feil) | 3,6 % |
+| 11 | `storage_gb` (lagringskapasitet) | 2,5 % |
+| 12 | `Channel_enc` | 2,0 % |
 | 13 | `brand_enc` (merke) | 1,9 % |
-| 14 | `inspect_year` (innleveringsår) | 1,7 % |
-| 15 | `har_feil` (binær feil-indikator) | 1,4 % |
+| 14 | `har_feil` (binær feil-indikator) | 1,7 % |
+| 15 | `inspect_year` (innleveringsår) | 1,7 % |
 
-De fire øverste features (`device_value`, `Device Category`, `grade_num`, `model_encoded`) forklarer til sammen 58,0 % av total Gini-reduksjon. `device_value` er fremdeles den viktigste enkeltprediktoren (18,5 %), men det nye feature-settet distribuerer forklaringskraften bredere — de nye featuresene `inspect_month` (6,9 %) og leverandørrater (5,5 % hver) bidrar betydelig. Figur 8.2 illustrerer fordelingen.
+De fire øverste features (`device_value`, `Device Category`, `grade_num`, `model_encoded`) forklarer til sammen 57,8 % av total Gini-reduksjon. `device_value` er den viktigste enkeltprediktoren under Gini-målet (18,9 %), men permutation importance (se avsnitt 9.2.2) viser en annen rangering der enhetskategori er primærprediktoren. Figur 8.2 illustrerer fordelingen.
 
 ![Figur 8.2: Feature importance — Random Forest](figur_feature_importance.png)
 
-*Figur 8.2: Feature importance for Random Forest. `device_value` og `Device Category` er de to viktigste prediktorene med til sammen 35,5 % av forklaringskraften. Egenprodusert.*
+*Figur 8.2: Feature importance for Random Forest. `device_value` og `Device Category` er de to viktigste prediktorene under Gini-målet med til sammen 34,8 % av forklaringskraften. Permutation importance i avsnitt 9.2.2 gir en korrigert rangering. Egenprodusert.*
 
 ### 8.4 Estimert lønnsomhetseffekt (delproblem 2)
 
@@ -1042,24 +994,24 @@ Det er sentralt å være eksplisitt om at modellen er trent på de samme histori
 
 #### 8.4.3 Resultater under tre antakelser
 
-**Tabell 8.6: Estimert lønnsomhetseffekt på testsettet (n = 18 739)**
+**Tabell 8.6: Estimert lønnsomhetseffekt på testsettet (n = 18 713)**
 
 | Scenario | Antakelse om modellens avvik | Netto effekt (testsett) | Oppskalert til årsvolum |
 |---|---|---|---|
 | Historisk (referanse) | — | 0 NOK | 0 NOK |
-| Modellscenario (realistisk) | 50 % av avvikene er forbedringer | ~+8 000 NOK | **~+20 000 NOK per år** |
-| Modellscenario (optimistisk) | 100 % av avvikene er forbedringer | +16 108 NOK | ~+40 000 NOK per år |
-| Modellscenario (pessimistisk) | 0 % — modellen bare introduserer støy | ~−16 000 NOK | ~−40 000 NOK per år |
+| Modellscenario (realistisk) | 50 % av avvikene er forbedringer | ~+22 800 NOK | **~+110 000 NOK per år** |
+| Modellscenario (optimistisk) | 100 % av avvikene er forbedringer | +45 633 NOK | ~+225 000 NOK per år |
+| Modellscenario (pessimistisk) | 0 % — modellen bare introduserer støy | ~−45 633 NOK | ~−225 000 NOK per år |
 
-Bruttoverdiene er drevet av to motsatte feilstrømmer mellom klasse A og klasse B: modellen reklassifiserer 1 547 faktiske B-enheter som A (potensiell gevinst: 1 547 × 287 NOK = +444 000 NOK), nesten fullt oppveid av 1 498 faktiske A-enheter feilklassifisert som B (potensielt tap: 1 498 × 287 NOK = −430 000 NOK). Den nær-symmetriske feilfordelingen forklarer hvorfor *netto* effekt er liten uansett antakelse: modellen bryter ikke A/B-symmetrien, og en netto lønnsomhetsforbedring forutsetter at modellens avvik er systematisk *mer korrekte* enn de historiske valgene de erstatter.
+Bruttoverdiene er drevet av to motsatte feilstrømmer mellom klasse A og klasse B: modellen reklassifiserer 1 587 faktiske B-enheter som A (potensiell gevinst: 1 587 × 287 NOK = +455 000 NOK), delvis oppveid av 1 428 faktiske A-enheter feilklassifisert som B (potensielt tap: 1 428 × 287 NOK = −410 000 NOK). Asymmetrien i forholdstall (1 587 : 1 428 = 1,11) gir nå et marginalt positivt fortegn på brutto-differansen — modellen tenderer mot å «oppgradere» grenseenheter til klasse A oftere enn å «nedgradere» dem til klasse B. En netto lønnsomhetsforbedring forutsetter likevel at modellens avvik er systematisk *mer korrekte* enn de historiske valgene de erstatter, ikke bare statistisk skjeve.
 
 #### 8.4.4 Tolkning og forbehold
 
-Det realistiske midtestimatet på **omtrent 20 000 NOK per år** er marginalt sett mot Modinos totalvolum (årlig margin fra de tre kanalene er om lag 28 MNOK basert på testsettet ekstrapolert). Det operasjonelt meningsfulle tallet er derfor ikke kronebeløpet i seg selv, men *størrelsesordenen*: modellen forbedrer ikke lønnsomheten vesentlig, og lønnsomhetsdimensjonen er ikke det sterkeste argumentet for å implementere den.
+Det realistiske midtestimatet på **omtrent 110 000 NOK per år** er fortsatt marginalt sett mot Modinos totalvolum (årlig margin fra de tre kanalene er om lag 28 MNOK basert på testsettet ekstrapolert — dvs. ~0,4 % marginforbedring). Det operasjonelt meningsfulle tallet er derfor ikke kronebeløpet i seg selv, men *størrelsesordenen*: modellen forbedrer ikke lønnsomheten vesentlig, og lønnsomhetsdimensjonen alene er ikke det sterkeste argumentet for å implementere den.
 
 Den primære verdien av modellen er **standardisering** — konsistente, datadrevne kanalvalg som utnytter mønstre på tvers av 93 575 historiske enheter. Dette argumentet utdypes i kapittel 9.
 
-For sammenligning er det illustrerende å nevne at en tidligere analyseversjon — der SAP-data (salgsinntekt, kostnad, destinasjon) ble brukt som features — estimerte en gevinst på rundt 390 000 NOK per år. Da disse post-salgsvariablene ble identifisert som target leakage og fjernet, falt estimatet til ~40 000 NOK per år (øvre estimat). Nedgangen er et diagnostisk funn: den tilsynelatende gevinsten i den tidligere analysen var drevet av informasjon modellen ikke kan ha tilgang til i drift.
+For sammenligning er det illustrerende å nevne at en tidligere analyseversjon — der SAP-data (salgsinntekt, kostnad, destinasjon) ble brukt som features — estimerte en gevinst på rundt 390 000 NOK per år. Da disse post-salgsvariablene ble identifisert som target leakage og fjernet, falt estimatet til den marginale størrelsesorden som rapporteres her. Nedgangen er et diagnostisk funn: den tilsynelatende gevinsten i den tidligere analysen var drevet av informasjon modellen ikke kan ha tilgang til i drift.
 
 ---
 
@@ -1069,21 +1021,23 @@ Dette kapittelet drøfter funnene fra analysen og resultatene opp mot prosjektet
 
 ### 9.1 Svar på problemstillingen
 
-Prosjektets problemstilling spør hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS. Analysen viser at Random Forest-modellen klassifiserer innkommende enheter i de tre kanalklassene A, B og C med **83,6 % accuracy** på et testsett på 18 739 enheter — godt over det definerte minimumskravet på 80 %. Modellen er dermed i stand til å automatisere og standardisere en beslutning som i dag ikke er datadrevet, og den gjør det med tilstrekkelig nøyaktighet til at prosjektets formål er faglig begrunnet.
+Prosjektets problemstilling spør hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS. Analysen viser at Random Forest-modellen klassifiserer innkommende enheter i de tre kanalklassene A, B og C med **83,76 % accuracy** på et testsett på 18 713 enheter — godt over det definerte minimumskravet på 80 %. Modellen er dermed i stand til å automatisere og standardisere en beslutning som i dag ikke er datadrevet, og den gjør det med tilstrekkelig nøyaktighet til at prosjektets formål er faglig begrunnet.
 
-Resultatet må tolkes i lys av hvilken informasjon modellen faktisk har tilgang til. Modellen opererer utelukkende på CellDe-data fra mottakstidspunktet — det er nettopp dette som gjør den praktisk anvendbar. Tidligere analyseforsøk oppnådde 92,4 % accuracy, men brukte SAP-data som features. SAP-data eksisterer kun etter at salget er gjennomført, og en modell basert på slike data kan ikke benyttes til å ta beslutningen *ved mottak*. Reduksjonen fra 92,4 % til 83,6 % er dermed ikke et tegn på en dårligere modell — det er et tegn på en *ærlig* modell som opererer under de rammebetingelsene som faktisk gjelder i en driftssetting.
+Resultatet må tolkes i lys av hvilken informasjon modellen faktisk har tilgang til. Modellen opererer utelukkende på CellDe-data fra mottakstidspunktet — det er nettopp dette som gjør den praktisk anvendbar. Tidligere analyseforsøk oppnådde 92,4 % accuracy, men brukte SAP-data som features. SAP-data eksisterer kun etter at salget er gjennomført, og en modell basert på slike data kan ikke benyttes til å ta beslutningen *ved mottak*. Reduksjonen fra 92,4 % til 83,76 % er dermed ikke et tegn på en dårligere modell — det er et tegn på en *ærlig* modell som opererer under de rammebetingelsene som faktisk gjelder i en driftssetting.
 
 #### 9.1.1 Delproblem 1 — Klassifiseringsnøyaktighet
 
-Det definerte minimumskravet på 80 % accuracy er oppfylt med 83,6 %. F1-score for de tre klassene er 0,78 (A), 0,87 (B) og 0,87 (C). Klasse B oppnår fremdeles den høyeste F1-scoren, men klasse C er nå på linje med klasse B — et markant forbedret resultat. At klasse C oppnår F1 på 0,87 til tross for at den utgjør kun 0,6 % av datasettet, er et sterkt positivt funn — `class_weight='balanced'` og det utvidede feature-settet fungerer etter hensikten.
+Det definerte minimumskravet på 80 % accuracy er oppfylt med 83,76 % på den tilfeldige 80/20-testsplit. F1-score for de tre klassene er 0,78 (A), 0,87 (B) og 0,88 (C). Klasse B oppnår fremdeles den høyeste F1-scoren, men klasse C er nå på linje med klasse B — et markant forbedret resultat. At klasse C oppnår F1 på 0,88 til tross for at den utgjør kun 0,6 % av datasettet, er et sterkt positivt funn — `class_weight='balanced'` og det utvidede feature-settet fungerer etter hensikten. Kryssvalidering med 5-fold stratifisert split (avsnitt 7.3.1) bekrefter at resultatet er stabilt: 83,34 % ± 0,41 %.
 
-Det dominerende feilmønsteret er fremdeles forvekslingen mellom klasse A og klasse B: 1 498 faktiske A-enheter predikeres som B, og 1 547 faktiske B-enheter predikeres som A. Feilfordelingen er nå nær symmetrisk — i kontrast til den asymmetriske fordelingen i den opprinnelige modellen. Dette er ikke tilfeldig støy — det er et strukturelt problem som diskuteres nærmere i avsnitt 9.4.
+**Et viktig forbehold er imidlertid avdekket gjennom temporal validering** (avsnitt 7.4.1): når modellen trenes utelukkende på 2024-data og testes på 2025-data, faller accuracy til 70,43 % — en drift på 13 prosentpoeng. Dette innebærer at 83,76 % er et noe optimistisk estimat for hva modellen vil oppnå i en faktisk driftssetting der treningsdata per definisjon er eldre enn enhetene som klassifiseres. Det realistiske forventede driftsnivået er ~70 %, og minimumskravet på 80 % overholdes kun dersom modellen retrenes hyppig (anbefalt kvartalsvis, se 9.5).
+
+Det dominerende feilmønsteret er fremdeles forvekslingen mellom klasse A og klasse B: 1 428 faktiske A-enheter predikeres som B, og 1 587 faktiske B-enheter predikeres som A. Feilfordelingen er nå nær symmetrisk — i kontrast til den asymmetriske fordelingen i den opprinnelige modellen. Dette er ikke tilfeldig støy — det er et strukturelt problem som diskuteres nærmere i avsnitt 9.4.
 
 #### 9.1.2 Delproblem 2 — Lønnsomhetseffekt
 
-Den estimerte lønnsomhetseffekten er presentert som et intervall (kap. 8.4.3): et **realistisk midtestimat** på omtrent +20 000 NOK per år (under antakelsen om at halvparten av modellens avvik er reelle forbedringer), avgrenset av en optimistisk øvre grense på ~+40 000 NOK og en pessimistisk nedre grense på ~−40 000 NOK. Bredden i intervallet — og det faktum at det inkluderer null — er det viktigste funnet for delproblem 2: lønnsomhetsdimensjonen i seg selv gir ikke et entydig positivt argument for modellbasert klassifisering.
+Den estimerte lønnsomhetseffekten er presentert som et intervall (kap. 8.4.3): et **realistisk midtestimat** på omtrent +110 000 NOK per år (under antakelsen om at halvparten av modellens avvik er reelle forbedringer), avgrenset av en optimistisk øvre grense på ~+225 000 NOK og en pessimistisk nedre grense på ~−225 000 NOK. Bredden i intervallet — og det faktum at det inkluderer null — er det viktigste funnet for delproblem 2: lønnsomhetsdimensjonen i seg selv gir ikke et entydig positivt argument for modellbasert klassifisering. Selv det optimistiske estimatet utgjør kun ~0,8 % av Modinos årlige bruttomargin.
 
-Den tekniske forklaringen er at modellen gjør nær symmetriske feil mellom klasse A og klasse B: gevinstene fra B→A-omruting (~444 000 NOK brutto) oppveies nesten fullt av tapene fra A→B-feilklassifisering (~430 000 NOK brutto). En mer presis modell som klarer å bryte symmetrien i A/B-feiltypene vil gi et vesentlig høyere lønnsomhetsestimat — men under det nåværende feature-settet er denne forbedringen ikke realisert.
+Den tekniske forklaringen er at modellen gjør nær symmetriske feil mellom klasse A og klasse B: gevinstene fra B→A-omruting (~455 000 NOK brutto) oppveies delvis av tapene fra A→B-feilklassifisering (~410 000 NOK brutto). Modellen har et marginalt positivt skjevhetsfortegn (forholdstall 1,11) — den tenderer mot å «oppgradere» grenseenheter til klasse A oftere enn å «nedgradere» dem. En mer presis modell som tydeligere kunne bryte A/B-symmetrien ville gi et vesentlig høyere lønnsomhetsestimat.
 
 Det er også illustrerende at en tidligere analyseversjon — der SAP-data ble inkludert som features — estimerte en gevinst på rundt 390 000 NOK per år. Da target leakage ble identifisert og korrigert, falt estimatet til den marginale størrelsesordenen vi rapporterer her. Dette er et diagnostisk funn i seg selv: den apparente lønnsomhetsgevinsten i den tidligere analysen var drevet av informasjon modellen ikke kan ha i drift. Den ærlige konklusjonen er derfor at **den primære verdien av modellen er standardisering av beslutninger, ikke direkte profittforbedring**. Standardiseringsverdien — at samme input alltid gir samme output, basert på mønstre på tvers av 93 575 historiske enheter — er kvalitativt forankret i Teunter og Flapper (2011), som dokumenterer at manuell BER-vurdering er inkonsistent.
 
@@ -1104,6 +1058,30 @@ Det sterkeste enkeltfunnet fra feature importance-analysen er at **enhetens esti
 Et nytt og interessant funn er at **innleveringsmåneden** (`inspect_month`, 6,9 %) er den femte viktigste prediktoren. Dette indikerer at enhetsmiksen varierer sesongmessig — noe som er operasjonelt plausibelt gitt at nye modellgenerasjoner typisk lanseres om høsten og driver innbytte-topper for eldre modeller. At `inspect_year` separat rangeres som #14 (1,7 %) tyder på at månedseffekten er en *intra-årlig* sesongkomponent, ikke en proxy for strukturell endring 2024→2025 — månedsfordelingen er trolig en reell driver av A/B-fordelingen heller enn et leakage-symptom. En formell sensitivitetsanalyse (modell trent uten `inspect_month`) ville styrket dette funnet ytterligere, men ble ikke gjennomført i prosjektets omfang.
 
 **Leverandørrater** (`dealer_A_rate` og `dealer_B_rate`, 5,5 % hver) bekrefter at hvem som leverer inn enheter er informativt for kanalutfallet — ulike leverandørkanaler har ulik kvalitetsprofil. Stabiliteten i disse encodingverdiene for leverandører med små volum drøftes i avsnitt 9.4.8.
+
+**Validering med permutation importance.** Verdiene rapportert i tabell 8.4 er beregnet med scikit-learns innebygde `feature_importances_`, som måler gjennomsnittlig Gini-reduksjon over alle splittepunkter. Strobl et al. (2007) viser at denne metrikken er systematisk biased mot kontinuerlige features og features med høy kardinalitet. For å validere rangeringen er det gjennomført en kontrollanalyse med **permutation importance** (`sklearn.inspection.permutation_importance`, 5 repetisjoner på testsettet), som måler det reelle accuracy-fallet når en feature shuffles. Resultatet er oppsummert i tabell 9.1.
+
+**Tabell 9.1: Sammenligning av Gini- og permutation importance**
+
+| Feature | Gini-importance | Permutation importance |
+|---|---|---|
+| `Device Category` | 15,9 % | **11,0 %** (#1) |
+| `inspect_month` | 6,9 % | 6,6 % (#2) |
+| `model_encoded` | 9,2 % | 6,1 % (#3) |
+| `brand_enc` | 1,9 % | 5,5 % (#4) |
+| `inspect_year` | 1,7 % | 4,0 % (#5) |
+| `device_value` | **18,9 %** | 3,6 % (#6) |
+| `grade_num` | 13,8 % | 3,3 % (#7) |
+| `dealer_A_rate` | 5,6 % | **−0,3 %** |
+| `dealer_B_rate` | 5,7 % | **−0,2 %** |
+
+Permutation importance avdekker to viktige nyanser som ikke synes i Gini-analysen:
+
+1. **Enhetskategori (`Device Category`) er den faktiske primærprediktoren** — ikke `device_value`. Gini overdrev `device_value` fordi det er en kontinuerlig variabel med mange potensielle splittepunkter. Funnet er i tråd med Strobl et al. (2007) og betyr at modellens prediksjoner først og fremst drives av om enheten er smarttelefon, nettbrett eller annet.
+
+2. **Leverandørratene (`dealer_A_rate`, `dealer_B_rate`) er funksjonell støy, ikke signal.** Begge har *negativ* permutation importance, som betyr at modellen presterer marginalt bedre når disse features shuffles. Den positive Gini-verdien (5,5 %) er sannsynligvis et overfittingsartefakt — target encoding produserer ustabile rater for leverandører med små volum, og Random Forest fanger opp denne støyen som "splittepunktsverdi" uten at den generaliserer. Konsekvensen er at **disse to features bør fjernes fra produksjonsmodellen** — det vil gi en enklere modell uten ytelsesfall. Dette adresserer den smoothing-bekymringen som er drøftet i avsnitt 9.4.8.
+
+Den kvalitative hovedkonklusjonen om at enhetsattributter (kategori, modell, merke, månedlig sesongmønster) er de viktigste prediktorene er fremdeles solid forankret, men prioriteringen mellom features har endret seg vesentlig sammenlignet med Gini-rangeringen.
 
 Det er fortsatt bemerkelsesverdig at `har_feil` (binær feil-indikator) nå bidrar med kun 1,4 %, da `fault_count` (3,5 %) tar over mye av signalet og gir mer granulær informasjon om skadeomfanget. `device_value` og `grade_num` fanger uansett opp det meste av felinformasjonen implisitt.
 
@@ -1131,7 +1109,7 @@ Videre bør modellen oppdateres jevnlig ettersom markedsforholdene for brukte mo
 
 Den viktigste metodiske begrensningen for klassifiseringsnøyaktigheten er at CellDe-data alene ikke fullt ut skiller mellom kanal A (sluttkunde via Teleoutlet) og kanal B (tredjepartshandler). Som påpekt i avsnitt 4.5 leverer de samme innleveringsbutikkene enheter som faktisk ender i begge kanaler, avhengig av Modinos lagerstyring og markedssituasjon. Dette setter en strukturell øvre grense for A/B-nøyaktigheten: en enhet med moderat verdi og god tilstand kan med samme inntaksprofil havne i begge kanaler, og kanalvalget bestemmes da av faktorer modellen ikke ser.
 
-Dette forklarer den nær-symmetriske feilfordelingen i konfusjonsmatrisen (tabell 8.3): 1 498 faktiske A-enheter predikeres som B, og 1 547 faktiske B-enheter predikeres som A. Feilene er ikke tilfeldig støy, men reflekterer at modellen ikke har tilgang til den informasjonen som *i ettertid* skiller A fra B mest konsekvent (kjøperidentitet og destinasjonsland — som først er kjent etter at beslutningen er tatt). At Random Forest med 15 CellDe-features likevel oppnår 83,6 % accuracy mot Decision Trees 79,9 % viser at øvrig CellDe-informasjon — sesongmønster, leverandørhistorikk, feilantall — *inneholder* reell prediktiv kraft. Begrensningen er reell, men ikke absolutt.
+Dette forklarer den nær-symmetriske feilfordelingen i konfusjonsmatrisen (tabell 8.3): 1 428 faktiske A-enheter predikeres som B, og 1 587 faktiske B-enheter predikeres som A. Feilene er ikke tilfeldig støy, men reflekterer at modellen ikke har tilgang til den informasjonen som *i ettertid* skiller A fra B mest konsekvent (kjøperidentitet og destinasjonsland — som først er kjent etter at beslutningen er tatt). At Random Forest med 15 CellDe-features likevel oppnår 83,76 % accuracy mot Decision Trees 79,9 % viser at øvrig CellDe-informasjon — sesongmønster, leverandørhistorikk, feilantall — *inneholder* reell prediktiv kraft. Begrensningen er reell, men ikke absolutt.
 
 En mulig vei videre er å undersøke om informasjon om hvem Modino selger til kan gjøres tilgjengelig *på eller nær mottakstidspunktet* — for eksempel om leverandørens kontraktstype (norsk B2C-kontrakt vs. europeisk B2B-kontrakt) er tilgjengelig i CellDe eller i Modinos innkjøpssystem. Dersom en slik proxy eksisterer, vil den trolig løfte A/B-nøyaktigheten betydelig.
 
@@ -1147,9 +1125,11 @@ Modellen er trent på historisk observert kanalvalg — det vil si at etikett A,
 
 Det er ikke gjennomført systematisk hyperparametertuning (GridSearchCV) i dette prosjektet. Standardparametere (`n_estimators=100`, ingen dybdebegrensning) er valgt basert på etablert praksis i litteraturen (Breiman, 2001). En systematisk søk over hyperparametere som `max_depth`, `min_samples_split` og `max_features` kan potensielt forbedre ytelsen — særlig for klasse C, der selv en marginal forbedring i recall er operasjonelt verdifull. Gitt at prosjektets primære formål er å demonstrere metodens egnethet snarere enn å maksimere ytelsen, er valget av standardparametere faglig begrunnet, men begrensningen bør anerkjennes.
 
-#### 9.4.5 Generaliserbarhet
+#### 9.4.5 Generaliserbarhet (tverrsnittlig og temporal)
 
 Analysen er gjennomført på data fra én bedrift (Modino AS) i én bransje (brukte mobilenheter) over en bestemt tidsperiode (2024–2025). Funnene er direkte generaliserbare til Modinos egen operasjon, men må tolkes med forsiktighet ved overføring til andre recommerce-aktører med annen salgsstruktur, annet produktmix eller andre geografiske markeder. Den metodiske tilnærmingen — å bruke to-kilde-arkitektur, faktisk observert salgskanal som målvariabel og kun inntaksdata som features — er imidlertid prinsipielt overførbar til andre recommerce-virksomheter med tilsvarende data.
+
+**Temporal generaliserbarhet er begrenset.** Avsnitt 7.4.1 dokumenterer at en modell trent på 2024-data og testet på 2025-data faller fra 83,76 % til 70,43 % accuracy. Driften er størst for klasse C (F1 0,88 → 0,70) og klasse A (F1 0,78 → 0,60), og reflekterer at enhetsmiks, modellgenerasjoner og markedsverdier endrer seg vesentlig over relativt korte tidsperioder. Praktisk konsekvens: modellen bør retrenes minst kvartalsvis, og prediksjoner for nye enhetsmodeller bør håndteres med fallback-regler eller manuell vurdering.
 
 #### 9.4.6 Survivor-bias i datagrunnlaget
 
@@ -1159,7 +1139,7 @@ Implikasjonen er at hvis høyverdige enheter systematisk ligger lenger på lager
 
 #### 9.4.7 Asymmetriske feilkostnader for klasse C
 
-Tabell 8.2 viser at klasse C oppnår precision 0,96 og recall 0,80. Dette innebærer at modellen er *konservativ* — den predikerer C kun når den er sikker, og misser dermed 22 av 109 reelle BER-enheter (20 %). Disse blir feilklassifisert som A (9 stk.) eller B (13 stk.) og går unødvendig inn i renoverings- eller salgskøen.
+Tabell 8.2 viser at klasse C oppnår precision 0,94 og recall 0,83. Dette innebærer at modellen er *konservativ* — den predikerer C kun når den er sikker, og misser dermed 18 av 108 reelle BER-enheter (17 %). Disse blir feilklassifisert som A (7 stk.) eller B (11 stk.) og går unødvendig inn i renoverings- eller salgskøen.
 
 Operasjonelt er dette potensielt en uheldig avveining. En BER-enhet som rutes til renovering vil belastes en renoveringskostnad (gjennomsnittlig 1 738 NOK for klasse A-enheter, jf. tabell 8.5) som per definisjon ikke kan dekkes av salgspris, og frigjør kapasitet i en knapp ressurs (renoveringskø). Det motsatte feilfortegnet — en grenseenhet som feilklassifiseres som C i stedet for B — koster derimot kun differansen mellom B- og C-margin (197 − 195 = 2 NOK), altså marginalt.
 
@@ -1169,7 +1149,19 @@ Den asymmetriske feilkostnadsstrukturen tilsier at en *cost-sensitive* hyperpara
 
 `dealer_A_rate` og `dealer_B_rate` er beregnet ved å ta gjennomsnittlig A/B-andel per leverandør (`DealerId`) på treningssettet, og deretter applisere på testsettet (target encoding). Dette er metodisk korrekt med hensyn til leakage. En kjent svakhet er imidlertid at leverandører med få enheter i treningssettet gir ustabile rater — i ytterpunktet vil en leverandør med kun én enhet få rate 0,0 eller 1,0, som er en overfit-estimat.
 
-En standard løsning er *smoothing* der lokal rate vektes mot global rate proporsjonalt med leverandørens størrelse. Denne smoothingen er ikke implementert i nåværende modell. Sett opp mot Random Forests robusthet mot støy i enkeltfeatures er dette trolig en liten effekt, men en sensitivitetsanalyse av rate-stabiliteten for leverandører med små volum anbefales i videre arbeid.
+**Permutation importance bekrefter denne bekymringen empirisk** (tabell 9.1): begge dealer-features har *negativ* permutation importance (henholdsvis −0,3 % og −0,2 %), som innebærer at modellens accuracy *forbedres* marginalt når disse features shuffles. Den positive Gini-verdien (5,5–5,7 %) er dermed et overfittingsartefakt — Random Forest fanger opp leverandørspesifikk støy som splittpunktverdi uten at det generaliserer til testsettet.
+
+For å verifisere dette funnet er det gjennomført et kontrolleksperiment der modellen retreneres uten de to dealer-features. Resultatet bekrefter og forsterker konklusjonen:
+
+**Tabell 9.2: Modellytelse med og uten dealer-features**
+
+| Modell | Features | Accuracy | F1 A | F1 B | F1 C |
+|---|---|---|---|---|---|
+| Random Forest (full) | 15 | 83,76 % | 0,78 | 0,87 | 0,88 |
+| Random Forest (uten dealer-rates) | 13 | **84,42 %** | **0,80** | **0,87** | 0,87 |
+| **Endring** | −2 | **+0,66 pp** | **+0,01** | **+0,01** | −0,01 |
+
+Å fjerne de to dealer-features gir altså en **forbedret modell** — accuracy stiger med 0,66 prosentpoeng, klasse A-F1 stiger med 0,01, og klasse C-F1 faller marginalt med 0,01. **Praktisk implikasjon: dealer-features bør fjernes fra produksjonsmodellen**. En alternativ vei er Bayesian smoothing der lokal rate vektes mot global rate proporsjonalt med leverandørens volum, men den enklere løsningen — fjerning — gir det beste resultatet i denne kontrolltesten.
 
 #### 9.4.9 Target leakage som metodisk funn
 
@@ -1179,9 +1171,9 @@ En gjennomgående metodisk utfordring i dette prosjektet er skillet mellom hva S
 
 **Som feature-kilde er SAP ubrukbar.** SAP-variabler som salgsinntekt, kostnad og destinasjonsland eksisterer kun etter at salget er gjennomført — etter at kanaliseringsbeslutningen allerede er tatt. Å bruke dem som input til en modell som skal predikere kanalvalget er prinsipielt feil: en ny enhet ved mottakstidspunktet har ingen salgsinntekt, ingen kostnad, og ingen kjent destinasjon ennå. En modell som benytter slike variabler, oppnår kunstig høy nøyaktighet fordi den i praksis leser svaret fra fasiten. Det er nettopp dette som betegnes som target leakage.
 
-I prosjektets tidlige analysefase ble SAP-variabler inkludert som features, noe som ga 92,4 % accuracy. Da lekkasjen ble identifisert og korrigert — og alle features ble begrenset til CellDe-inntaksdata tilgjengelig på mottakstidspunktet — falt accuracy til 83,6 %. Den korrigerte modellen er den eneste som er operasjonelt brukbar.
+I prosjektets tidlige analysefase ble SAP-variabler inkludert som features, noe som ga 92,4 % accuracy. Da lekkasjen ble identifisert og korrigert — og alle features ble begrenset til CellDe-inntaksdata tilgjengelig på mottakstidspunktet — falt accuracy til 83,76 %. Den korrigerte modellen er den eneste som er operasjonelt brukbar.
 
-Denne oppdagelsen styrker metodens troverdighet fremfor å svekke den. At prosjektet identifiserte, dokumenterte og korrigerte lekkasjen — og valgte å rapportere 83,6 % fremfor 92,4 % — er en bevisst metodisk beslutning. Det er 83,6 % som representerer modellens reelle prediktive kraft under betingelsene som faktisk gjelder i drift. Et tilsvarende skille mellom ytelse på historiske data og ytelse på beslutningstidspunktet gjøres ikke alltid eksplisitt i sammenlignbar litteratur (jf. Ibrahim & Abdul-Kader, 2025; Turkolmez et al., 2024), og prosjektets eksplisitte håndtering av dette skillet er dermed et metodisk bidrag i seg selv.
+Denne oppdagelsen styrker metodens troverdighet fremfor å svekke den. At prosjektet identifiserte, dokumenterte og korrigerte lekkasjen — og valgte å rapportere 83,76 % fremfor 92,4 % — er en bevisst metodisk beslutning. Det er 83,76 % som representerer modellens reelle prediktive kraft under betingelsene som faktisk gjelder i drift. Et tilsvarende skille mellom ytelse på historiske data og ytelse på beslutningstidspunktet gjøres ikke alltid eksplisitt i sammenlignbar litteratur (jf. Ibrahim & Abdul-Kader, 2025; Turkolmez et al., 2024), og prosjektets eksplisitte håndtering av dette skillet er dermed et metodisk bidrag i seg selv.
 
 ---
 
@@ -1199,11 +1191,13 @@ Følgende retninger er særlig relevante for videre arbeid:
 
 **5. Smoothing av leverandørrater.** En sensitivitetsanalyse av target encoding-stabilitet for leverandører med små volum (avsnitt 9.4.8), eventuelt med Bayesian smoothing mot global gjennomsnittsrate, kan styrke modellens generaliseringsevne for nye eller sjelden brukte leverandører.
 
-**6. Løpende modellvedlikehold.** Verdifallet for mobilenheter er modell- og tidssensitivt. Modellen bør trenes på nytt med jevne mellomrom — minst én gang per år — for å bevare nøyaktigheten når nye enhetsmodeller introduseres og markedsverdien for eksisterende modeller endres. Dette er i tråd med prinsippet om at beslutningsmodeller i returlogistikk må oppdateres når forutsetningene i verdikjeden endrer seg (Rekdal & Pettersen, 2026).
+**6. Løpende modellvedlikehold (kvartalsvis retrening).** Den temporale valideringen (avsnitt 7.4.1) viser at en modell trent på 2024-data faller fra 83,76 % til 70,43 % accuracy når den brukes på 2025-data — en drift på 13 prosentpoeng over ett år. Dette tilsier at modellen bør retrenes **kvartalsvis**, ikke årlig, for å bevare ytelsen i drift. Dette er i tråd med prinsippet om at beslutningsmodeller i returlogistikk må oppdateres når forutsetningene i verdikjeden endrer seg (Rekdal & Pettersen, 2026).
 
 **7. Utvidelse til andre produktkategorier.** Modino håndterer primært smarttelefoner, men prosessen er i prinsippet lik for nettbrett og annen forbrukerelektronikk. En analyse av om modellen generaliserer til disse kategoriene, eller om separate modeller per kategori gir bedre ytelse, er en naturlig videreføring.
 
 **8. Validering av survivor-bias.** En sammenligning av verdi- og graderingsprofil mellom de 93 575 ferdigsolgte enhetene og de 9 820 ufakturerte (avsnitt 9.4.6) ville avdekke om treningsdataene er skjeve mot raskt-solgte enheter.
+
+**9. Feature pruning verifisert — fjern dealer-features i produksjon.** Kontrolleksperimentet i tabell 9.2 har vist at en modell uten `dealer_A_rate` og `dealer_B_rate` oppnår 84,42 % accuracy mot 83,76 % for 15-feature-modellen, dvs. en marginal forbedring på 0,66 pp samtidig som modellen blir enklere å vedlikeholde og mindre sårbar for nye/sjelden brukte leverandører. En videre reduksjon av feature-settet — eksempelvis gjennom recursive feature elimination eller permutation-basert pruning — bør utforskes i en produksjonsmodell.
 
 ---
 
@@ -1211,9 +1205,9 @@ Følgende retninger er særlig relevante for videre arbeid:
 
 I denne oppgaven har vi undersøkt hvordan en AI-basert klassifiseringsmodell kan forbedre kanaliseringsbeslutninger for brukte mobilenheter hos Modino AS. Problemstillingen ble operasjonalisert gjennom to delproblemer: (1) om en modell kan klassifisere innkommende enheter i de tre kanalklassene A, B og C med tilstrekkelig nøyaktighet, og (2) om korrekt klassifisering kan gi målbar lønnsomhetseffekt.
 
-**Delproblem 1** er besvart positivt. En Random Forest-modell trent utelukkende på CellDe-data fra mottakstidspunktet oppnår **83,6 % accuracy** på testsettet (n = 18 739), med F1-score på 0,78 for klasse A (sluttkunde), 0,87 for klasse B (tredjepartshandler) og 0,87 for klasse C (skrap/BER). Minimumskravet på 80 % er oppfylt med god margin. Modellen opererer uten post-salgsdata som destinasjonsland — en variabel som kun registreres etter at kanalvalget er tatt, og som dermed ikke kan inngå som feature. At modellen likevel oppnår 83,6 % viser at CellDe-dataene inneholder et reelt prediktivt signal.
+**Delproblem 1** er besvart positivt. En Random Forest-modell trent utelukkende på CellDe-data fra mottakstidspunktet oppnår **83,76 % accuracy** på testsettet (n = 18 713), med F1-score på 0,78 for klasse A (sluttkunde), 0,87 for klasse B (tredjepartshandler) og 0,88 for klasse C (skrap/BER). Minimumskravet på 80 % er oppfylt med god margin, og resultatet er bekreftet stabilt over stratifisert 5-fold kryssvalidering (83,34 % ± 0,41 %). Modellen opererer uten post-salgsdata som destinasjonsland — en variabel som kun registreres etter at kanalvalget er tatt, og som dermed ikke kan inngå som feature. At modellen likevel oppnår 83,76 % viser at CellDe-dataene inneholder et reelt prediktivt signal. **Et viktig forbehold er imidlertid en temporal drift på 13 prosentpoeng** (avsnitt 7.4.1): modellen trent på 2024 og testet på 2025 oppnår kun 70,43 % accuracy, noe som krever kvartalsvis retrening i drift.
 
-**Delproblem 2** er besvart med et intervallestimat. Realistisk midtestimat — under den nøytrale antakelsen om at halvparten av modellens avvik fra historisk kanalvalg er reelle forbedringer — er omtrent **+20 000 NOK per år** (avgrenset av et optimistisk øvre estimat på ~+40 000 NOK og et pessimistisk nedre estimat på ~−40 000 NOK ved oppskalering til fullt volum). At intervallet inneholder null er det viktigste enkeltresultatet for delproblem 2: lønnsomhetsdimensjonen er ikke det sterkeste argumentet for å implementere modellen. Den begrensede nettoeffekten skyldes at modellen gjør nær symmetriske feil mellom klasse A og B. Den primære operative verdien av modellen er derfor **standardisering** — konsistente, datadrevne kanalvalg basert på 93 575 historiske enheter, som adresserer den dokumenterte inkonsistensen i manuell BER-vurdering (Teunter & Flapper, 2011).
+**Delproblem 2** er besvart med et intervallestimat. Realistisk midtestimat — under den nøytrale antakelsen om at halvparten av modellens avvik fra historisk kanalvalg er reelle forbedringer — er omtrent **+110 000 NOK per år** (avgrenset av et optimistisk øvre estimat på ~+225 000 NOK og et pessimistisk nedre estimat på ~−225 000 NOK ved oppskalering til fullt volum). At intervallet inneholder null er det viktigste enkeltresultatet for delproblem 2: lønnsomhetsdimensjonen er ikke det sterkeste argumentet for å implementere modellen, selv om midtestimatet er positivt. Den begrensede nettoeffekten skyldes at modellen gjør nær symmetriske feil mellom klasse A og B. Den primære operative verdien av modellen er derfor **standardisering** — konsistente, datadrevne kanalvalg basert på 93 575 historiske enheter, som adresserer den dokumenterte inkonsistensen i manuell BER-vurdering (Teunter & Flapper, 2011).
 
 **Overordnet konklusjon:** En AI-basert klassifiseringsmodell basert på CellDe-inntaksdata *kan* forbedre kanaliseringsbeslutningene hos Modino AS — både ved å standardisere beslutninger som i dag ikke er systematisk datadrevne, og ved å utnytte mønstre på tvers av et stort historisk datasett. Den viktigste metodiske innsikten er at modellens primære begrensning ligger i A/B-skillet: graderingsdata fra CellDe skiller ikke fullt ut mellom de to kanalene, og ytterligere forbedring krever enten tilleggsdata ved mottakstidspunktet eller dypere integrering med Modinos innkjøpssystem.
 
@@ -1253,13 +1247,13 @@ James, G., Witten, D., Hastie, T., & Tibshirani, R. (2021). *An introduction to 
 
 Kirchherr, J., Reike, D., & Hekkert, M. (2017). Conceptualizing the circular economy: An analysis of 114 definitions. *Resources, Conservation and Recycling*, *127*, 221–232. https://doi.org/10.1016/j.resconrec.2017.09.005
 
-Potting, J., Hekkert, M. P., Worrell, E., & Hanemaaijer, A. (2017). *Circular economy: Measuring innovation in the product chain* (PBL-rapport nr. 2544). PBL Netherlands Environmental Assessment Agency.
+Potting, J., Hekkert, M. P., Worrell, E., & Hanemaaijer, A. (2017). *Circular economy: Measuring innovation in the product chain* (PBL-rapport nr. 2544). PBL Netherlands Environmental Assessment Agency. https://www.pbl.nl/en/publications/circular-economy-measuring-innovation-in-product-chains
 
 Proske, M., Clemm, C., & Scheidt, L. (2018). Does the circular economy grow the pie? The case of rebound effects from smartphone reuse. *Frontiers in Energy Research*, *6*, artikkel 39. https://doi.org/10.3389/fenrg.2018.00039
 
 Quinlan, J. R. (1986). Induction of decision trees. *Machine Learning*, *1*(1), 81–106. https://doi.org/10.1007/BF00116251
 
-Rekdal, P. K., & Pettersen, B.-I. (2026). *Kvantitative metoder i logistikk*. Høgskolen i Molde. Hentet fra https://kml-site-production.up.railway.app/
+Rekdal, P. K., & Pettersen, B. I. A. (2026). *Kvantitative metoder i logistikk*. Høgskolen i Molde. Hentet 30. mai 2026 fra https://kml-site-production.up.railway.app/
 
 Rogers, D. S., & Tibben-Lembke, R. S. (1999). *Going backwards: Reverse logistics trends and practices*. Reverse Logistics Executive Council.
 
@@ -1267,11 +1261,13 @@ Sokolova, M., & Lapalme, G. (2009). A systematic analysis of performance measure
 
 Stahel, W. R. (2016). The circular economy. *Nature*, *531*(7595), 435–438. https://doi.org/10.1038/531435a
 
+Strobl, C., Boulesteix, A.-L., Zeileis, A., & Hothorn, T. (2007). Bias in random forest variable importance measures: Illustrations, sources and a solution. *BMC Bioinformatics*, *8*, artikkel 25. https://doi.org/10.1186/1471-2105-8-25
+
 Teunter, R. H., & Flapper, S. D. P. (2011). Optimal core acquisition and remanufacturing policies under uncertain core quality fractions. *European Journal of Operational Research*, *210*(2), 241–248. https://doi.org/10.1016/j.ejor.2010.09.024
 
 Turban, E., Sharda, R., & Delen, D. (2011). *Decision support and business intelligence systems* (9. utg.). Pearson.
 
-Turkolmez, G. B., El Hathat, Z., Subramanian, N., Kuppusamy, S., & Sreedharan, V. R. (2024). Machine learning algorithms for pricing end-of-life remanufactured laptops. *Information Systems Frontiers*. https://doi.org/10.1007/s10796-024-10515-9
+Turkolmez, G. B., El Hathat, Z., Subramanian, N., Kuppusamy, S., & Sreedharan, V. R. (2024). Machine learning algorithms for pricing end-of-life remanufactured laptops. *Information Systems Frontiers*. Advance online publication. https://doi.org/10.1007/s10796-024-10515-9
 
 Yin, R. K. (2018). *Case study research and applications: Design and methods* (6. utg.). Sage.
 
@@ -1346,41 +1342,150 @@ rf = RandomForestClassifier(
 )
 rf.fit(X_train, y_train)
 
-# 7. EVALUERING
+# 7. EVALUERING — testsett
 print(classification_report(y_test, rf.predict(X_test)))
 print(confusion_matrix(y_test, rf.predict(X_test)))
+
+# 8. STRATIFISERT 5-FOLD KRYSSVALIDERING (kap. 7.3.1)
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+cv_acc = cross_val_score(rf, X_train, y_train, cv=skf, scoring='accuracy')
+cv_f1  = cross_val_score(rf, X_train, y_train, cv=skf, scoring='f1_macro')
+print(f"CV accuracy: {cv_acc.mean():.3f} ± {cv_acc.std():.3f}")
+print(f"CV macro-F1: {cv_f1.mean():.3f} ± {cv_f1.std():.3f}")
+
+# 9. TEMPORAL VALIDERING — tren på 2024, test på 2025 (kap. 7.4.1)
+train_2024 = df[df['inspect_year'] == 2024]
+test_2025  = df[df['inspect_year'] == 2025]
+
+rf_temporal = RandomForestClassifier(
+    n_estimators=100, class_weight='balanced',
+    random_state=42, n_jobs=-1
+)
+rf_temporal.fit(train_2024[features], train_2024['klasse'])
+y_pred_2025 = rf_temporal.predict(test_2025[features])
+print(classification_report(test_2025['klasse'], y_pred_2025))
+
+# 10. PERMUTATION IMPORTANCE — robust alternativ til Gini (kap. 9.2.2)
+from sklearn.inspection import permutation_importance
+perm = permutation_importance(rf, X_test, y_test,
+                              n_repeats=10, random_state=42, n_jobs=-1)
+perm_imp = pd.Series(perm.importances_mean, index=features) \
+             .sort_values(ascending=False)
+print(perm_imp)
 ```
 
 ### Vedlegg B: Full feature importance — Random Forest
 
+**B.1: Gini-importance (innebygd i scikit-learn)**
+
 | Rang | Feature | Viktighet | Kumulativ |
 |---|---|---|---|
-| 1 | `device_value` | 18,5 % | 18,5 % |
-| 2 | `Device Category_enc` | 17,0 % | 35,5 % |
-| 3 | `grade_num` | 13,7 % | 49,2 % |
-| 4 | `model_encoded` | 8,8 % | 58,0 % |
-| 5 | `inspect_month` | 6,9 % | 64,9 % |
-| 6 | `Transaction Type_enc` | 6,0 % | 70,9 % |
-| 7 | `color_group_enc` | 5,5 % | 76,4 % |
-| 8 | `dealer_B_rate` | 5,5 % | 81,9 % |
-| 9 | `dealer_A_rate` | 5,5 % | 87,4 % |
-| 10 | `fault_count` | 3,5 % | 90,9 % |
-| 11 | `storage_gb` | 2,2 % | 93,1 % |
-| 12 | `Channel_enc` | 1,9 % | 95,0 % |
-| 13 | `brand_enc` | 1,9 % | 96,9 % |
-| 14 | `inspect_year` | 1,7 % | 98,6 % |
-| 15 | `har_feil` | 1,4 % | 100,0 % |
+| 1 | `device_value` | 18,9 % | 18,9 % |
+| 2 | `Device Category_enc` | 15,9 % | 34,8 % |
+| 3 | `grade_num` | 13,8 % | 48,6 % |
+| 4 | `model_encoded` | 9,2 % | 57,8 % |
+| 5 | `inspect_month` | 6,9 % | 64,7 % |
+| 6 | `color_group_enc` | 6,7 % | 71,4 % |
+| 7 | `dealer_B_rate` | 5,7 % | 77,1 % |
+| 8 | `dealer_A_rate` | 5,6 % | 82,7 % |
+| 9 | `Transaction Type_enc` | 3,8 % | 86,5 % |
+| 10 | `fault_count` | 3,6 % | 90,1 % |
+| 11 | `storage_gb` | 2,5 % | 92,6 % |
+| 12 | `Channel_enc` | 2,0 % | 94,6 % |
+| 13 | `brand_enc` | 1,9 % | 96,5 % |
+| 14 | `har_feil` | 1,7 % | 98,2 % |
+| 15 | `inspect_year` | 1,7 % | 100,0 % |
 
-### Vedlegg C: Full classification report — Random Forest (testsett, n = 18 739)
+**B.2: Permutation importance (mean decrease in accuracy, 5 repetisjoner)**
+
+| Rang | Feature | Importance | Standardavvik |
+|---|---|---|---|
+| 1 | `Device Category_enc` | 10,96 % | ± 0,23 |
+| 2 | `inspect_month` | 6,56 % | ± 0,21 |
+| 3 | `model_encoded` | 6,11 % | ± 0,07 |
+| 4 | `brand_enc` | 5,51 % | ± 0,08 |
+| 5 | `inspect_year` | 3,99 % | ± 0,13 |
+| 6 | `device_value` | 3,64 % | ± 0,24 |
+| 7 | `grade_num` | 3,26 % | ± 0,08 |
+| 8 | `Transaction Type_enc` | 2,51 % | ± 0,12 |
+| 9 | `color_group_enc` | 1,04 % | ± 0,10 |
+| 10 | `storage_gb` | 0,76 % | ± 0,11 |
+| 11 | `har_feil` | 0,68 % | ± 0,10 |
+| 12 | `fault_count` | 0,65 % | ± 0,09 |
+| 13 | `Channel_enc` | −0,07 % | ± 0,05 |
+| 14 | `dealer_B_rate` | **−0,21 %** | ± 0,11 |
+| 15 | `dealer_A_rate` | **−0,34 %** | ± 0,09 |
+
+*Negative permutation importance for `dealer_A_rate` og `dealer_B_rate` indikerer at modellen presterer marginalt bedre uten disse features — de er funksjonell støy og bør fjernes i produksjonsmodellen. Se diskusjon i kap. 9.2.2 og 9.4.8.*
+
+### Vedlegg C: Full classification report — Random Forest (testsett, n = 18 713)
 
 |  | Precision | Recall | F1-score | Support |
 |---|---|---|---|---|
-| A — Sluttkunde | 0,78 | 0,78 | 0,78 | 6 936 |
-| B — Tredjepartshandler | 0,87 | 0,87 | 0,87 | 11 694 |
-| C — Skrap/BER | 0,96 | 0,80 | 0,87 | 109 |
-| **Accuracy** | | | **0,836** | 18 739 |
-| **Macro avg** | 0,87 | 0,82 | 0,84 | 18 739 |
-| **Weighted avg** | 0,84 | 0,84 | 0,84 | 18 739 |
+| A — Sluttkunde | 0,775 | 0,793 | 0,784 | 6 928 |
+| B — Tredjepartshandler | 0,875 | 0,864 | 0,869 | 11 677 |
+| C — Skrap/BER | 0,938 | 0,833 | 0,882 | 108 |
+| **Accuracy** | | | **0,8376** | 18 713 |
+| **Macro avg** | 0,863 | 0,830 | 0,845 | 18 713 |
+| **Weighted avg** | 0,839 | 0,838 | 0,838 | 18 713 |
+
+**Konfusjonsmatrise — Random Forest (testsett)**
+
+| Faktisk \ Predikert | A | B | C |
+|---|---|---|---|
+| A (n = 6 928) | 5 497 | 1 428 | 3 |
+| B (n = 11 677) | 1 587 | 10 087 | 3 |
+| C (n = 108) | 7 | 11 | 90 |
+
+**Decision Tree (baseline, testsett)**
+
+|  | Precision | Recall | F1-score | Support |
+|---|---|---|---|---|
+| A — Sluttkunde | 0,729 | 0,736 | 0,732 | 6 928 |
+| B — Tredjepartshandler | 0,842 | 0,837 | 0,840 | 11 677 |
+| C — Skrap/BER | 0,714 | 0,787 | 0,749 | 108 |
+| **Accuracy** | | | **0,7992** | 18 713 |
+| **Macro avg** | 0,762 | 0,787 | 0,774 | 18 713 |
+
+**Temporal validering — Random Forest trent på 2024, testet på 2025 (n = 52 252)**
+
+|  | Precision | Recall | F1-score | Support |
+|---|---|---|---|---|
+| A — Sluttkunde | 0,626 | 0,581 | 0,603 | 20 115 |
+| B — Tredjepartshandler | 0,747 | 0,783 | 0,765 | 31 898 |
+| C — Skrap/BER | 0,925 | 0,565 | 0,701 | 239 |
+| **Accuracy** | | | **0,7043** | 52 252 |
+| **Macro avg** | 0,766 | 0,643 | 0,690 | 52 252 |
+
+**Kontrolleksperiment 1: RF uten dealer-features (13 features, testsett n = 18 713)**
+
+|  | Precision | Recall | F1-score | Support |
+|---|---|---|---|---|
+| A — Sluttkunde | 0,776 | 0,818 | 0,796 | 6 928 |
+| B — Tredjepartshandler | 0,888 | 0,860 | 0,874 | 11 677 |
+| C — Skrap/BER | 0,892 | 0,843 | 0,867 | 108 |
+| **Accuracy** | | | **0,8442** | 18 713 |
+| **Macro avg** | 0,852 | 0,840 | 0,846 | 18 713 |
+
+Konfusjonsmatrise (13-feature RF):
+
+| Faktisk \ Predikert | A | B | C |
+|---|---|---|---|
+| A (n = 6 928) | 5 667 | 1 253 | 8 |
+| B (n = 11 677) | 1 634 | 10 040 | 3 |
+| C (n = 108) | 5 | 12 | 91 |
+
+**Kontrolleksperiment 2: Temporal split UTEN `inspect_year` (12 features, test 2025)**
+
+|  | Precision | Recall | F1-score | Support |
+|---|---|---|---|---|
+| A — Sluttkunde | 0,629 | 0,579 | 0,603 | 20 115 |
+| B — Tredjepartshandler | 0,747 | 0,787 | 0,766 | 31 898 |
+| C — Skrap/BER | 0,929 | 0,603 | 0,731 | 239 |
+| **Accuracy** | | | **0,7058** | 52 252 |
+
+Forskjellen fra hovedmodellen med `inspect_year` (70,43 %) er +0,15 pp — driften er strukturell, ikke en feature-artefakt.
 
 ### Vedlegg D: Reproduserbarhet
 

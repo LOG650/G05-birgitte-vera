@@ -1,0 +1,120 @@
+Modino-pipeline — full kjøring på ny data
+Kjørt: 2026-05-31
+Datafiler: 004 data/ny data/
+  - InspectedDeviceREport_cleaned_anon.xlsx
+  - Z_BBTI_IMEI_TRACK_cleaned_anon.xlsx
+Total kjøretid: 39,4 sekunder
+
+=== INNLASTING ===
+CellDe 2024: 45 676 rader
+CellDe 2025: 57 867 rader
+CellDe etter dedup: 103 400 unike IMEI
+SAP: 93 580 rader
+SAP-rader med CellDe-match: 93 580 (100.0%)
+
+=== IMEI OVERLAPPING (handover-verifikasjon) ===
+Buy-back IMEIer: 58 928
+2nd-IMEIer: 34 652
+Overlapp: 0 (handover sier 0 — BEKREFTET)
+
+=== KLASSIFISERING ===
+Klasse B: 58 388 (62,40%)
+Klasse A: 34 648 (37,02%)
+Klasse C: 539 (0,58%)
+Uklassifisert: 5
+
+=== TIME-TO-SALE ===
+Median: 37 dager (handover bekreftet)
+P75: 62 dager
+P90: 123 dager
+P95: 197 dager
+P99: 358 dager
+Andel innen 60 dager: 74,1%
+Max: 765 dager
+Anomalier (negativ): 36 (handover bekreftet)
+
+=== ANALYSEKLART DATASETT ===
+Etter feature engineering: 93 564 rader (11 droppet for manglende verdier)
+Treningssett: 74 851 rader (A: 27 714 / B: 46 706 / C: 431)
+Testsett: 18 713 rader (A: 6 928 / B: 11 677 / C: 108)
+
+=== DECISION TREE (baseline) ===
+Accuracy: 0,7992
+F1 klasse A: 0,732
+F1 klasse B: 0,840
+F1 klasse C: 0,749
+Macro-F1: 0,774
+
+=== RANDOM FOREST (primær, 100 trær) ===
+Accuracy: 0,8376
+F1 klasse A: 0,784
+F1 klasse B: 0,869
+F1 klasse C: 0,882
+Macro-F1: 0,845
+
+Precision/Recall:
+  A: precision 0,775, recall 0,793
+  B: precision 0,875, recall 0,864
+  C: precision 0,938, recall 0,833
+
+Konfusjonsmatrise (Random Forest):
+                  Pred A   Pred B   Pred C
+  Faktisk A       5 497    1 428    3
+  Faktisk B       1 587    10 087   3
+  Faktisk C       7        11       90
+
+=== FEATURE IMPORTANCE (Gini) ===
+1.  device_value                    18,90 %
+2.  Device Category_enc             15,93 %
+3.  grade_num                       13,77 %
+4.  model_encoded                    9,24 %
+5.  inspect_month                    6,90 %
+6.  color_group_enc                  6,72 %
+7.  dealer_B_rate                    5,65 %
+8.  dealer_A_rate                    5,64 %
+9.  Transaction Type_enc             3,76 %
+10. fault_count                      3,61 %
+11. storage_gb                       2,52 %
+12. Channel_enc                      2,01 %
+13. brand_enc                        1,93 %
+14. har_feil                         1,74 %
+15. inspect_year                     1,67 %
+
+=== 5-FOLD STRATIFISERT CV ===
+Per fold: [0,8331  0,8261  0,8385  0,8341  0,8353]
+Accuracy mean ± std: 0,8334 ± 0,0041
+Macro-F1 mean ± std: 0,8414 ± 0,0090
+
+=== TEMPORAL VALIDERING (tren 2024, test 2025) ===
+2024-data: 41 312 rader
+2025-data: 52 252 rader
+Accuracy: 0,7043 (vs 0,8376 random-split = -13,3 pp drift)
+Macro-F1: 0,690
+F1 klasse A: 0,603
+F1 klasse B: 0,765
+F1 klasse C: 0,701
+
+=== PERMUTATION IMPORTANCE (5 repetisjoner) ===
+1.  Device Category_enc             10,96 % (± 0,23)
+2.  inspect_month                    6,56 % (± 0,21)
+3.  model_encoded                    6,11 % (± 0,07)
+4.  brand_enc                        5,51 % (± 0,08)
+5.  inspect_year                     3,99 % (± 0,13)
+6.  device_value                     3,64 % (± 0,24)
+7.  grade_num                        3,26 % (± 0,08)
+8.  Transaction Type_enc             2,51 % (± 0,12)
+9.  color_group_enc                  1,04 % (± 0,10)
+10. storage_gb                       0,76 % (± 0,11)
+11. har_feil                         0,68 % (± 0,10)
+12. fault_count                      0,65 % (± 0,09)
+13. Channel_enc                     -0,07 % (± 0,05)
+14. dealer_B_rate                   -0,21 % (± 0,11)   <-- STØY
+15. dealer_A_rate                   -0,34 % (± 0,09)   <-- STØY
+
+=== HOVEDFUNN ===
+1. Modell stabil: CV 83,34 % ± 0,41 % bekrefter test-accuracy 83,76 %
+2. Temporal drift 13 pp: kvartalsvis retrening nødvendig
+3. Dealer-rates er støy: bør fjernes fra produksjonsmodell
+4. Device Category er den faktiske primærprediktoren (ikke device_value)
+5. A↔B-feilfordeling marginalt asymmetrisk (1 587 vs 1 428) — gir små positivt
+   lønnsomhetspotensial
